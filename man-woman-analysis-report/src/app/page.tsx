@@ -17,7 +17,8 @@ export default function Home() {
     fetch('/api/episodes')
       .then(res => res.json())
       .then(data => {
-        setEpisodes(data || []);
+        // API가 에러를 반환하거나 배열이 아닌 경우 빈 배열로 처리
+        setEpisodes(Array.isArray(data) ? data : []);
         setIsLoading(false);
       })
       .catch(err => {
