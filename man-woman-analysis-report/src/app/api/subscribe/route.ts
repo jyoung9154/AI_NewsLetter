@@ -11,6 +11,32 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: 'Email is required' }, { status: 400 });
     }
 
+    const { data: existingUser } = await supabase
+        .from('subscribers')
+        .select('id')
+        .eq('email', email)
+        .single();
+
+    if (existingUser) {
+        // 이미 존재하는 유저면 업데이트
+        const updates: any = {};
+        if (gender && gender !== 'both') updates.gender_preference = gender;
+        if (mbti) updates.mbti = mbti;
+        if (age_group) updates.age_group = age_group;
+        updates.status = 'active';
+
+        const { error: updateError } = await supabase
+            .from('subscribers')
+            .update(updates)
+            .eq('email', email);
+
+        if (updateError) {
+            return NextResponse.json({ error: updateError.message }, { status: 500 });
+        }
+        return NextResponse.json({ message: 'Subscriber updated successfully', data: { email } }, { status: 200 });
+    }
+
+    // 신규 구독
     const { data, error } = await supabase
         .from('subscribers')
         .insert([{
@@ -25,14 +51,10 @@ export async function POST(request: Request) {
         .single();
 
     if (error) {
-        // 이미 구독 중인 경우 처리
-        if (error.code === '23505') {
-            return NextResponse.json({ message: 'Already subscribed' }, { status: 200 });
-        }
         return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    return NextResponse.json(data, { status: 201 });
+    return NextResponse.json({ message: 'Subscribed successfully', data }, { status: 201 });
 }
 
 export async function GET() {

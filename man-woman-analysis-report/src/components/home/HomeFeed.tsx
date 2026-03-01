@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { DbEpisode } from '@/types';
 import { InFeedAd } from '@/components/ads/Ads';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/Select';
 
 interface HomeFeedProps {
     episodes: DbEpisode[];
@@ -13,6 +14,14 @@ export function HomeFeed({ episodes, onReadStory }: HomeFeedProps) {
     const [email, setEmail] = useState('');
     const [isSubscribing, setIsSubscribing] = useState(false);
     const [subscribeMessage, setSubscribeMessage] = useState('');
+
+    // 팝업 관련 상태
+    const [showPopup, setShowPopup] = useState(false);
+    const [subscribedEmail, setSubscribedEmail] = useState('');
+    const [selectedGender, setSelectedGender] = useState<string>('');
+    const [selectedMbti, setSelectedMbti] = useState<string>('');
+    const [selectedAge, setSelectedAge] = useState<string>('');
+    const [isUpdating, setIsUpdating] = useState(false);
 
     const handleSubscribe = async () => {
         if (!email) {
@@ -29,16 +38,42 @@ export function HomeFeed({ episodes, onReadStory }: HomeFeedProps) {
             });
             const data = await res.json();
 
-            if (res.ok || data.message === 'Already subscribed') {
-                setSubscribeMessage('구독이 완료되었습니다! 🎉');
+            if (res.ok) {
+                setSubscribedEmail(email);
                 setEmail('');
+                setShowPopup(true);
             } else {
                 setSubscribeMessage(data.error || '구독에 실패했습니다.');
+                setTimeout(() => setSubscribeMessage(''), 5000);
             }
         } catch (e) {
             setSubscribeMessage('오류가 발생했습니다.');
+            setTimeout(() => setSubscribeMessage(''), 5000);
         } finally {
             setIsSubscribing(false);
+        }
+    };
+
+    const handleExtraInfoSubmit = async () => {
+        setIsUpdating(true);
+        try {
+            await fetch('/api/subscribe', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email: subscribedEmail,
+                    gender: selectedGender || undefined,
+                    mbti: selectedMbti || undefined,
+                    age_group: selectedAge || undefined
+                })
+            });
+            setSubscribeMessage('추가 정보가 성공적으로 저장되었습니다! 💖');
+        } catch (e) {
+            console.error(e);
+            setSubscribeMessage('추가 정보 저장에 실패했습니다.');
+        } finally {
+            setIsUpdating(false);
+            setShowPopup(false);
             setTimeout(() => setSubscribeMessage(''), 5000);
         }
     };
@@ -160,6 +195,81 @@ export function HomeFeed({ episodes, onReadStory }: HomeFeedProps) {
                 </div>
             </div>
 
+            {/* 구독 후 추가 정보 입력 팝업 */}
+            {showPopup && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+                    <div className="bg-white rounded-2xl p-8 max-w-md w-full shadow-2xl animate-in fade-in zoom-in duration-300">
+                        <div className="text-center mb-6">
+                            <h3 className="text-2xl font-bold text-gray-900 mb-2">🎉 구독 완료!</h3>
+                            <p className="text-gray-600 text-sm">
+                                더욱 정확한 남녀 심리 분석 커스텀 콘텐츠를 위해,<br />추가 정보를 알려주시겠어요? (선택)
+                            </p>
+                        </div>
+                        <div className="space-y-4 mb-8 text-left">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">관심 있는 성별</label>
+                                <Select value={selectedGender} onValueChange={setSelectedGender}>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="선택" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="female">여성</SelectItem>
+                                        <SelectItem value="male">남성</SelectItem>
+                                        <SelectItem value="both">모두</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">MBTI</label>
+                                <Select value={selectedMbti} onValueChange={setSelectedMbti}>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="선택" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {['ISTJ', 'ISFJ', 'INFJ', 'INTJ', 'ISTP', 'ISFP', 'INFP', 'INTP', 'ESTP', 'ESFP', 'ENFP', 'ENTP', 'ESTJ', 'ESFJ', 'ENFJ', 'ENTJ'].map(mbti => (
+                                            <SelectItem key={mbti} value={mbti}>{mbti}</SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">연령대</label>
+                                <Select value={selectedAge} onValueChange={setSelectedAge}>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="선택" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="10s">10대</SelectItem>
+                                        <SelectItem value="20s">20대</SelectItem>
+                                        <SelectItem value="30s">30대</SelectItem>
+                                        <SelectItem value="40s">40대</SelectItem>
+                                        <SelectItem value="50s+">50대 이상</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        </div>
+                        <div className="flex gap-3">
+                            <button
+                                onClick={() => {
+                                    setShowPopup(false);
+                                    setSubscribeMessage('구독이 완료되었습니다! 🎉');
+                                    setTimeout(() => setSubscribeMessage(''), 5000);
+                                }}
+                                className="flex-1 py-3 bg-gray-100 text-gray-600 rounded-xl font-bold hover:bg-gray-200 transition"
+                            >
+                                건너뛰기
+                            </button>
+                            <button
+                                onClick={handleExtraInfoSubmit}
+                                disabled={isUpdating}
+                                className="flex-1 py-3 bg-pink-600 text-white rounded-xl font-bold hover:bg-pink-500 transition disabled:opacity-50"
+                            >
+                                {isUpdating ? '저장 중...' : '저장하기'}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
