@@ -18,7 +18,8 @@ export function HomeFeed({ episodes, onReadStory }: HomeFeedProps) {
     // 팝업 관련 상태
     const [showPopup, setShowPopup] = useState(false);
     const [subscribedEmail, setSubscribedEmail] = useState('');
-    const [selectedGender, setSelectedGender] = useState<string>('');
+    const [selectedMyGender, setSelectedMyGender] = useState<string>('');
+    const [selectedInterestedGender, setSelectedInterestedGender] = useState<string>('');
     const [selectedMbti, setSelectedMbti] = useState<string>('');
     const [selectedAge, setSelectedAge] = useState<string>('');
     const [isUpdating, setIsUpdating] = useState(false);
@@ -34,7 +35,7 @@ export function HomeFeed({ episodes, onReadStory }: HomeFeedProps) {
             const res = await fetch('/api/subscribe', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, gender: 'both' }) // 간편 구독은 기본값
+                body: JSON.stringify({ email, interested_gender: 'both' }) // 간편 구독은 기본값
             });
             const data = await res.json();
 
@@ -62,7 +63,8 @@ export function HomeFeed({ episodes, onReadStory }: HomeFeedProps) {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     email: subscribedEmail,
-                    gender: selectedGender || undefined,
+                    my_gender: selectedMyGender || undefined,
+                    interested_gender: selectedInterestedGender || undefined,
                     mbti: selectedMbti || undefined,
                     age_group: selectedAge || undefined
                 })
@@ -202,13 +204,26 @@ export function HomeFeed({ episodes, onReadStory }: HomeFeedProps) {
                         <div className="text-center mb-6">
                             <h3 className="text-2xl font-bold text-gray-900 mb-2">🎉 구독 완료!</h3>
                             <p className="text-gray-600 text-sm">
-                                더욱 정확한 남녀 심리 분석 커스텀 콘텐츠를 위해,<br />추가 정보를 알려주시겠어요? (선택)
+                                더욱 정확한 남녀 심리 분석 커스텀 콘텐츠를 위해,<br />본인 정보와 관심사를 알려주시겠어요? (선택)
                             </p>
                         </div>
-                        <div className="space-y-4 mb-8 text-left">
+                        <div className="grid grid-cols-2 gap-4 mb-8 text-left">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">본인 성별</label>
+                                <Select value={selectedMyGender} onValueChange={setSelectedMyGender}>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="선택" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="female">여성</SelectItem>
+                                        <SelectItem value="male">남성</SelectItem>
+                                        <SelectItem value="other">기타</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">관심 있는 성별</label>
-                                <Select value={selectedGender} onValueChange={setSelectedGender}>
+                                <Select value={selectedInterestedGender} onValueChange={setSelectedInterestedGender}>
                                     <SelectTrigger>
                                         <SelectValue placeholder="선택" />
                                     </SelectTrigger>

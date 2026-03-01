@@ -15,7 +15,8 @@ interface NewsletterSubscribeProps {
 export function NewsletterSubscribe({ gender }: NewsletterSubscribeProps) {
   const { theme, isMale, isFemale } = useGenderTheme();
   const [email, setEmail] = useState('');
-  const [selectedGender, setSelectedGender] = useState<'male' | 'female' | 'both'>('both');
+  const [selectedMyGender, setSelectedMyGender] = useState<string>('');
+  const [selectedInterestedGender, setSelectedInterestedGender] = useState<'male' | 'female' | 'both'>('both');
   const [selectedMbti, setSelectedMbti] = useState<string>('');
   const [selectedAge, setSelectedAge] = useState<string>('');
   const [isSubscribing, setIsSubscribing] = useState(false);
@@ -41,7 +42,8 @@ export function NewsletterSubscribe({ gender }: NewsletterSubscribeProps) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           email,
-          gender: selectedGender,
+          my_gender: selectedMyGender || undefined,
+          interested_gender: selectedInterestedGender,
           mbti: selectedMbti || undefined,
           age_group: selectedAge || undefined,
         }),
@@ -153,24 +155,45 @@ export function NewsletterSubscribe({ gender }: NewsletterSubscribeProps) {
                       {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
                     </div>
 
-                    <div>
-                      <Label className="block text-sm font-medium text-gray-700 mb-2">
-                        관심 있는 성별
-                      </Label>
-                      <Select value={selectedGender} onValueChange={(value: any) => setSelectedGender(value)}>
-                        <SelectTrigger className="w-full">
-                          <SelectValue placeholder="선택해주세요" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="both">🌍 남녀 모두에게 관심 있어요</SelectItem>
-                          <SelectItem value="male">👨‍🦱 남성 관심 콘텐츠를 원해요</SelectItem>
-                          <SelectItem value="female">👩‍🦱 여성 관심 콘텐츠를 원해요</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <p className="text-xs text-gray-500 mt-2">
-                        맞춤형 콘텐츠를 위해 선택해주세요. 언제든지 변경할 수 있습니다.
-                      </p>
+                    <div className="grid grid-cols-2 gap-4">
+                      {/* 본인 성별 */}
+                      <div>
+                        <Label className="block text-sm font-medium text-gray-700 mb-2">
+                          본인 성별 <span className="text-gray-400 font-normal">(선택)</span>
+                        </Label>
+                        <Select value={selectedMyGender} onValueChange={(value: string) => setSelectedMyGender(value)}>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="선택" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="female">여성</SelectItem>
+                            <SelectItem value="male">남성</SelectItem>
+                            <SelectItem value="other">기타</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      {/* 관심 있는 성별 */}
+                      <div>
+                        <Label className="block text-sm font-medium text-gray-700 mb-2">
+                          관심 있는 성별
+                        </Label>
+                        <Select value={selectedInterestedGender} onValueChange={(value: any) => setSelectedInterestedGender(value)}>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="선택해주세요" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="both">🌍 모두</SelectItem>
+                            <SelectItem value="male">👨‍🦱 남성 심리</SelectItem>
+                            <SelectItem value="female">👩‍🦱 여성 심리</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
                     </div>
+
+                    <p className="text-xs text-gray-500 mt-2">
+                      맞춤형 콘텐츠를 위해 정확한 정보를 선택해주세요.
+                    </p>
 
                     <div className="grid grid-cols-2 gap-4">
                       {/* MBTI 선택 */}
