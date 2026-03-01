@@ -19,8 +19,8 @@ export function HomeFeed({ episodes, onReadStory }: HomeFeedProps) {
     const [showPopup, setShowPopup] = useState(false);
     const [subscribedEmail, setSubscribedEmail] = useState('');
     const [selectedMyGender, setSelectedMyGender] = useState<string>('');
-    const [selectedInterestedGender, setSelectedInterestedGender] = useState<string>('');
     const [selectedMbti, setSelectedMbti] = useState<string>('');
+    const [selectedInterestedMbti, setSelectedInterestedMbti] = useState<string>('');
     const [selectedAge, setSelectedAge] = useState<string>('');
     const [isUpdating, setIsUpdating] = useState(false);
 
@@ -64,8 +64,8 @@ export function HomeFeed({ episodes, onReadStory }: HomeFeedProps) {
                 body: JSON.stringify({
                     email: subscribedEmail,
                     my_gender: selectedMyGender || undefined,
-                    interested_gender: selectedInterestedGender || undefined,
                     mbti: selectedMbti || undefined,
+                    interested_mbti: selectedInterestedMbti || undefined,
                     age_group: selectedAge || undefined
                 })
             });
@@ -217,33 +217,6 @@ export function HomeFeed({ episodes, onReadStory }: HomeFeedProps) {
                                     <SelectContent>
                                         <SelectItem value="female">여성</SelectItem>
                                         <SelectItem value="male">남성</SelectItem>
-                                        <SelectItem value="other">기타</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">관심 있는 성별</label>
-                                <Select value={selectedInterestedGender} onValueChange={setSelectedInterestedGender}>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="선택" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="female">여성</SelectItem>
-                                        <SelectItem value="male">남성</SelectItem>
-                                        <SelectItem value="both">모두</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">MBTI</label>
-                                <Select value={selectedMbti} onValueChange={setSelectedMbti}>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="선택" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {['ISTJ', 'ISFJ', 'INFJ', 'INTJ', 'ISTP', 'ISFP', 'INFP', 'INTP', 'ESTP', 'ESFP', 'ENFP', 'ENTP', 'ESTJ', 'ESFJ', 'ENFJ', 'ENTJ'].map(mbti => (
-                                            <SelectItem key={mbti} value={mbti}>{mbti}</SelectItem>
-                                        ))}
                                     </SelectContent>
                                 </Select>
                             </div>
@@ -259,6 +232,32 @@ export function HomeFeed({ episodes, onReadStory }: HomeFeedProps) {
                                         <SelectItem value="30s">30대</SelectItem>
                                         <SelectItem value="40s">40대</SelectItem>
                                         <SelectItem value="50s+">50대 이상</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">내 MBTI</label>
+                                <Select value={selectedMbti} onValueChange={setSelectedMbti}>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="선택" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {['ISTJ', 'ISFJ', 'INFJ', 'INTJ', 'ISTP', 'ISFP', 'INFP', 'INTP', 'ESTP', 'ESFP', 'ENFP', 'ENTP', 'ESTJ', 'ESFJ', 'ENFJ', 'ENTJ'].map(mbti => (
+                                            <SelectItem key={mbti} value={mbti}>{mbti}</SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">관심있는 MBTI</label>
+                                <Select value={selectedInterestedMbti} onValueChange={setSelectedInterestedMbti}>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="선택" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {['ISTJ', 'ISFJ', 'INFJ', 'INTJ', 'ISTP', 'ISFP', 'INFP', 'INTP', 'ESTP', 'ESFP', 'ENFP', 'ENTP', 'ESTJ', 'ESFJ', 'ENFJ', 'ENTJ'].map(mbti => (
+                                            <SelectItem key={mbti} value={mbti}>{mbti}</SelectItem>
+                                        ))}
                                     </SelectContent>
                                 </Select>
                             </div>

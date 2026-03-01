@@ -56,8 +56,8 @@ BEGIN
     ALTER TABLE subscribers ADD COLUMN IF NOT EXISTS name TEXT;
     ALTER TABLE subscribers ADD COLUMN IF NOT EXISTS gender TEXT;
     ALTER TABLE subscribers ADD COLUMN IF NOT EXISTS mbti TEXT;
-    ALTER TABLE subscribers ADD COLUMN IF NOT EXISTS age_group TEXT;
-    ALTER TABLE subscribers ADD COLUMN IF NOT EXISTS unsubscribe_reason TEXT;
+      ALTER TABLE subscribers ADD COLUMN IF NOT EXISTS interested_mbti TEXT CHECK (char_length(interested_mbti) = 4);
+      ALTER TABLE subscribers ADD COLUMN IF NOT EXISTS unsubscribe_reason TEXT;
     ALTER TABLE subscribers ADD COLUMN IF NOT EXISTS open_count INTEGER DEFAULT 0;
     ALTER TABLE subscribers ADD COLUMN IF NOT EXISTS click_count INTEGER DEFAULT 0;
     ALTER TABLE subscribers ADD COLUMN IF NOT EXISTS last_opened_at TIMESTAMPTZ;

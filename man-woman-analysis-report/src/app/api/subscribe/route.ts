@@ -5,7 +5,7 @@ export const dynamic = 'force-dynamic';
 
 export async function POST(request: Request) {
     const body = await request.json();
-    const { email, my_gender, interested_gender, mbti, age_group } = body;
+    const { email, my_gender, mbti, interested_mbti, age_group } = body;
 
     if (!email) {
         return NextResponse.json({ error: 'Email is required' }, { status: 400 });
@@ -21,8 +21,8 @@ export async function POST(request: Request) {
         // 이미 존재하는 유저면 업데이트
         const updates: any = {};
         if (my_gender) updates.gender = my_gender;
-        if (interested_gender) updates.gender_preference = interested_gender;
         if (mbti) updates.mbti = mbti;
+        if (interested_mbti) updates.interested_mbti = interested_mbti;
         if (age_group) updates.age_group = age_group;
         updates.status = 'active';
 
@@ -43,8 +43,9 @@ export async function POST(request: Request) {
         .insert([{
             email,
             gender: my_gender || null,
-            gender_preference: interested_gender || 'both',
+            gender_preference: 'both', // 이제 쓰지 않으므로 기본값
             mbti: mbti || null,
+            interested_mbti: interested_mbti || null,
             age_group: age_group || null,
             status: 'active',
             subscribed_at: new Date().toISOString()
