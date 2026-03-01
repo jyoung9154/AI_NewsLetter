@@ -203,9 +203,16 @@ export function HomeFeed({ episodes, onReadStory }: HomeFeedProps) {
                             </div>
                         ))}
 
-                        {/* 리스트 끝부분에 In-Feed 광고 배치 */}
+                        {/* 리스트 끝부분에 In-Feed 광고 배치 - 에피소드 키워드 기반 */}
                         <div className="pt-8 border-t border-gray-100 mt-8">
-                            <InFeedAd category="데이트 선물" />
+                            <InFeedAd
+                                keyword={
+                                    latestEpisode?.coupang_keyword ||
+                                    latestEpisode?.tags?.[0] ||
+                                    '데이트'
+                                }
+                                category="이번 주 추천"
+                            />
                         </div>
                     </div>
                 </div>
