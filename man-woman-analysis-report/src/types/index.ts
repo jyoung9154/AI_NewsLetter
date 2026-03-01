@@ -12,6 +12,32 @@ export interface Newsletter {
   featuredImage?: string;
 }
 
+export interface DbEpisode {
+  id: string;
+  episode_number: number;
+  title: string;
+  hook?: string;
+  situation: string;
+  female_text: string;
+  female_thought: string;
+  male_text: string;
+  male_thought: string;
+  resolution: string;
+  advice: string;
+  next_teaser?: string;
+  tags: string[];
+  status: 'draft' | 'published' | 'archived';
+  view_count: number;
+  share_count: number;
+  vote_female: number;
+  vote_male: number;
+  coupang_keyword?: string;
+  coupang_product_url?: string;
+  published_at?: string;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface CoupangItem {
   productId: string;
   title: string;

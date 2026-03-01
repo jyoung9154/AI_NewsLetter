@@ -1,0 +1,123 @@
+import React, { useState } from 'react';
+import { Card } from '@/components/ui/Card';
+import { Badge } from '@/components/ui/Badge';
+import { Button } from '@/components/ui/Button';
+
+export interface Perspective {
+  text: string;
+  thoughtBubble: string;
+}
+
+export interface StoryEpisode {
+  id: string;
+  title: string;
+  hook?: string;
+  situation: string;
+  malePerspective: Perspective;
+  femalePerspective: Perspective;
+  resolution: string;
+  advice: string;
+  nextTeaser?: string;
+}
+
+interface StoryLogProps {
+  episode: StoryEpisode;
+}
+
+export function StoryLog({ episode }: StoryLogProps) {
+  const [voted, setVoted] = useState<'none' | 'female' | 'male'>('none');
+
+  const episodeNumMatch = episode.title.match(/^Episode\s*(\d+)\.?\s*/);
+  const episodeNum = episodeNumMatch ? episodeNumMatch[1] : '';
+  const cleanTitle = episode.title.replace(/^Episode\s*\d+\.?\s*/, '');
+
+  return (
+    <article className="max-w-3xl mx-auto my-12 bg-white rounded-3xl p-6 md:p-10 shadow-sm border border-gray-100 transition-all">
+      <header className="mb-12 text-center">
+        <Badge variant="outline" className="mb-4 text-pink-600 border-pink-200 bg-pink-50 px-4 py-1">
+          {episodeNum ? `Episode ${episodeNum}` : 'Episode'}
+        </Badge>
+        <h1 className="text-hero text-gray-900 mb-6 font-serif tracking-tight">{cleanTitle}</h1>
+
+        {/* 새롭게 추가된 파워풀한 Hook 영역 */}
+        {episode.hook && (
+          <h2 className="text-title text-blue-600 mb-8 italic">
+            "{episode.hook}"
+          </h2>
+        )}
+
+        <div className="bg-gray-50 rounded-2xl p-6 text-left border border-gray-100">
+          <p className="text-gray-500 text-body-sm uppercase tracking-wider mb-2">오늘의 상황</p>
+          <p className="text-gray-800 text-body-lg whitespace-pre-line">{episode.situation}</p>
+        </div>
+      </header>
+
+      <div className="flex flex-col md:flex-row gap-8 mb-12 md:items-stretch">
+        {/* 여성의 관점 */}
+        <div className="flex-1 flex flex-col">
+          <h3 className="text-pink-600 text-section mb-4 font-serif border-b border-pink-100 pb-2">👩 그 여자의 솔직한 마음</h3>
+          <p className="text-gray-800 text-body-lg mb-6 whitespace-pre-line">{episode.femalePerspective.text}</p>
+          <div className="bg-pink-50/50 rounded-2xl p-6 border border-pink-100 text-center flex-grow flex items-center justify-center min-h-[100px]">
+            <p className="text-gray-600 italic text-body-sm">
+              "{episode.femalePerspective.thoughtBubble}"
+            </p>
+          </div>
+        </div>
+
+        {/* 남성의 관점 */}
+        <div className="flex-1 flex flex-col">
+          <h3 className="text-blue-600 text-section mb-4 font-serif border-b border-blue-100 pb-2">👨 그 남자의 현실적 사고</h3>
+          <p className="text-gray-800 text-body-lg mb-6 whitespace-pre-line">{episode.malePerspective.text}</p>
+          <div className="bg-blue-50/50 rounded-2xl p-6 border border-blue-100 text-center flex-grow flex items-center justify-center min-h-[100px]">
+            <p className="text-gray-600 italic text-body-sm">
+              "{episode.malePerspective.thoughtBubble}"
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div className="border-t border-gray-100 pt-8 mt-6">
+        <h3 className="text-section text-center text-gray-800 mb-6 font-serif">결론 및 제안</h3>
+        <div className="bg-gradient-to-r from-purple-50 to-indigo-50 rounded-2xl p-6 md:p-8 border border-purple-100">
+          <p className="text-gray-800 text-body-lg mb-6 whitespace-pre-line">{episode.resolution}</p>
+          <div className="bg-white rounded-xl p-5 shadow-sm border border-indigo-50">
+            <div className="flex items-start gap-4">
+              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold text-lg">💡</div>
+              <p className="text-gray-700 text-body pt-1 whitespace-pre-line">{episode.advice}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* 인터랙티브 투표 - 참여 유도 */}
+      <div className="mt-12 bg-gray-50 rounded-2xl p-8 text-center border border-gray-100">
+        <h3 className="text-section text-gray-900 mb-6">당신은 어느 쪽에 더 공감하나요?</h3>
+        <div className="flex justify-center gap-4">
+          <button
+            onClick={() => setVoted('female')}
+            className={`px-6 py-3 rounded-xl font-bold transition-all shadow-sm ${voted === 'female' ? 'bg-pink-600 text-white shadow-md transform scale-105' : 'bg-white text-gray-600 border border-gray-200 hover:border-pink-300 hover:text-pink-600'}`}
+          >
+            🙋‍♀️ 여자 (그녀의 마음이 이해돼요)
+          </button>
+          <button
+            onClick={() => setVoted('male')}
+            className={`px-6 py-3 rounded-xl font-bold transition-all shadow-sm ${voted === 'male' ? 'bg-blue-600 text-white shadow-md transform scale-105' : 'bg-white text-gray-600 border border-gray-200 hover:border-blue-300 hover:text-blue-600'}`}
+          >
+            🙋‍♂️ 남자 (당연히 이성적으로 생각해야지)
+          </button>
+        </div>
+        {voted !== 'none' && (
+          <p className="mt-6 text-body-sm text-green-600 font-bold animate-pulse">🎉 소중한 의견 감사합니다! 다음 뉴스레터 통계에 반영될 예정입니다.</p>
+        )}
+      </div>
+
+      {/* 다음 회차 예고편 (Teaser) */}
+      {episode.nextTeaser && (
+        <div className="mt-12 pt-8 border-t-2 border-dashed border-gray-200 text-center">
+          <span className="inline-block bg-gray-900 text-white text-body-sm px-3 py-1 rounded-full mb-4 uppercase tracking-wider">Next Episode</span>
+          <p className="text-gray-600 font-serif text-body-lg italic">{episode.nextTeaser}</p>
+        </div>
+      )}
+    </article>
+  );
+}

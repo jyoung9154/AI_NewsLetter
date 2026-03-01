@@ -1,9 +1,11 @@
 import { NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: Request) {
     const body = await request.json();
-    const { email, gender } = body;
+    const { email, gender, mbti, age_group } = body;
 
     if (!email) {
         return NextResponse.json({ error: 'Email is required' }, { status: 400 });
@@ -14,6 +16,8 @@ export async function POST(request: Request) {
         .insert([{
             email,
             gender_preference: gender || 'both',
+            mbti: mbti || null,
+            age_group: age_group || null,
             status: 'active',
             subscribed_at: new Date().toISOString()
         }])

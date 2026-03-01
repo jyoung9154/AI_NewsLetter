@@ -1,18 +1,33 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { TabsNavigation } from '@/components/layout/TabsNavigation';
 import { HomeFeed } from '@/components/home/HomeFeed';
-import { StoryLog, StoryEpisode } from '@/components/story/StoryLog';
+import { StoryLog } from '@/components/story/StoryLog';
 import { TopBannerAd, InFeedAd } from '@/components/ads/Ads';
-import { sampleEpisodes } from '@/data/storyData';
+import { DbEpisode } from '@/types';
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState('home');
-  const [selectedStory, setSelectedStory] = useState<StoryEpisode | null>(null);
+  const [selectedStory, setSelectedStory] = useState<DbEpisode | null>(null);
+  const [episodes, setEpisodes] = useState<DbEpisode[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    fetch('/api/episodes')
+      .then(res => res.json())
+      .then(data => {
+        setEpisodes(data || []);
+        setIsLoading(false);
+      })
+      .catch(err => {
+        console.error('Failed to load episodes:', err);
+        setIsLoading(false);
+      });
+  }, []);
 
   // 스토리 읽기 핸들러 (홈에서 스토리 클릭 시)
-  const handleReadStory = (episode: StoryEpisode) => {
+  const handleReadStory = (episode: DbEpisode) => {
     setSelectedStory(episode);
     setActiveTab('story-detail');
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -33,7 +48,14 @@ export default function Home() {
       {/* 3. 탭별 메인 콘텐츠 렌더링 영역 */}
       <main className="min-h-[70vh]">
         {activeTab === 'home' && (
-          <HomeFeed onReadStory={handleReadStory} />
+          isLoading ? (
+            <div className="py-32 text-center text-gray-500 flex flex-col items-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pink-600 mb-4"></div>
+              에피소드를 불러오는 중입니다...
+            </div>
+          ) : (
+            <HomeFeed episodes={episodes} onReadStory={handleReadStory} />
+          )
         )}
 
         {/* 개별 스토리 읽기 뷰 */}
@@ -58,8 +80,10 @@ export default function Home() {
             <h2 className="text-hero text-gray-900 mb-4 font-serif">전체 스토리</h2>
             <p className="text-body-lg text-gray-500 mb-12">남녀의 관점 차이를 보여주는 모든 에피소드입니다.</p>
             <div className="max-w-4xl mx-auto text-left">
-              {/* HomeFeed의 리스트 뷰를 재사용하거나 별도 구현 */}
-              {sampleEpisodes.map((episode) => (
+              {episodes.length === 0 && !isLoading && (
+                <div className="text-center text-gray-500 py-12">등록된 에피소드가 없습니다.</div>
+              )}
+              {episodes.map((episode) => (
                 <div key={episode.id} className="mb-12 border-b border-gray-100 pb-12 cursor-pointer group" onClick={() => handleReadStory(episode)}>
                   <h3 className="text-title font-serif group-hover:text-pink-600 transition-colors mb-4">{episode.title}</h3>
                   <p className="text-body text-gray-600 mb-6">{episode.situation}</p>

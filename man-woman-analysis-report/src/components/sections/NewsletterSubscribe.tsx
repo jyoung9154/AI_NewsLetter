@@ -16,6 +16,8 @@ export function NewsletterSubscribe({ gender }: NewsletterSubscribeProps) {
   const { theme, isMale, isFemale } = useGenderTheme();
   const [email, setEmail] = useState('');
   const [selectedGender, setSelectedGender] = useState<'male' | 'female' | 'both'>('both');
+  const [selectedMbti, setSelectedMbti] = useState<string>('');
+  const [selectedAge, setSelectedAge] = useState<string>('');
   const [isSubscribing, setIsSubscribing] = useState(false);
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [error, setError] = useState('');
@@ -40,6 +42,8 @@ export function NewsletterSubscribe({ gender }: NewsletterSubscribeProps) {
         body: JSON.stringify({
           email,
           gender: selectedGender,
+          mbti: selectedMbti || undefined,
+          age_group: selectedAge || undefined,
         }),
       });
 
@@ -166,6 +170,44 @@ export function NewsletterSubscribe({ gender }: NewsletterSubscribeProps) {
                       <p className="text-xs text-gray-500 mt-2">
                         맞춤형 콘텐츠를 위해 선택해주세요. 언제든지 변경할 수 있습니다.
                       </p>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      {/* MBTI 선택 */}
+                      <div>
+                        <Label className="block text-sm font-medium text-gray-700 mb-2">
+                          MBTI <span className="text-gray-400 font-normal">(선택)</span>
+                        </Label>
+                        <Select value={selectedMbti} onValueChange={(value: any) => setSelectedMbti(value)}>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="선택" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {['ISTJ', 'ISFJ', 'INFJ', 'INTJ', 'ISTP', 'ISFP', 'INFP', 'INTP', 'ESTP', 'ESFP', 'ENFP', 'ENTP', 'ESTJ', 'ESFJ', 'ENFJ', 'ENTJ'].map(mbti => (
+                              <SelectItem key={mbti} value={mbti}>{mbti}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      {/* 연령대 선택 */}
+                      <div>
+                        <Label className="block text-sm font-medium text-gray-700 mb-2">
+                          연령대 <span className="text-gray-400 font-normal">(선택)</span>
+                        </Label>
+                        <Select value={selectedAge} onValueChange={(value: any) => setSelectedAge(value)}>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="선택" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="10s">10대</SelectItem>
+                            <SelectItem value="20s">20대</SelectItem>
+                            <SelectItem value="30s">30대</SelectItem>
+                            <SelectItem value="40s">40대</SelectItem>
+                            <SelectItem value="50s+">50대 이상</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
                     </div>
 
                     <div className="bg-pink-50 p-4 rounded-lg">

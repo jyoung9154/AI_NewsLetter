@@ -1,18 +1,57 @@
 'use client';
 
-import { StoryEpisode } from '@/components/story/StoryLog';
+import { useState } from 'react';
+import { DbEpisode } from '@/types';
 import { InFeedAd } from '@/components/ads/Ads';
-import { sampleEpisodes } from '@/data/storyData';
 
 interface HomeFeedProps {
-    onReadStory: (episode: StoryEpisode) => void;
+    episodes: DbEpisode[];
+    onReadStory: (episode: DbEpisode) => void;
 }
 
-export function HomeFeed({ onReadStory }: HomeFeedProps) {
+export function HomeFeed({ episodes, onReadStory }: HomeFeedProps) {
+    const [email, setEmail] = useState('');
+    const [isSubscribing, setIsSubscribing] = useState(false);
+    const [subscribeMessage, setSubscribeMessage] = useState('');
+
+    const handleSubscribe = async () => {
+        if (!email) {
+            setSubscribeMessage('이메일을 입력해주세요.');
+            return;
+        }
+
+        setIsSubscribing(true);
+        try {
+            const res = await fetch('/api/subscribe', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, gender: 'both' }) // 간편 구독은 기본값
+            });
+            const data = await res.json();
+
+            if (res.ok || data.message === 'Already subscribed') {
+                setSubscribeMessage('구독이 완료되었습니다! 🎉');
+                setEmail('');
+            } else {
+                setSubscribeMessage(data.error || '구독에 실패했습니다.');
+            }
+        } catch (e) {
+            setSubscribeMessage('오류가 발생했습니다.');
+        } finally {
+            setIsSubscribing(false);
+            setTimeout(() => setSubscribeMessage(''), 5000);
+        }
+    };
+
+    // 로딩 처리나 에피소드가 없을 경우
+    if (!episodes || episodes.length === 0) {
+        return <div className="py-20 text-center text-gray-500">에피소드를 불러오는 중입니다...</div>;
+    }
+
     // 최신 에피소드 하나를 메인(Hero) 커버로 사용
-    const latestEpisode = sampleEpisodes[0];
+    const latestEpisode = episodes[0];
     // 나머지 에피소드를 리스트로 사용
-    const previousEpisodes = sampleEpisodes.slice(1);
+    const previousEpisodes = episodes.slice(1);
 
     return (
         <div className="max-w-4xl mx-auto py-8 px-4 sm:px-6">
@@ -58,13 +97,24 @@ export function HomeFeed({ onReadStory }: HomeFeedProps) {
                     <div className="max-w-md mx-auto flex flex-col sm:flex-row gap-3">
                         <input
                             type="email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
                             placeholder="이메일 주소를 입력해주세요"
                             className="flex-1 px-5 py-4 rounded-xl text-gray-900 bg-white border-0 focus:ring-2 focus:ring-pink-500 focus:outline-none"
                         />
-                        <button className="bg-pink-600 hover:bg-pink-500 text-white font-bold py-4 px-8 rounded-xl transition-colors whitespace-nowrap shadow-md">
-                            무료 구독
+                        <button
+                            onClick={handleSubscribe}
+                            disabled={isSubscribing}
+                            className="bg-pink-600 hover:bg-pink-500 disabled:bg-pink-400 text-white font-bold py-4 px-8 rounded-xl transition-colors whitespace-nowrap shadow-md"
+                        >
+                            {isSubscribing ? '처리 중...' : '무료 구독'}
                         </button>
                     </div>
+                    {subscribeMessage && (
+                        <p className={`mt-4 text-sm font-bold ${subscribeMessage.includes('실패') || subscribeMessage.includes('오류') ? 'text-red-400' : 'text-green-400'}`}>
+                            {subscribeMessage}
+                        </p>
+                    )}
                 </div>
             </div>
 
@@ -105,7 +155,7 @@ export function HomeFeed({ onReadStory }: HomeFeedProps) {
 
                     {/* 리스트 끝부분에 In-Feed 광고 배치 */}
                     <div className="pt-8 border-t border-gray-100 mt-8">
-                        <InFeedAd category="데이트 코스" />
+                        <InFeedAd category="데이트 선물" />
                     </div>
                 </div>
             </div>
