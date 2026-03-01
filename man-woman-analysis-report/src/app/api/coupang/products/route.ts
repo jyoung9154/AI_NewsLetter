@@ -12,11 +12,17 @@ const BASE_URL = 'https://api-gateway.coupang.com';
  */
 function generateHmacSignature(method: string, path: string, query: string): { authorization: string; date: string } {
     const now = new Date();
-    // 쿠팡 API 날짜 형식: YYYYMMDDTHHmmssZ
-    const date = now.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+    // 쿠팡 API 날짜 형식: YYMMDD'T'HHmmss'Z'
+    const year2 = now.getUTCFullYear().toString().substring(2);
+    const month = (now.getUTCMonth() + 1).toString().padStart(2, '0');
+    const day = now.getUTCDate().toString().padStart(2, '0');
+    const hours = now.getUTCHours().toString().padStart(2, '0');
+    const minutes = now.getUTCMinutes().toString().padStart(2, '0');
+    const seconds = now.getUTCSeconds().toString().padStart(2, '0');
+    const date = `${year2}${month}${day}T${hours}${minutes}${seconds}Z`;
 
-    // 서명 대상 문자열
-    const message = `${method}\n${path}\n${query}\n${date}`;
+    // 서명 대상 문자열 (띄어쓰기/줄바꿈 없음)
+    const message = `${date}${method}${path}${query}`;
 
     const signature = crypto
         .createHmac('sha256', SECRET_KEY)
