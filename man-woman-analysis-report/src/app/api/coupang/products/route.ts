@@ -33,13 +33,14 @@ function generateHmacSignature(method: string, path: string, query: string): { a
  * 에피소드 키워드 기반 쿠팡 파트너스 상품 검색
  */
 export async function GET(request: Request) {
-    if (!ACCESS_KEY || !SECRET_KEY) {
-        return NextResponse.json({ error: 'Coupang API credentials not configured' }, { status: 500 });
-    }
-
     const { searchParams } = new URL(request.url);
     const keyword = searchParams.get('keyword') || '데이트';
     const limit = parseInt(searchParams.get('limit') || '3');
+
+    if (!ACCESS_KEY || !SECRET_KEY) {
+        console.warn('[Coupang API] Credentials not configured in Vercel. Using fallback products.');
+        return NextResponse.json(getFallbackProducts(keyword));
+    }
 
     // 쿠팡 파트너스 상품 검색 API
     const path = '/v2/providers/affiliate_open_api/apis/openapi/v1/products/search';
@@ -106,7 +107,7 @@ function getFallbackProducts(keyword: string) {
                 originalPrice: 45000,
                 discountRate: 34,
                 image: '',
-                affiliateUrl: `https://link.coupang.com/a/${ACCESS_KEY}`,
+                affiliateUrl: `https://link.coupang.com/a/${ACCESS_KEY || '8c1c4c59-055b-4826-a29e-0738dae0522e'}`,
                 category: '데이트',
                 genderTarget: 'both',
             },
@@ -120,7 +121,7 @@ function getFallbackProducts(keyword: string) {
                 originalPrice: 21000,
                 discountRate: 29,
                 image: '',
-                affiliateUrl: `https://link.coupang.com/a/${ACCESS_KEY}`,
+                affiliateUrl: `https://link.coupang.com/a/${ACCESS_KEY || '8c1c4c59-055b-4826-a29e-0738dae0522e'}`,
                 category: '감정',
                 genderTarget: 'both',
             },
@@ -134,7 +135,7 @@ function getFallbackProducts(keyword: string) {
                 originalPrice: 28000,
                 discountRate: 29,
                 image: '',
-                affiliateUrl: `https://link.coupang.com/a/${ACCESS_KEY}`,
+                affiliateUrl: `https://link.coupang.com/a/${ACCESS_KEY || '8c1c4c59-055b-4826-a29e-0738dae0522e'}`,
                 category: '커플',
                 genderTarget: 'both',
             },
@@ -148,7 +149,7 @@ function getFallbackProducts(keyword: string) {
                 originalPrice: 15000,
                 discountRate: 41,
                 image: '',
-                affiliateUrl: `https://link.coupang.com/a/${ACCESS_KEY}`,
+                affiliateUrl: `https://link.coupang.com/a/${ACCESS_KEY || '8c1c4c59-055b-4826-a29e-0738dae0522e'}`,
                 category: '선물',
                 genderTarget: 'both',
             },
