@@ -5,7 +5,7 @@ export const dynamic = 'force-dynamic';
 
 const ACCESS_KEY = process.env.COUPANG_ACCESS_KEY || '';
 const SECRET_KEY = process.env.COUPANG_SECRET_KEY || '';
-const BASE_URL = 'https://api.coupang.com';
+const BASE_URL = 'https://api-gateway.coupang.com';
 
 /**
  * 쿠팡 파트너스 API HMAC-SHA256 서명 생성
