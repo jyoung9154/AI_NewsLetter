@@ -2,16 +2,27 @@ import { NextResponse } from 'next/server';
 import { Resend } from 'resend';
 import { getSupabaseService } from '@/lib/supabase';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+export const dynamic = 'force-dynamic';
 
 export async function POST(request: Request) {
+    const apiKey = process.env.RESEND_API_KEY;
+    if (!apiKey) {
+        return NextResponse.json({ error: 'RESEND_API_KEY is not configured' }, { status: 500 });
+    }
+    const resend = new Resend(apiKey);
+
     const { episodeId } = await request.json();
 
     if (!episodeId) {
         return NextResponse.json({ error: 'Episode ID is required' }, { status: 400 });
     }
 
-    const supabase = getSupabaseService();
+    let supabase;
+    try {
+        supabase = getSupabaseService();
+    } catch (e: any) {
+        return NextResponse.json({ error: e.message }, { status: 500 });
+    }
 
     // 1. 에피소드 정보 조회
     const { data: episode, error: epError } = await supabase
