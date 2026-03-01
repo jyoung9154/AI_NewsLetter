@@ -48,7 +48,15 @@ export function TabsNavigation({ currentTab, onTabChange }: TabsNavigationProps)
 
                     {/* 구독 버튼 (항상 우측) */}
                     <div className="hidden md:block">
-                        <button className="bg-gray-900 hover:bg-gray-800 text-white text-body-sm font-semibold px-5 py-2 rounded-full transition-colors shadow-sm">
+                        <button
+                            onClick={() => {
+                                onTabChange('home');
+                                setTimeout(() => {
+                                    document.getElementById('subscribe-section')?.scrollIntoView({ behavior: 'smooth' });
+                                }, 100);
+                            }}
+                            className="bg-gray-900 hover:bg-gray-800 text-white text-body-sm font-semibold px-5 py-2 rounded-full transition-colors shadow-sm"
+                        >
                             무료 뉴스레터 구독
                         </button>
                     </div>

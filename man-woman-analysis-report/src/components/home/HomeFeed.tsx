@@ -25,29 +25,36 @@ export function HomeFeed({ episodes, onReadStory }: HomeFeedProps) {
     const [isUpdating, setIsUpdating] = useState(false);
 
     const handleSubscribe = async () => {
+        console.log('[HomeFeed] handleSubscribe called with e-mail:', email);
         if (!email) {
+            console.log('[HomeFeed] no email provided, returning.');
             setSubscribeMessage('이메일을 입력해주세요.');
             return;
         }
 
         setIsSubscribing(true);
         try {
+            console.log('[HomeFeed] Calling /api/subscribe...');
             const res = await fetch('/api/subscribe', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email, interested_gender: 'both' }) // 간편 구독은 기본값
             });
             const data = await res.json();
+            console.log('[HomeFeed] API response status:', res.status, 'data:', data);
 
             if (res.ok) {
+                console.log('[HomeFeed] Subscription successful. Opening popup.');
                 setSubscribedEmail(email);
                 setEmail('');
                 setShowPopup(true);
             } else {
+                console.error('[HomeFeed] Subscription failed:', data.error);
                 setSubscribeMessage(data.error || '구독에 실패했습니다.');
                 setTimeout(() => setSubscribeMessage(''), 5000);
             }
         } catch (e) {
+            console.error('[HomeFeed] Catch block error:', e);
             setSubscribeMessage('오류가 발생했습니다.');
             setTimeout(() => setSubscribeMessage(''), 5000);
         } finally {
@@ -121,7 +128,7 @@ export function HomeFeed({ episodes, onReadStory }: HomeFeedProps) {
             </div>
 
             {/* 2. 어피티 스타일 - 구독 유도 중간 배너 */}
-            <div className="my-12 bg-gray-900 rounded-2xl p-8 md:p-12 text-center text-white relative overflow-hidden shadow-lg">
+            <div id="subscribe-section" className="my-12 bg-gray-900 rounded-2xl p-8 md:p-12 text-center text-white relative overflow-hidden shadow-lg">
                 {/* 장식 요소 */}
                 <div className="absolute top-0 right-0 w-64 h-64 bg-pink-500 rounded-full mix-blend-multiply filter blur-3xl opacity-30 -translate-y-1/2 translate-x-1/2"></div>
                 <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-30 translate-y-1/2 -translate-x-1/2"></div>

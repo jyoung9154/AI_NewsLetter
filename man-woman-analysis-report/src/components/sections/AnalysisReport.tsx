@@ -209,6 +209,9 @@ export function AnalysisReport({ gender }: AnalysisReportProps) {
             variant="primary"
             size="lg"
             className="bg-gradient-to-r from-pink-500 to-blue-500 hover:from-pink-600 hover:to-blue-600 text-white font-semibold py-3 px-8 rounded-full shadow-lg"
+            onClick={() => {
+              document.getElementById('subscribe-section')?.scrollIntoView({ behavior: 'smooth' });
+            }}
           >
             구독하고 리포트 받기
           </Button>

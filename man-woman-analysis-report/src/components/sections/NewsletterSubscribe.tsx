@@ -25,6 +25,7 @@ export function NewsletterSubscribe({ gender }: NewsletterSubscribeProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('[NewsletterSubscribe] handleSubmit called with email:', email);
     setIsSubscribing(true);
     setError('');
 
@@ -36,6 +37,7 @@ export function NewsletterSubscribe({ gender }: NewsletterSubscribeProps) {
     }
 
     try {
+      console.log('[NewsletterSubscribe] Calling /api/subscribe API...');
       // 1. /api/subscribe API 연동
       const response = await fetch('/api/subscribe', {
         method: 'POST',
@@ -49,10 +51,13 @@ export function NewsletterSubscribe({ gender }: NewsletterSubscribeProps) {
         }),
       });
 
+      console.log('[NewsletterSubscribe] Response status:', response.status);
+
       if (!response.ok) {
         throw new Error('구독 요청 실패');
       }
 
+      console.log('[NewsletterSubscribe] Subscription successful!');
       // 성공 처리
       setIsSubscribed(true);
       setEmail('');
@@ -63,6 +68,7 @@ export function NewsletterSubscribe({ gender }: NewsletterSubscribeProps) {
       }, 5000);
 
     } catch (err) {
+      console.error('[NewsletterSubscribe] Subscription error:', err);
       setError('구독 과정에서 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
     } finally {
       setIsSubscribing(false);
