@@ -135,22 +135,30 @@ export function HomeFeed({ episodes, onReadStory }: HomeFeedProps) {
                     <p className="text-gray-300 text-body-lg mb-8 max-w-xl mx-auto">
                         이해하기 어려운 속마음, 우리가 번역해 드립니다.<br />매주 금요일 아침 8시, 여러분의 메일함으로 찾아갈게요.
                     </p>
-                    <div className="max-w-md mx-auto flex flex-col sm:flex-row gap-3">
+                    <form
+                        onSubmit={(e) => {
+                            e.preventDefault();
+                            handleSubscribe();
+                        }}
+                        className="max-w-md mx-auto flex flex-col sm:flex-row gap-3"
+                    >
                         <input
                             type="email"
+                            name="email"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             placeholder="이메일 주소를 입력해주세요"
+                            required
                             className="flex-1 px-5 py-4 rounded-xl text-gray-900 bg-white border-0 focus:ring-2 focus:ring-pink-500 focus:outline-none"
                         />
                         <button
-                            onClick={handleSubscribe}
+                            type="submit"
                             disabled={isSubscribing}
                             className="bg-pink-600 hover:bg-pink-500 disabled:bg-pink-400 text-white font-bold py-4 px-8 rounded-xl transition-colors whitespace-nowrap shadow-md"
                         >
                             {isSubscribing ? '처리 중...' : '무료 구독'}
                         </button>
-                    </div>
+                    </form>
                     {subscribeMessage && (
                         <p className={`mt-4 text-sm font-bold ${subscribeMessage.includes('실패') || subscribeMessage.includes('오류') ? 'text-red-400' : 'text-green-400'}`}>
                             {subscribeMessage}
