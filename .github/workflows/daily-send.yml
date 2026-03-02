@@ -4,6 +4,8 @@ on:
   schedule:
     # 23:05 UTC = 매일 아침 8시 5분 KST (정각에는 GitHub Actions 큐가 밀려 누락/지연될 수 있음)
     - cron: '05 23 * * *'
+    # 임시 테스트: 오늘 9시 전까지 5분마다 (생성 봇과 충돌 방지를 위해 2분 시차)
+    - cron: '2,7,12,17,22,27,32,37,42,47,52,57 23 * * *'
   
   workflow_dispatch: # Allow manual trigger
 
