@@ -64,6 +64,21 @@ async function sendWelcomeEmail(email: string, episodeNum: number) {
     <div style="text-align: center; padding: 32px; background-color: #f9fafb; border-top: 1px solid #e5e7eb;">
       <p style="margin: 0 0 16px; color: #6b7280; font-size: 14px;">본격적인 해결책과 조언은 웹사이트에서 이어집니다.</p>
       <a href="https://man-woman-analysis-report.vercel.app/episodes/${episodeUrlId}" style="display: inline-block; background-color: #111827; color: #ffffff; font-weight: 500; font-size: 15px; text-decoration: none; padding: 12px 24px; border-radius: 6px;">남녀 심리 가이드 읽기</a>
+      
+      <!-- Coupang Partners Banner -->
+      <div style="margin-top: 32px; padding-top: 24px; border-top: 1px dashed #e5e7eb;">
+        <p style="font-size: 13px; color: #6b7280; margin-bottom: 12px; font-weight: 500;">🎁 이번 주 에피소드 맞춤 추천 선물</p>
+        <a href="https://link.coupang.com/a/bA0Dk9" target="_blank" style="display: block; background-color: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 16px; text-decoration: none; transition: all 0.2s ease;">
+          <div style="display: flex; align-items: center; justify-content: center; gap: 12px;">
+            <div style="font-size: 24px;">🛍️</div>
+            <div style="text-align: left;">
+              <div style="color: #111827; font-weight: 700; font-size: 15px; margin-bottom: 4px;">센스있는 데이트/연애 선물 기획전</div>
+              <div style="color: #ec4899; font-size: 13px; font-weight: 600;">쿠팡에서 인기 상품 확인하기 ↗</div>
+            </div>
+          </div>
+        </a>
+        <p style="font-size: 11px; color: #9ca3af; margin-top: 12px;">이 포스팅은 쿠팡 파트너스 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다.</p>
+      </div>
     </div>
   </div>
 </body>
