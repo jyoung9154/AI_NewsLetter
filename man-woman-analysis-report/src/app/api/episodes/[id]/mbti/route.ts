@@ -21,11 +21,6 @@ export async function GET(
             return NextResponse.json({ error: 'MBTI와 성별을 모두 선택해주세요.' }, { status: 400 });
         }
 
-        const zhipuClient = new OpenAI({
-            baseURL: "https://open.bigmodel.cn/api/paas/v4/",
-            apiKey: process.env.ZAI_API_KEY || "",
-        });
-
         // 1. DB에서 기존 분석 결과 조회
         const { data: existingData, error: fetchError } = await supabase
             .from('mbti_reactions')
@@ -54,7 +49,17 @@ export async function GET(
             return NextResponse.json({ error: '에피소드 상황을 불러올 수 없습니다.' }, { status: 404 });
         }
 
-        // 3. Zhipu AI (GLM-4.5-Flash) 호출 - ZAI_API 전용
+        // 3. Gemini AI (gemini-2.5-flash) 호출 - 속도 개선을 위해 복귀
+        const geminiApiKey = process.env.GEMINI_API_KEY;
+        if (!geminiApiKey) {
+            return NextResponse.json({ error: 'GEMINI_API_KEY 설정 오류' }, { status: 500 });
+        }
+
+        const geminiClient = new OpenAI({
+            apiKey: geminiApiKey,
+            baseURL: "https://generativelanguage.googleapis.com/v1beta/openai/"
+        });
+
         const systemPrompt = `
 당신은 남녀 심리 분석 및 연애 코칭 전문가이며, 특히 MBTI 16가지 성격 유형별 행동 양식과 기저 심리를 깊이 이해하고 있습니다.
 주어진 상황에서 특정 성별의 특정 MBTI가 속으로 어떻게 생각하고, 현실에서는 어떻게 반응할지 분석해주세요.
@@ -71,8 +76,8 @@ export async function GET(
 위 상황에 직면했을 때, 이 대상은 겉보기 반응과 속마음이 각각 어떨까요?
 `;
 
-        const response = await zhipuClient.chat.completions.create({
-            model: "glm-4.5-flash", // Zhipu AI Flash 모델
+        const response = await geminiClient.chat.completions.create({
+            model: "gemini-2.5-flash",
             messages: [
                 { role: "system", content: systemPrompt },
                 { role: "user", content: userPrompt }
@@ -82,7 +87,6 @@ export async function GET(
         const rawContent = response.choices[0]?.message?.content || "{}";
         let parsedContent;
         try {
-            // Zhipu가 마크다운 코드블록을 섞어줄 수 있으므로 정리
             const cleanJson = rawContent.replace(/```json|```/g, '').trim();
             parsedContent = JSON.parse(cleanJson);
         } catch (e) {

@@ -177,22 +177,7 @@ export async function POST(request: Request) {
 
         console.log('[GENERATE API] DB Insert Success! Episode ID:', savedEpisode.id);
 
-        // 6. Trigger Send Pipeline internally (비동기로 실행하여 클라이언트 응답 대기를 최소화)
-        console.log('[GENERATE API] Triggering background send pipeline...');
-
-        let baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
-        if (!baseUrl) {
-            const host = request.headers.get('host') || 'man-woman-analysis-report.vercel.app';
-            const protocol = host.includes('localhost') ? 'http' : 'https';
-            baseUrl = `${protocol}://${host}`;
-        }
-
-        fetch(`${baseUrl}/api/newsletter/send`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ episodeId: savedEpisode.id })
-        }).catch(err => console.error('[GENERATE API] Send API background trigger failed:', err));
-
+        console.log('[GENERATE API] DB Insert Success! Episode ID:', savedEpisode.id);
         console.log('[GENERATE API] Returning success response to client.');
 
         return NextResponse.json({

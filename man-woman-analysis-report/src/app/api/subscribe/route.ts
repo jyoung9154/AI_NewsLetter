@@ -5,10 +5,26 @@ export const dynamic = 'force-dynamic';
 
 export async function POST(request: Request) {
     const body = await request.json();
-    const { email, my_gender, mbti, interested_mbti, age_group } = body;
+    const { email, my_gender, mbti, interested_mbti, age_group, start_option, specific_episode } = body;
 
     if (!email) {
         return NextResponse.json({ error: 'Email is required' }, { status: 400 });
+    }
+
+    // 1. 다음에 보낼 에피소드 번호 계산
+    let nextEpisodeToSend = 1;
+    if (start_option === 'latest') {
+        const { data: maxEp } = await supabase
+            .from('episodes')
+            .select('episode_number')
+            .order('episode_number', { ascending: false })
+            .limit(1)
+            .single();
+
+        // 현재 가장 최신 에피소드를 오늘 바로 받거나, 내일 다음 화부터 받게 설정
+        nextEpisodeToSend = (maxEp?.episode_number || 0) + 1;
+    } else if (start_option === 'specific' && specific_episode) {
+        nextEpisodeToSend = specific_episode;
     }
 
     const { data: existingUser } = await supabase
@@ -24,6 +40,8 @@ export async function POST(request: Request) {
         if (mbti) updates.mbti = mbti;
         if (interested_mbti) updates.interested_mbti = interested_mbti;
         if (age_group) updates.age_group = age_group;
+        if (start_option) updates.start_option = start_option;
+        if (nextEpisodeToSend) updates.next_episode_to_send = nextEpisodeToSend;
         updates.status = 'active';
 
         const { error: updateError } = await supabase
@@ -43,11 +61,13 @@ export async function POST(request: Request) {
         .insert([{
             email,
             gender: my_gender || null,
-            gender_preference: 'both', // 이제 쓰지 않으므로 기본값
+            gender_preference: 'both',
             mbti: mbti || null,
             interested_mbti: interested_mbti || null,
             age_group: age_group || null,
             status: 'active',
+            start_option: start_option || 'latest',
+            next_episode_to_send: nextEpisodeToSend,
             subscribed_at: new Date().toISOString()
         }])
         .select()

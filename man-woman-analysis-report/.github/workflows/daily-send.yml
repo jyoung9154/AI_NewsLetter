@@ -1,0 +1,18 @@
+name: Daily Newsletter Dispatch
+
+on:
+  schedule:
+    # 05:00 UTC is 02:00 PM KST (Korean Standard Time)
+    - cron: '0 5 * * *'
+  
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  dispatch-newsletter:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Batch Dispatch API
+        run: |
+          curl -X POST https://man-woman-analysis-report.vercel.app/api/newsletter/send \
+            -H "Content-Type: application/json" \
+            -d '{}'

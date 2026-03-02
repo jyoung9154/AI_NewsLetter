@@ -19,6 +19,8 @@ export function NewsletterSubscribe({ gender }: NewsletterSubscribeProps) {
   const [selectedMbti, setSelectedMbti] = useState<string>('');
   const [selectedInterestedMbti, setSelectedInterestedMbti] = useState<string>('');
   const [selectedAge, setSelectedAge] = useState<string>('');
+  const [startOption, setStartOption] = useState<'latest' | 'first' | 'specific'>('latest');
+  const [specificEpisode, setSpecificEpisode] = useState<string>('');
   const [isSubscribing, setIsSubscribing] = useState(false);
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [error, setError] = useState('');
@@ -39,16 +41,23 @@ export function NewsletterSubscribe({ gender }: NewsletterSubscribeProps) {
     try {
       console.log('[NewsletterSubscribe] Calling /api/subscribe API...');
       // 1. /api/subscribe API 연동
+      const payload: any = {
+        email,
+        my_gender: selectedMyGender || undefined,
+        mbti: selectedMbti || undefined,
+        interested_mbti: selectedInterestedMbti || undefined,
+        age_group: selectedAge || undefined,
+        start_option: startOption
+      };
+
+      if (startOption === 'specific') {
+        payload.specific_episode = parseInt(specificEpisode) || 1;
+      }
+
       const response = await fetch('/api/subscribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email,
-          my_gender: selectedMyGender || undefined,
-          mbti: selectedMbti || undefined,
-          interested_mbti: selectedInterestedMbti || undefined,
-          age_group: selectedAge || undefined,
-        }),
+        body: JSON.stringify(payload),
       });
 
       console.log('[NewsletterSubscribe] Response status:', response.status);
@@ -237,6 +246,45 @@ export function NewsletterSubscribe({ gender }: NewsletterSubscribeProps) {
                           </SelectContent>
                         </Select>
                       </div>
+                    </div>
+
+                    <div className="space-y-4">
+                      <Label className="block text-sm font-medium text-gray-700">
+                        에피소드 수신 시작 옵션
+                      </Label>
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div
+                          onClick={() => setStartOption('latest')}
+                          className={`cursor-pointer p-3 border rounded-lg text-sm text-center transition-all ${startOption === 'latest' ? 'border-pink-500 bg-pink-50 text-pink-700 font-bold' : 'border-gray-200 hover:border-gray-300 text-gray-600'}`}
+                        >
+                          최신호부터 받기
+                        </div>
+                        <div
+                          onClick={() => setStartOption('first')}
+                          className={`cursor-pointer p-3 border rounded-lg text-sm text-center transition-all ${startOption === 'first' ? 'border-pink-500 bg-pink-50 text-pink-700 font-bold' : 'border-gray-200 hover:border-gray-300 text-gray-600'}`}
+                        >
+                          1화부터 정주행
+                        </div>
+                        <div
+                          onClick={() => setStartOption('specific')}
+                          className={`cursor-pointer p-3 border rounded-lg text-sm text-center transition-all ${startOption === 'specific' ? 'border-pink-500 bg-pink-50 text-pink-700 font-bold' : 'border-gray-200 hover:border-gray-300 text-gray-600'}`}
+                        >
+                          지정된 화부터
+                        </div>
+                      </div>
+
+                      {startOption === 'specific' && (
+                        <div className="mt-2">
+                          <Input
+                            type="number"
+                            min="1"
+                            placeholder="시작할 에피소드 넘버 입력 (예: 5)"
+                            value={specificEpisode}
+                            onChange={(e) => setSpecificEpisode(e.target.value)}
+                            className="w-full"
+                          />
+                        </div>
+                      )}
                     </div>
 
                     <div className="bg-pink-50 p-4 rounded-lg">
