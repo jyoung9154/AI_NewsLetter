@@ -9,6 +9,43 @@ interface StoryLogProps {
   episode: DbEpisode;
 }
 
+function parseAdvice(advice: string) {
+  if (!advice) return { male: '', female: '', general: '' };
+
+  let male = '';
+  let female = '';
+  let general = '';
+
+  if (advice.includes('/')) {
+    const parts = advice.split('/');
+    parts.forEach(p => {
+      const text = p.trim();
+      if (text.match(/남자\s*팁/i) || text.startsWith('남자')) {
+        male = text.replace(/^(?:남자\s*팁|남자)\s*[:\-]*\s*/i, '').trim();
+      } else if (text.match(/여자\s*팁/i) || text.startsWith('여자')) {
+        female = text.replace(/^(?:여자\s*팁|여자)\s*[:\-]*\s*/i, '').trim();
+      } else {
+        general += (general ? ' ' : '') + text;
+      }
+    });
+  }
+
+  if (!male && !female) {
+    const maleMatch = advice.match(/남자\s*팁\s*[:\-]?\s*([\s\S]*?)(?=여자\s*팁|$)/i);
+    const femaleMatch = advice.match(/여자\s*팁\s*[:\-]?\s*([\s\S]*?)(?=남자\s*팁|$)/i);
+
+    if (maleMatch || femaleMatch) {
+      if (maleMatch) male = maleMatch[1].replace(/\/$/, '').trim();
+      if (femaleMatch) female = femaleMatch[1].replace(/\/$/, '').trim();
+      general = '';
+    } else {
+      general = advice;
+    }
+  }
+
+  return { male, female, general };
+}
+
 export function StoryLog({ episode }: StoryLogProps) {
   const [voted, setVoted] = useState<'none' | 'female' | 'male'>('none');
   const [voteStats, setVoteStats] = useState({ female: episode.vote_female || 0, male: episode.vote_male || 0 });
@@ -129,6 +166,8 @@ export function StoryLog({ episode }: StoryLogProps) {
   const episodeNum = episode.episode_number || parsedNum;
   const cleanTitle = episode.title.replace(/^Episode\s*\d+\.?\s*/i, '').trim();
 
+  const { male: maleAdvice, female: femaleAdvice, general: generalAdvice } = parseAdvice(episode.advice || '');
+
   return (
     <article className="max-w-3xl mx-auto my-12 bg-white rounded-3xl p-6 md:p-10 shadow-sm border border-gray-100 transition-all">
       <header className="mb-12 text-center">
@@ -184,13 +223,39 @@ export function StoryLog({ episode }: StoryLogProps) {
       <div className="border-t border-gray-100 pt-8 mt-6">
         <h3 className="text-section text-center text-gray-800 mb-6 font-serif">결론 및 제안</h3>
         <div className="bg-gradient-to-r from-purple-50 to-indigo-50 rounded-2xl p-6 md:p-8 border border-purple-100">
-          <p className="text-gray-800 text-body-lg mb-6 whitespace-pre-line">{episode.resolution}</p>
-          <div className="bg-white rounded-xl p-5 shadow-sm border border-indigo-50">
-            <div className="flex items-start gap-4">
-              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold text-lg">💡</div>
-              <p className="text-gray-700 text-body pt-1 whitespace-pre-line">{episode.advice}</p>
-            </div>
+          <div className="flex items-start gap-4 mb-8">
+            <div className="flex-shrink-0 w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600 font-bold text-lg">💡</div>
+            <p className="text-gray-800 text-body-lg pt-1 whitespace-pre-line font-medium leading-relaxed">{episode.resolution}</p>
           </div>
+
+          {(maleAdvice || femaleAdvice) ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {femaleAdvice && (
+                <div className="bg-white rounded-xl p-6 shadow-sm border border-pink-100 relative overflow-hidden">
+                  <div className="absolute top-0 right-0 w-16 h-16 bg-pink-50 rounded-bl-full opacity-50 -z-0"></div>
+                  <h4 className="relative z-10 text-pink-600 font-bold mb-3 flex items-center gap-2">
+                    <span className="bg-pink-100 text-pink-600 px-2 py-1 rounded text-[10px] tracking-wider font-extrabold">포인트</span>
+                    🙋‍♀️ 여자 팁
+                  </h4>
+                  <p className="relative z-10 text-gray-700 leading-relaxed text-body-sm whitespace-pre-line break-keep">{femaleAdvice}</p>
+                </div>
+              )}
+              {maleAdvice && (
+                <div className="bg-white rounded-xl p-6 shadow-sm border border-blue-100 relative overflow-hidden">
+                  <div className="absolute top-0 right-0 w-16 h-16 bg-blue-50 rounded-bl-full opacity-50 -z-0"></div>
+                  <h4 className="relative z-10 text-blue-600 font-bold mb-3 flex items-center gap-2">
+                    <span className="bg-blue-100 text-blue-600 px-2 py-1 rounded text-[10px] tracking-wider font-extrabold">포인트</span>
+                    🙋‍♂️ 남자 팁
+                  </h4>
+                  <p className="relative z-10 text-gray-700 leading-relaxed text-body-sm whitespace-pre-line break-keep">{maleAdvice}</p>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="bg-white rounded-xl p-5 shadow-sm border border-indigo-50">
+              <p className="text-gray-700 text-body whitespace-pre-line leading-relaxed">{generalAdvice || episode.advice}</p>
+            </div>
+          )}
         </div>
       </div>
 
