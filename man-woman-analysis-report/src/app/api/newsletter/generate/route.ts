@@ -179,7 +179,14 @@ export async function POST(request: Request) {
 
         // 6. Trigger Send Pipeline internally (비동기로 실행하여 클라이언트 응답 대기를 최소화)
         console.log('[GENERATE API] Triggering background send pipeline...');
-        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+
+        let baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+        if (!baseUrl) {
+            const host = request.headers.get('host') || 'man-woman-analysis-report.vercel.app';
+            const protocol = host.includes('localhost') ? 'http' : 'https';
+            baseUrl = `${protocol}://${host}`;
+        }
+
         fetch(`${baseUrl}/api/newsletter/send`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
