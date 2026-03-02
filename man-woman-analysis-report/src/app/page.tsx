@@ -5,6 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import { TabsNavigation } from '@/components/layout/TabsNavigation';
 import { HomeFeed } from '@/components/home/HomeFeed';
 import { StoryLog } from '@/components/story/StoryLog';
+import { StoryList } from '@/components/story/StoryList';
 import { TopBannerAd, InFeedAd } from '@/components/ads/Ads';
 import { DbEpisode } from '@/types';
 
@@ -89,22 +90,7 @@ function HomeContent() {
 
         {/* 스토리 탭 (리스트만 모아보기) */}
         {activeTab === 'story' && (
-          <div className="py-16 px-4 text-center">
-            <h2 className="text-hero text-gray-900 mb-4 font-serif">전체 스토리</h2>
-            <p className="text-body-lg text-gray-500 mb-12">남녀의 관점 차이를 보여주는 모든 에피소드입니다.</p>
-            <div className="max-w-4xl mx-auto text-left">
-              {episodes.length === 0 && !isLoading && (
-                <div className="text-center text-gray-500 py-12">등록된 에피소드가 없습니다.</div>
-              )}
-              {episodes.map((episode) => (
-                <div key={episode.id} className="mb-12 border-b border-gray-100 pb-12 cursor-pointer group" onClick={() => handleReadStory(episode)}>
-                  <h3 className="text-title font-serif group-hover:text-pink-600 transition-colors mb-4">{episode.title}</h3>
-                  <p className="text-body text-gray-600 mb-6">{episode.situation}</p>
-                  <span className="text-pink-600 border border-pink-200 bg-pink-50 px-4 py-2 rounded-full text-body-sm font-bold">스토리 읽기 →</span>
-                </div>
-              ))}
-            </div>
-          </div>
+          <StoryList episodes={episodes} onReadStory={handleReadStory} />
         )}
 
         {/* 준비 중인 탭들 */}
