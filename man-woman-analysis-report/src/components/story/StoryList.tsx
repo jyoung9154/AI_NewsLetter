@@ -1,4 +1,4 @@
-'use client';
+import { useState } from 'react';
 
 import { DbEpisode } from '@/types';
 import Link from 'next/link';
@@ -8,6 +8,13 @@ interface StoryListProps {
 }
 
 export function StoryList({ episodes }: StoryListProps) {
+    // 깨진 이미지 처리를 위한 로컬 상태
+    const [brokenImages, setBrokenImages] = useState<Record<string, boolean>>({});
+
+    const handleImageError = (id: string | number) => {
+        setBrokenImages((prev: Record<string, boolean>) => ({ ...prev, [String(id)]: true }));
+    };
+
     return (
         <div className="py-12 px-4 sm:px-6 max-w-5xl mx-auto">
             {/* 헤더 섹션 */}
@@ -56,9 +63,14 @@ export function StoryList({ episodes }: StoryListProps) {
                                 </div>
 
                                 {/* 썸네일 영역 (이미지가 있거나 데스크톱일 때만 표시) */}
-                                <div className={`w-full aspect-video bg-gray-50 rounded-xl overflow-hidden mb-4 border border-gray-100 ${!episode.image_url ? 'hidden sm:flex' : 'flex'}`}>
-                                    {episode.image_url ? (
-                                        <img src={episode.image_url} alt={episode.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                                <div className={`w-full aspect-video bg-gray-50 rounded-xl overflow-hidden mb-4 border border-gray-100 ${!episode.image_url || brokenImages[episode.id] ? 'hidden sm:flex' : 'flex'}`}>
+                                    {episode.image_url && !brokenImages[episode.id] ? (
+                                        <img
+                                            src={episode.image_url}
+                                            alt={episode.title}
+                                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                            onError={() => handleImageError(episode.id)}
+                                        />
                                     ) : (
                                         <div className="w-full h-full bg-gradient-to-br from-pink-50/30 to-blue-50/30 flex items-center justify-center text-gray-200 text-4xl">
                                             📖

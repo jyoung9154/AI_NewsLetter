@@ -74,6 +74,13 @@ export function HomeFeed({ episodes }: HomeFeedProps) {
     const latestEpisode = hasEpisodes ? episodes[0] : null;
     const previousEpisodes = hasEpisodes ? episodes.slice(1) : [];
 
+    // 깨진 이미지 처리를 위한 로컬 상태
+    const [brokenImages, setBrokenImages] = useState<Record<string, boolean>>({});
+
+    const handleImageError = (id: string | number) => {
+        setBrokenImages(prev => ({ ...prev, [String(id)]: true }));
+    };
+
     return (
         <div className="max-w-4xl mx-auto py-8 px-4 sm:px-6">
 
@@ -85,8 +92,13 @@ export function HomeFeed({ episodes }: HomeFeedProps) {
                 >
                     {/* 임시 커버 이미지 처리 */}
                     <div className="absolute inset-0 bg-gray-100 flex items-center justify-center overflow-hidden">
-                        {latestEpisode.image_url ? (
-                            <img src={latestEpisode.image_url} alt={latestEpisode.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                        {latestEpisode.image_url && !brokenImages[`hero-${latestEpisode.id}`] ? (
+                            <img
+                                src={latestEpisode.image_url}
+                                alt={latestEpisode.title}
+                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                onError={() => handleImageError(`hero-${latestEpisode.id}`)}
+                            />
                         ) : (
                             <div className="w-full h-full bg-gradient-to-tr from-rose-300 via-pink-400 to-fuchsia-400 flex items-center justify-center">
                                 <span className="text-8xl opacity-10">💬</span>
@@ -184,9 +196,14 @@ export function HomeFeed({ episodes }: HomeFeedProps) {
                             >
                                 {/* 썸네일 박스 (이미지가 있거나 데스크톱일 때만 표시) */}
                                 {(episode.image_url || true) && (
-                                    <div className={`w-full sm:w-48 aspect-[4/3] bg-gray-100 rounded-xl overflow-hidden flex-shrink-0 border border-gray-200 ${!episode.image_url ? 'hidden sm:flex' : 'flex'}`}>
-                                        {episode.image_url ? (
-                                            <img src={episode.image_url} alt={episode.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                                    <div className={`w-full sm:w-48 aspect-[4/3] bg-gray-100 rounded-xl overflow-hidden flex-shrink-0 border border-gray-200 ${!episode.image_url || brokenImages[episode.id] ? 'hidden sm:flex' : 'flex'}`}>
+                                        {episode.image_url && !brokenImages[episode.id] ? (
+                                            <img
+                                                src={episode.image_url}
+                                                alt={episode.title}
+                                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                                onError={() => handleImageError(episode.id)}
+                                            />
                                         ) : (
                                             <div className="w-full h-full bg-gradient-to-br from-pink-50 to-white flex items-center justify-center text-gray-300 text-hero md:text-[3rem]">
                                                 📖
