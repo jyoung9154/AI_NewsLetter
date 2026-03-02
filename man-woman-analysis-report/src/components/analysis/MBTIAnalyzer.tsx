@@ -9,6 +9,7 @@ export function MBTIAnalyzer() {
     const [myGender, setMyGender] = useState<string>('');
     const [targetMbti, setTargetMbti] = useState<string>('');
     const [targetGender, setTargetGender] = useState<string>('');
+    const [situation, setSituation] = useState<string>('');
     const [isAnalyzing, setIsAnalyzing] = useState(false);
     const [result, setResult] = useState<any>(null);
 
@@ -16,7 +17,7 @@ export function MBTIAnalyzer() {
 
     const handleAnalyze = async () => {
         if (!myMbti || !myGender || !targetMbti || !targetGender) {
-            alert('모든 정보를 선택해주세요!');
+            alert('MBTI와 성별을 모두 선택해주세요!');
             return;
         }
 
@@ -27,14 +28,15 @@ export function MBTIAnalyzer() {
             const res = await fetch('/api/analyze/mbti', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ myMbti, myGender, targetMbti, targetGender })
+                body: JSON.stringify({ myMbti, myGender, targetMbti, targetGender, situation })
             });
 
             if (res.ok) {
                 const data = await res.json();
                 setResult(data);
             } else {
-                alert('분석에 실패했습니다. 잠시 후 다시 시도해주세요.');
+                const error = await res.json();
+                alert(error.error || '분석에 실패했습니다. 잠시 후 다시 시도해주세요.');
             }
         } catch (e) {
             console.error(e);
@@ -48,13 +50,13 @@ export function MBTIAnalyzer() {
         <div className="max-w-4xl mx-auto px-4 py-12">
             <div className="text-center mb-12 animate-in fade-in slide-in-from-bottom-4 duration-700">
                 <h2 className="text-3xl md:text-4xl font-serif font-bold text-gray-900 mb-4">
-                    MBTI <span className="text-pink-600">연애 궁합</span> 분석기
+                    MBTI <span className="text-pink-600">상황별 궁합</span> 분석기
                 </h2>
-                <p className="text-gray-600">두 사람의 MBTI와 성별을 기반으로 맞춤형 연애 전략을 세워드립니다.</p>
+                <p className="text-gray-600">구체적인 상황을 입력하시면 GLM-4.5-Flash AI가 맞춤형 연애 전략을 세워드립니다.</p>
             </div>
 
             {/* 입력 섹션 */}
-            <div className="grid md:grid-cols-2 gap-8 mb-12">
+            <div className="grid md:grid-cols-2 gap-8 mb-8">
                 {/* 본인 */}
                 <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
                     <div className="flex items-center gap-2 mb-6">
@@ -127,6 +129,22 @@ export function MBTIAnalyzer() {
                             </Select>
                         </div>
                     </div>
+                </div>
+            </div>
+
+            {/* 상황 입력 섹션 */}
+            <div className="mb-12">
+                <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                    <div className="flex items-center gap-2 mb-4">
+                        <AlertCircle size={18} className="text-gray-400" />
+                        <h3 className="font-bold text-gray-800">분석하고 싶은 상황 (선택사항)</h3>
+                    </div>
+                    <textarea
+                        value={situation}
+                        onChange={(e) => setSituation(e.target.value)}
+                        placeholder="예: 연락 문제로 자주 싸워요, 첫 데이트 장소를 정하고 싶어요, 상대방이 갑자기 차가워졌어요 등"
+                        className="w-full h-32 p-4 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-pink-500 focus:bg-white transition-all resize-none"
+                    />
                 </div>
             </div>
 
