@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import localFont from 'next/font/local';
 import './globals.css';
+import { GenderThemeProvider } from '@/components/ui/GenderThemeProvider';
 
 const pretendard = localFont({
   src: '../../node_modules/pretendard/dist/web/variable/woff2/PretendardVariable.woff2',
@@ -91,7 +92,9 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
       </head>
       <body className="font-sans antialiased">
-        {children}
+        <GenderThemeProvider>
+          {children}
+        </GenderThemeProvider>
       </body>
     </html>
   );
