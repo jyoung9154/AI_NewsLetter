@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import OpenAI from 'openai';
+import { supabase } from '@/lib/supabase';
 
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60;
@@ -12,6 +13,26 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: '모든 정보를 입력해주세요.' }, { status: 400 });
         }
 
+        // 1. DB에서 기존 분석 결과 조회 (캐싱)
+        const { data: cachedData, error: fetchError } = await supabase
+            .from('mbti_compatibility')
+            .select('*')
+            .eq('my_mbti', myMbti)
+            .eq('my_gender', myGender)
+            .eq('target_mbti', targetMbti)
+            .eq('target_gender', targetGender)
+            .single();
+
+        if (cachedData) {
+            console.log('[Analyze API] Returning cached data');
+            return NextResponse.json(cachedData);
+        }
+
+        if (fetchError && fetchError.code !== 'PGRST116') {
+            console.error('[Analyze API] DB Fetch Error:', fetchError);
+        }
+
+        // 2. DB에 없다면 AI 호출
         const geminiApiKey = process.env.GEMINI_API_KEY;
         if (!geminiApiKey) {
             return NextResponse.json({ error: 'GEMINI_API_KEY 설정 오류' }, { status: 500 });
@@ -55,6 +76,26 @@ ${myGender === 'female' ? '여성' : '남성'} ${myMbti}와 ${targetGender === '
         } catch (e) {
             console.error('[Analyze API] JSON Parse Error:', rawContent);
             return NextResponse.json({ error: 'AI 응답 파싱 중 오류가 발생했습니다.' }, { status: 500 });
+        }
+
+        // 3. 분석 결과를 DB에 저장
+        const { error: insertError } = await supabase
+            .from('mbti_compatibility')
+            .insert([{
+                my_mbti: myMbti,
+                my_gender: myGender,
+                target_mbti: targetMbti,
+                target_gender: targetGender,
+                score: parsedContent.score,
+                summary: parsedContent.summary,
+                attraction: parsedContent.attraction,
+                challenges: parsedContent.challenges,
+                tips: parsedContent.tips,
+                compatibility_tag: parsedContent.compatibility_tag
+            }]);
+
+        if (insertError) {
+            console.error('[Analyze API] DB Insert Error:', insertError);
         }
 
         return NextResponse.json(parsedContent);
