@@ -1,0 +1,19 @@
+name: Daily Newsletter Automation
+
+on:
+  schedule:
+    # 23:00 UTC is 08:00 AM KST (Korean Standard Time)
+    - cron: '0 23 * * *'
+  
+  # Allow manual triggering from the GitHub Actions UI
+  workflow_dispatch:
+
+jobs:
+  trigger-newsletter:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Vercel Generate API
+        run: |
+          curl -X POST https://man-woman-analysis-report.vercel.app/api/newsletter/generate \
+            -H "Content-Type: application/json" \
+            -d '{}'
