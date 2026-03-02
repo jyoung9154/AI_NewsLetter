@@ -14,6 +14,7 @@ export interface Newsletter {
 
 export interface DbEpisode {
   id: string;
+  slug?: string;
   episode_number: number;
   title: string;
   hook?: string;

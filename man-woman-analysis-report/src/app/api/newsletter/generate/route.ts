@@ -35,6 +35,7 @@ ${topicText}${duplicateConstraint}
 아래 JSON 구조로 작성:
 {
   "episode_number": ${nextNumber},
+  "slug": "a-short-english-url-friendly-slug-for-seo (e.g. why-do-men-lie-about-small-things)",
   "title": "제목 — 예: \\"오빠 나 뭐 바뀐 거 없어?\\"라는 질문이 공포인 이유",
   "hook": "1문장 요약/후킹 멘트 (메일 프리뷰 용도)",
   "situation": "2~4줄 상황 묘사 (아주 구체적이고 현실적인 상황 설정, 예: 홍대 파스타집에서 계산서를 사이에 둔 3초의 침묵)",

@@ -92,6 +92,18 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
       </head>
       <body className="font-sans antialiased">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              '@context': 'https://schema.org',
+              '@type': 'WebSite',
+              name: '남녀분석보고서',
+              url: 'https://man-woman-analysis-report.vercel.app',
+              description: '남녀의 관계, 심리, 대화법을 깊이 있게 분석하는 뉴스레터',
+            }),
+          }}
+        />
         <GenderThemeProvider>
           {children}
         </GenderThemeProvider>

@@ -80,7 +80,7 @@ export function HomeFeed({ episodes }: HomeFeedProps) {
             {/* 1. 메인 매거진 커버 (Hero Post) - 에피소드 있을 때만 표시 */}
             {hasEpisodes && latestEpisode && (
                 <Link
-                    href={`/episodes/${latestEpisode.id}`}
+                    href={`/episodes/${latestEpisode.slug}`}
                     className="group cursor-pointer block relative w-full h-[280px] md:h-[350px] rounded-3xl overflow-hidden mb-12 shadow-md border border-gray-100"
                 >
                     {/* 임시 커버 이미지 처리 */}

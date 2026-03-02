@@ -5,12 +5,12 @@ import { InFeedAd } from '@/components/ads/Ads';
 import Link from 'next/link';
 
 // Dynamically generate metadata for each episode for SEO
-export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
     const supabase = getSupabaseService();
     const { data: episode } = await supabase
         .from('episodes')
         .select('*')
-        .eq('id', params.id)
+        .eq('slug', params.slug)
         .single();
 
     if (!episode) {
@@ -29,7 +29,7 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
             title,
             description,
             type: 'article',
-            url: `https://man-woman-analysis-report.vercel.app/episodes/${episode.id}`,
+            url: `https://man-woman-analysis-report.vercel.app/episodes/${episode.slug}`,
             images: episode.image_url ? [{ url: episode.image_url }] : [],
             siteName: '남녀분석보고서',
         },
@@ -42,12 +42,12 @@ export async function generateMetadata({ params }: { params: { id: string } }): 
     };
 }
 
-export default async function EpisodePage({ params }: { params: { id: string } }) {
+export default async function EpisodePage({ params }: { params: { slug: string } }) {
     const supabase = getSupabaseService();
     const { data: episode } = await supabase
         .from('episodes')
         .select('*')
-        .eq('id', params.id)
+        .eq('slug', params.slug)
         .single();
 
     if (!episode) {
@@ -61,8 +61,28 @@ export default async function EpisodePage({ params }: { params: { id: string } }
         );
     }
 
+    // JSON-LD structured data for Google Search Rich Results (Article schema)
+    const jsonLd = {
+        '@context': 'https://schema.org',
+        '@type': 'Article',
+        headline: episode.title,
+        description: episode.hook || episode.situation,
+        image: episode.image_url ? [episode.image_url] : [],
+        datePublished: episode.published_at || episode.created_at,
+        dateModified: episode.created_at,
+        author: [{
+            '@type': 'Organization',
+            name: '남녀분석보고서',
+            url: 'https://man-woman-analysis-report.vercel.app',
+        }],
+    };
+
     return (
         <div className="min-h-screen bg-white">
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+            />
             <main className="py-8 px-4 sm:px-6 max-w-5xl mx-auto">
                 <Link
                     href="/"

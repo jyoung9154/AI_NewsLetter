@@ -34,7 +34,7 @@ export function StoryList({ episodes }: StoryListProps) {
                         const episodeNum = episode.episode_number || (episodes.length - index);
                         return (
                             <Link
-                                href={`/episodes/${episode.id}`}
+                                href={`/episodes/${episode.slug}`}
                                 key={episode.id}
                                 className="group cursor-pointer bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-xl hover:border-pink-200 transition-all duration-300 flex flex-col h-full"
                             >
