@@ -1,8 +1,7 @@
-'use client';
-
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/Select';
-import { Loader2, Heart, Sparkles, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Loader2, Heart, Sparkles, AlertCircle, CheckCircle2, Share2, Download, Copy } from 'lucide-react';
+import html2canvas from 'html2canvas';
 
 export function MBTIAnalyzer() {
     const [myMbti, setMyMbti] = useState<string>('');
@@ -12,8 +11,29 @@ export function MBTIAnalyzer() {
     const [situation, setSituation] = useState<string>('');
     const [isAnalyzing, setIsAnalyzing] = useState(false);
     const [result, setResult] = useState<any>(null);
+    const resultRef = useRef<HTMLDivElement>(null);
 
     const mbtiList = ['ISTJ', 'ISFJ', 'INFJ', 'INTJ', 'ISTP', 'ISFP', 'INFP', 'INTP', 'ESTP', 'ESFP', 'ENFP', 'ENTP', 'ESTJ', 'ESFJ', 'ENFJ', 'ENTJ'];
+
+    // URL에서 결과 복원
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        const sharedResult = params.get('result');
+        if (sharedResult) {
+            try {
+                // Base64 디코딩 (한글 대응)
+                const decoded = decodeURIComponent(atob(sharedResult));
+                const parsed = JSON.parse(decoded);
+                setResult(parsed);
+                // 결과가 있으면 해당 위치로 스크롤
+                setTimeout(() => {
+                    resultRef.current?.scrollIntoView({ behavior: 'smooth' });
+                }, 500);
+            } catch (e) {
+                console.error('Failed to parse shared result:', e);
+            }
+        }
+    }, []);
 
     const handleAnalyze = async () => {
         if (!myMbti || !myGender || !targetMbti || !targetGender) {
@@ -43,6 +63,45 @@ export function MBTIAnalyzer() {
             alert('오류가 발생했습니다.');
         } finally {
             setIsAnalyzing(false);
+        }
+    };
+
+    const handleSaveImage = async () => {
+        if (!resultRef.current) return;
+
+        try {
+            const canvas = await html2canvas(resultRef.current, {
+                backgroundColor: '#ffffff',
+                scale: 2, // 고해상도
+                useCORS: true,
+                logging: false,
+            });
+
+            const image = canvas.toDataURL('image/png');
+            const link = document.createElement('a');
+            link.href = image;
+            link.download = `MBTI_궁합_분석_${myMbti}_${targetMbti}.png`;
+            link.click();
+        } catch (e) {
+            console.error('이미지 저장 실패:', e);
+            alert('이미지 저장 중 오류가 발생했습니다.');
+        }
+    };
+
+    const handleCopyLink = () => {
+        if (!result) return;
+
+        try {
+            // 결과 데이터를 Base64로 인코딩 (한글 대응)
+            const jsonStr = JSON.stringify(result);
+            const encoded = btoa(encodeURIComponent(jsonStr));
+            const shareUrl = `${window.location.origin}${window.location.pathname}?result=${encoded}`;
+
+            navigator.clipboard.writeText(shareUrl);
+            alert('공유 링크가 클립보드에 복사되었습니다! 🔗');
+        } catch (e) {
+            console.error('링크 복사 실패:', e);
+            alert('링크 복사 중 오류가 발생했습니다.');
         }
     };
 
@@ -172,7 +231,10 @@ export function MBTIAnalyzer() {
             {/* 결과 섹션 */}
             {result && (
                 <div className="animate-in fade-in slide-in-from-top-8 duration-1000">
-                    <div className="bg-gradient-to-br from-pink-50 to-white p-8 md:p-12 rounded-[2rem] border border-pink-100 shadow-xl overflow-hidden relative">
+                    <div
+                        ref={resultRef}
+                        className="bg-gradient-to-br from-pink-50 to-white p-8 md:p-12 rounded-[2rem] border border-pink-100 shadow-xl overflow-hidden relative"
+                    >
                         {/* 배경 데코 */}
                         <div className="absolute top-0 right-0 w-64 h-64 bg-pink-200/20 rounded-full -mr-32 -mt-32 blur-3xl"></div>
                         <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-200/20 rounded-full -ml-32 -mb-32 blur-3xl"></div>
@@ -218,10 +280,48 @@ export function MBTIAnalyzer() {
                         </div>
 
                         <div className="mt-12 text-center pt-8 border-t border-pink-100">
+                            <p className="text-gray-500 text-[10px] mb-4">
+                                [남녀분석보고서] 상위 1% 심리학 AI가 분석한 결과입니다.
+                            </p>
                             <p className="text-gray-500 text-xs">
                                 *이 결과는 보편적인 MBTI 성향을 바탕으로 한 AI 분석입니다.<br />개개인의 상황에 따라 실제 궁합은 다를 수 있습니다.
                             </p>
                         </div>
+                    </div>
+
+                    {/* 액션 버튼 */}
+                    <div className="mt-8 flex flex-wrap justify-center gap-4 no-capture">
+                        <button
+                            onClick={handleSaveImage}
+                            className="bg-white hover:bg-gray-50 text-gray-700 font-bold py-3 px-6 rounded-xl border border-gray-200 shadow-sm transition-all flex items-center gap-2 hover:scale-105"
+                        >
+                            <Download size={18} /> 이미지로 저장
+                        </button>
+                        <button
+                            onClick={handleCopyLink}
+                            className="bg-white hover:bg-gray-50 text-gray-700 font-bold py-3 px-6 rounded-xl border border-gray-200 shadow-sm transition-all flex items-center gap-2 hover:scale-105"
+                        >
+                            <Copy size={18} /> 링크 복사하기
+                        </button>
+                        <button
+                            onClick={handleCopyLink} // 동일한 기능이지만 아이콘 제공
+                            className="bg-pink-600 hover:bg-pink-500 text-white font-bold py-3 px-8 rounded-xl shadow-lg shadow-pink-200 transition-all flex items-center gap-2 hover:scale-105"
+                        >
+                            <Share2 size={18} /> 결과 공유하기
+                        </button>
+                    </div>
+
+                    <div className="mt-12 text-center">
+                        <button
+                            onClick={() => {
+                                setResult(null);
+                                setSituation('');
+                                window.scrollTo({ top: 0, behavior: 'smooth' });
+                            }}
+                            className="text-gray-400 text-sm underline underline-offset-4 hover:text-gray-600"
+                        >
+                            처음부터 다시 분석하기
+                        </button>
                     </div>
                 </div>
             )}
