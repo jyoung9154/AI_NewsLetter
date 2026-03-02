@@ -3,7 +3,7 @@ import { getSupabaseService } from '@/lib/supabase';
 import OpenAI from 'openai';
 
 export const dynamic = 'force-dynamic';
-export const maxDuration = 60; // Allow enough time for AI generation & fallback
+export const maxDuration = 600; // 10 minutes timeout (Vercel Pro/Enterprise plan requirement)
 
 function buildPrompt(nextNumber: number, topic: string, existingTitles: string[] = []) {
     const topicText = topic
