@@ -52,7 +52,7 @@ export function MBTIAnalyzer() {
                 <h2 className="text-3xl md:text-4xl font-serif font-bold text-gray-900 mb-4">
                     MBTI <span className="text-pink-600">상황별 궁합</span> 분석기
                 </h2>
-                <p className="text-gray-600">구체적인 상황을 입력하시면 GLM-4.5-Flash AI가 맞춤형 연애 전략을 세워드립니다.</p>
+                <p className="text-gray-600">구체적인 상황을 입력하시면 맞춤형 연애 전략을 세워드립니다.</p>
             </div>
 
             {/* 입력 섹션 */}
