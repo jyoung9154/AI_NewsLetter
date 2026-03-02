@@ -6,10 +6,6 @@ import OpenAI from 'openai';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 60; // AI API 호출 대기 시간을 위해 증가
 
-const zhipuClient = new OpenAI({
-    baseURL: "https://open.bigmodel.cn/api/paas/v4/",
-    apiKey: process.env.ZAI_API_KEY || "",
-});
 
 export async function GET(
     request: Request,
@@ -24,6 +20,11 @@ export async function GET(
         if (!mbti || !gender) {
             return NextResponse.json({ error: 'MBTI와 성별을 모두 선택해주세요.' }, { status: 400 });
         }
+
+        const zhipuClient = new OpenAI({
+            baseURL: "https://open.bigmodel.cn/api/paas/v4/",
+            apiKey: process.env.ZAI_API_KEY || "",
+        });
 
         // 1. DB에서 기존 분석 결과 조회
         const { data: existingData, error: fetchError } = await supabase
