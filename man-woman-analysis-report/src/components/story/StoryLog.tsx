@@ -124,16 +124,17 @@ export function StoryLog({ episode }: StoryLogProps) {
   const femalePercent = totalVotes > 0 ? Math.round((voteStats.female / totalVotes) * 100) : 0;
   const malePercent = totalVotes > 0 ? Math.round((voteStats.male / totalVotes) * 100) : 0;
 
-  const episodeNumMatch = episode.title.match(/^Episode\s*(\d+)\.?\s*/);
-  const episodeNum = episodeNumMatch ? episodeNumMatch[1] : '';
-  const cleanTitle = episode.title.replace(/^Episode\s*\d+\.?\s*/, '');
+  const episodeNumMatch = episode.title.match(/^Episode\s*(\d+)\.?\s*/i);
+  const parsedNum = episodeNumMatch ? episodeNumMatch[1] : '';
+  const episodeNum = episode.episode_number || parsedNum;
+  const cleanTitle = episode.title.replace(/^Episode\s*\d+\.?\s*/i, '').trim();
 
   return (
     <article className="max-w-3xl mx-auto my-12 bg-white rounded-3xl p-6 md:p-10 shadow-sm border border-gray-100 transition-all">
       <header className="mb-12 text-center">
         <div className="flex justify-center items-center gap-3 mb-4">
           <Badge variant="outline" className="text-pink-600 border-pink-200 bg-pink-50 px-4 py-1">
-            {episodeNum ? `Episode ${episodeNum}` : 'Episode'}
+            {episodeNum ? `Episode.${episodeNum}` : 'Episode'}
           </Badge>
           <div className="text-gray-400 text-body-sm flex items-center gap-1">
             <span>👁️ {viewCount}</span>

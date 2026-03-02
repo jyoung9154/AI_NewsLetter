@@ -188,7 +188,9 @@ export function HomeFeed({ episodes, onReadStory }: HomeFeedProps) {
 
                                 {/* 리스트 텍스트 */}
                                 <div className="flex-1 pr-4">
-                                    <span className="text-body-sm font-bold text-gray-400 uppercase tracking-widest block mb-2">스토리 로그</span>
+                                    <span className="text-body-sm font-bold text-gray-400 uppercase tracking-widest block mb-2">
+                                        스토리로그 {episode.episode_number ? `Episode.${episode.episode_number}` : ''}
+                                    </span>
                                     <h4 className="text-section text-gray-900 mb-3 group-hover:text-blue-600 transition-colors font-serif">
                                         {episode.title}
                                     </h4>
