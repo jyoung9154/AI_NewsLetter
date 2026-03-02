@@ -120,9 +120,24 @@ export function HomeFeed({ episodes, onReadStory }: HomeFeedProps) {
 
                 <div className="relative z-10">
                     <h3 className="text-title md:text-hero mb-4">화성 남자와 금성 여자의 번역기</h3>
-                    <p className="text-gray-300 text-body-lg mb-8 max-w-xl mx-auto">
+                    <p className="text-gray-300 text-body-lg mb-6 max-w-xl mx-auto">
                         이해하기 어려운 속마음, 우리가 번역해 드립니다.<br />매일 아침 8시, 여러분의 메일함으로 찾아갈게요.
                     </p>
+
+                    <ul className="text-left max-w-sm mx-auto mb-8 space-y-3 bg-white/10 rounded-xl p-5 backdrop-blur-sm border border-white/20">
+                        <li className="flex items-start gap-3 text-gray-200">
+                            <span className="text-pink-400 font-bold shrink-0">✨</span>
+                            <span className="text-sm font-medium">매일매일 업데이트되는 새로운 연애/갈등 번역 에피소드</span>
+                        </li>
+                        <li className="flex items-start gap-3 text-gray-200">
+                            <span className="text-pink-400 font-bold shrink-0">💌</span>
+                            <span className="text-sm font-medium">바쁜 일상 속, 아침을 깨우는 5분 심리학 리포트</span>
+                        </li>
+                        <li className="flex items-start gap-3 text-gray-200">
+                            <span className="text-pink-400 font-bold shrink-0">🔥</span>
+                            <span className="text-sm font-medium">수많은 구독자가 이미 우리들의 진짜 속마음을 엿보고 있습니다</span>
+                        </li>
+                    </ul>
                     <form
                         onSubmit={(e) => {
                             e.preventDefault();

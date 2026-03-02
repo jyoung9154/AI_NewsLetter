@@ -44,7 +44,7 @@ ${topicText}${duplicateConstraint}
   "male_thought": "남자 속마음 한 줄 (진짜 속내, 팩트)",
   "resolution": "결론 + 뼈 때리면서도 위트 있는 한 줄 요약",
   "advice": "남자 팁: (내일 당장 써먹을 수 있는 현실적 멘트나 행동) / 여자 팁: (현실적 마인드셋이나 행동)",
-  "coupang_keyword": "이 갈등을 무마할 센스있는 커플 선물 검색 키워드",
+  "coupang_keyword": "이 갈등을 무마할 연인 패션잡화(예: 커플 반지, 지갑 등) 쿠팡 검색 단일 키워드 (예: '20대 커플 목걸이')",
   "image_prompt": "A high-quality, cinematic illustration or photograph of the specific situation described above, focusing on the emotions/atmosphere of the couple, detailed background, 4k, realistic or high-end digital art style. (IMPORTANT: Write this prompt in English)",
   "tags": ["연애", "갈등", "심리"]
 }`
@@ -95,6 +95,21 @@ export async function POST(request: Request) {
             nextNumber = numData.episode_number + 1;
         }
         console.log('[GENERATE API] Next episode number resolved to:', nextNumber);
+
+        if (nextNumber > 100) {
+            // After 100 episodes, only generate if it's around 6:00 AM (21 UTC) or 6:00 PM (09 UTC)
+            const currentHourUTC = new Date().getUTCHours();
+            const isMorningRun = currentHourUTC === 21;
+            const isEveningRun = currentHourUTC === 9;
+
+            if (!isMorningRun && !isEveningRun) {
+                console.log(`[GENERATE API] 100 episodes reached and Current hour (${currentHourUTC} UTC) is not 21 or 09. Skipping.`);
+                return NextResponse.json({
+                    success: true,
+                    message: 'Maximum limit of 100 episodes reached. Skipping off-hour generation.',
+                });
+            }
+        }
 
         // 1.5 Fetch existing titles to prevent duplication
         const { data: existingEpisodes } = await supabase
