@@ -2,8 +2,8 @@ name: Daily Newsletter Automation
 
 on:
   schedule:
-    # 23:00 UTC is 08:00 AM KST (Korean Standard Time)
-    - cron: '0 23 * * *'
+    # 21:00 UTC (6 AM KST) and 09:00 UTC (6 PM KST)
+    - cron: '0 9,21 * * *'
   
   # Allow manual triggering from the GitHub Actions UI
   workflow_dispatch:
