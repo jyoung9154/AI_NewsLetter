@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { DbEpisode } from '@/types';
 import { InFeedAd } from '@/components/ads/Ads';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/Select';
-import { NewsletterSubscribe } from '@/components/sections/NewsletterSubscribe';
 
 interface HomeFeedProps {
     episodes: DbEpisode[];
@@ -23,6 +22,8 @@ export function HomeFeed({ episodes, onReadStory }: HomeFeedProps) {
     const [selectedMbti, setSelectedMbti] = useState<string>('');
     const [selectedInterestedMbti, setSelectedInterestedMbti] = useState<string>('');
     const [selectedAge, setSelectedAge] = useState<string>('');
+    const [startOption, setStartOption] = useState<'latest' | 'first' | 'specific'>('latest');
+    const [specificEpisode, setSpecificEpisode] = useState<string>('');
     const [isUpdating, setIsUpdating] = useState(false);
 
     const handleSubscribe = async () => {
@@ -74,7 +75,9 @@ export function HomeFeed({ episodes, onReadStory }: HomeFeedProps) {
                     my_gender: selectedMyGender || undefined,
                     mbti: selectedMbti || undefined,
                     interested_mbti: selectedInterestedMbti || undefined,
-                    age_group: selectedAge || undefined
+                    age_group: selectedAge || undefined,
+                    start_option: startOption,
+                    specific_episode: startOption === 'specific' ? (parseInt(specificEpisode) || 1) : undefined
                 })
             });
             setSubscribeMessage('추가 정보가 성공적으로 저장되었습니다! 💖');
@@ -126,8 +129,46 @@ export function HomeFeed({ episodes, onReadStory }: HomeFeedProps) {
             )}
 
             {/* 2. 어피티 스타일 - 구독 유도 중간 배너 */}
-            <div id="subscribe-section" className="my-12">
-                <NewsletterSubscribe gender="neutral" />
+            <div id="subscribe-section" className="my-12 bg-gray-900 rounded-2xl p-8 md:p-12 text-center text-white relative overflow-hidden shadow-lg">
+                {/* 장식 요소 */}
+                <div className="absolute top-0 right-0 w-64 h-64 bg-pink-500 rounded-full mix-blend-multiply filter blur-3xl opacity-30 -translate-y-1/2 translate-x-1/2"></div>
+                <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-30 translate-y-1/2 -translate-x-1/2"></div>
+
+                <div className="relative z-10">
+                    <h3 className="text-title md:text-hero mb-4">화성 남자와 금성 여자의 번역기</h3>
+                    <p className="text-gray-300 text-body-lg mb-8 max-w-xl mx-auto">
+                        이해하기 어려운 속마음, 우리가 번역해 드립니다.<br />매일 아침 8시, 여러분의 메일함으로 찾아갈게요.
+                    </p>
+                    <form
+                        onSubmit={(e) => {
+                            e.preventDefault();
+                            handleSubscribe();
+                        }}
+                        className="max-w-md mx-auto flex flex-col sm:flex-row gap-3"
+                    >
+                        <input
+                            type="email"
+                            name="email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            placeholder="이메일 주소를 입력해주세요"
+                            required
+                            className="flex-1 px-5 py-4 rounded-xl text-gray-900 bg-white border-0 focus:ring-2 focus:ring-pink-500 focus:outline-none"
+                        />
+                        <button
+                            type="submit"
+                            disabled={isSubscribing}
+                            className="bg-pink-600 hover:bg-pink-500 disabled:bg-pink-400 text-white font-bold py-4 px-8 rounded-xl transition-colors whitespace-nowrap shadow-md"
+                        >
+                            {isSubscribing ? '처리 중...' : '무료 구독'}
+                        </button>
+                    </form>
+                    {subscribeMessage && (
+                        <p className={`mt-4 text-sm font-bold ${subscribeMessage.includes('실패') || subscribeMessage.includes('오류') ? 'text-red-400' : 'text-green-400'}`}>
+                            {subscribeMessage}
+                        </p>
+                    )}
+                </div>
             </div>
 
             {/* 3. 리스트 피드 (이전 스토리 & 네이티브 광고) - 에피소드 있을 때만 표시 */}
@@ -190,9 +231,47 @@ export function HomeFeed({ episodes, onReadStory }: HomeFeedProps) {
                         <div className="text-center mb-6">
                             <h3 className="text-2xl font-bold text-gray-900 mb-2">🎉 구독 완료!</h3>
                             <p className="text-gray-600 text-sm">
-                                더욱 정확한 남녀 심리 분석 커스텀 콘텐츠를 위해,<br />본인 정보와 관심사를 알려주시겠어요? (선택)
+                                더욱 정확한 남녀 심리 분석 커스텀 콘텐츠를 위해,<br />상세 설정을 완료해주세요 (선택)
                             </p>
                         </div>
+
+                        {/* 에피소드 수신 옵션 추가 */}
+                        <div className="mb-6">
+                            <label className="block text-sm font-medium text-gray-700 mb-3 text-left">어느 에피소드부터 받으실래요?</label>
+                            <div className="grid grid-cols-3 gap-2">
+                                <button
+                                    onClick={() => setStartOption('latest')}
+                                    className={`py-2 px-1 text-[11px] font-bold border rounded-lg transition-all ${startOption === 'latest' ? 'border-pink-500 bg-pink-50 text-pink-600' : 'border-gray-200 text-gray-500 hover:bg-gray-50'}`}
+                                >
+                                    최신호부터
+                                </button>
+                                <button
+                                    onClick={() => setStartOption('first')}
+                                    className={`py-2 px-1 text-[11px] font-bold border rounded-lg transition-all ${startOption === 'first' ? 'border-pink-500 bg-pink-50 text-pink-600' : 'border-gray-200 text-gray-500 hover:bg-gray-50'}`}
+                                >
+                                    1화부터
+                                </button>
+                                <button
+                                    onClick={() => setStartOption('specific')}
+                                    className={`py-2 px-1 text-[11px] font-bold border rounded-lg transition-all ${startOption === 'specific' ? 'border-pink-500 bg-pink-50 text-pink-600' : 'border-gray-200 text-gray-500 hover:bg-gray-50'}`}
+                                >
+                                    직접 입력
+                                </button>
+                            </div>
+                            {startOption === 'specific' && (
+                                <div className="mt-2">
+                                    <input
+                                        type="number"
+                                        min="1"
+                                        placeholder="에피소드 번호 (예: 5)"
+                                        value={specificEpisode}
+                                        onChange={(e) => setSpecificEpisode(e.target.value)}
+                                        className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:ring-2 focus:ring-pink-500 focus:outline-none"
+                                    />
+                                </div>
+                            )}
+                        </div>
+
                         <div className="grid grid-cols-2 gap-4 mb-8 text-left">
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-1">본인 성별</label>
@@ -235,7 +314,7 @@ export function HomeFeed({ episodes, onReadStory }: HomeFeedProps) {
                                 </Select>
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">관심있는 MBTI</label>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">상대 MBTI</label>
                                 <Select value={selectedInterestedMbti} onValueChange={setSelectedInterestedMbti}>
                                     <SelectTrigger>
                                         <SelectValue placeholder="선택" />
