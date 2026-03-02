@@ -22,10 +22,10 @@ function HomeContent() {
         const episodesList = Array.isArray(data) ? data : [];
         setEpisodes(episodesList);
 
-        // Handle direct deep link to an episode via query parameter (?episode=id)
-        const targetEpisodeId = searchParams.get('episode');
-        if (targetEpisodeId && episodesList.length > 0) {
-          const targetEpisode = episodesList.find(ep => ep.id === targetEpisodeId);
+        // Handle direct deep link to an episode via query parameter (?episode=episode_number)
+        const targetEpisodeNumber = searchParams.get('episode');
+        if (targetEpisodeNumber && episodesList.length > 0) {
+          const targetEpisode = episodesList.find(ep => ep.episode_number?.toString() === targetEpisodeNumber);
           if (targetEpisode) {
             setSelectedStory(targetEpisode);
             setActiveTab('story-detail');

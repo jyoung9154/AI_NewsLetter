@@ -107,7 +107,7 @@ export async function POST(request: Request) {
     
     <div style="text-align: center; padding: 32px; background-color: #f9fafb; border-top: 1px solid #e5e7eb;">
       <p style="margin: 0 0 16px; color: #6b7280; font-size: 14px;">본격적인 해결책과 조언은 웹사이트에서 이어집니다.</p>
-      <a href="https://man-woman-analysis-report.vercel.app/?episode=${episode.id}" style="display: inline-block; background-color: #111827; color: #ffffff; font-weight: 500; font-size: 15px; text-decoration: none; padding: 12px 24px; border-radius: 6px;">자세한 내용 확인하기</a>
+      <a href="https://man-woman-analysis-report.vercel.app/?episode=${episode.episode_number}" style="display: inline-block; background-color: #111827; color: #ffffff; font-weight: 500; font-size: 15px; text-decoration: none; padding: 12px 24px; border-radius: 6px;">자세한 내용 확인하기</a>
     </div>
   </div>
 </body>
