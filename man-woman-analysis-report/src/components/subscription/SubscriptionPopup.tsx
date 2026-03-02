@@ -98,7 +98,7 @@ export function SubscriptionPopup({ email, onClose, onSuccess }: SubscriptionPop
 
                 <div className="grid grid-cols-2 gap-4 mb-8 text-left">
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">본인 성별</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">성별</label>
                         <Select value={selectedMyGender} onValueChange={setSelectedMyGender}>
                             <SelectTrigger>
                                 <SelectValue placeholder="선택" />
@@ -138,7 +138,7 @@ export function SubscriptionPopup({ email, onClose, onSuccess }: SubscriptionPop
                         </Select>
                     </div>
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">상대 MBTI</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">관심있는 MBTI</label>
                         <Select value={selectedInterestedMbti} onValueChange={setSelectedInterestedMbti}>
                             <SelectTrigger>
                                 <SelectValue placeholder="선택" />

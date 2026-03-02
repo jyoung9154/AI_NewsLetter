@@ -7,6 +7,7 @@ import { HomeFeed } from '@/components/home/HomeFeed';
 import { StoryLog } from '@/components/story/StoryLog';
 import { StoryList } from '@/components/story/StoryList';
 import { TopBannerAd, InFeedAd } from '@/components/ads/Ads';
+import { MBTIAnalyzer } from '@/components/analysis/MBTIAnalyzer';
 import { DbEpisode } from '@/types';
 
 function HomeContent() {
@@ -93,8 +94,13 @@ function HomeContent() {
           <StoryList episodes={episodes} onReadStory={handleReadStory} />
         )}
 
-        {/* 준비 중인 탭들 */}
-        {(activeTab === 'analysis' || activeTab === 'picks') && (
+        {/* 심리 분석 탭 (MBTI 궁합 분석기) */}
+        {activeTab === 'analysis' && (
+          <MBTIAnalyzer />
+        )}
+
+        {/* 준비 중인 탭들 (추천템 등) */}
+        {activeTab === 'picks' && (
           <div className="flex flex-col items-center justify-center py-32 px-4 text-center">
             <div className="text-6xl mb-6">🛠️</div>
             <h2 className="text-title text-gray-900 mb-2">콘텐츠 준비 중입니다</h2>
