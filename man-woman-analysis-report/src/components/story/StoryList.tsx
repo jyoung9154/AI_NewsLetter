@@ -1,13 +1,13 @@
 'use client';
 
 import { DbEpisode } from '@/types';
+import Link from 'next/link';
 
 interface StoryListProps {
     episodes: DbEpisode[];
-    onReadStory: (episode: DbEpisode) => void;
 }
 
-export function StoryList({ episodes, onReadStory }: StoryListProps) {
+export function StoryList({ episodes }: StoryListProps) {
     return (
         <div className="py-12 px-4 sm:px-6 max-w-5xl mx-auto">
             {/* 헤더 섹션 */}
@@ -33,9 +33,9 @@ export function StoryList({ episodes, onReadStory }: StoryListProps) {
                     episodes.map((episode, index) => {
                         const episodeNum = episode.episode_number || (episodes.length - index);
                         return (
-                            <div
+                            <Link
+                                href={`/episodes/${episode.id}`}
                                 key={episode.id}
-                                onClick={() => onReadStory(episode)}
                                 className="group cursor-pointer bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-xl hover:border-pink-200 transition-all duration-300 flex flex-col h-full"
                             >
                                 <div className="flex items-center justify-between mb-4">
@@ -83,7 +83,7 @@ export function StoryList({ episodes, onReadStory }: StoryListProps) {
                                         자세히 보기 <span className="text-sm">→</span>
                                     </span>
                                 </div>
-                            </div>
+                            </Link>
                         );
                     })
                 )}

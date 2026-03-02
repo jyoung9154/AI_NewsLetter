@@ -76,29 +76,13 @@ function HomeContent() {
               에피소드를 불러오는 중입니다...
             </div>
           ) : (
-            <HomeFeed episodes={episodes} onReadStory={handleReadStory} />
+            <HomeFeed episodes={episodes} />
           )
-        )}
-
-        {/* 개별 스토리 읽기 뷰 */}
-        {activeTab === 'story-detail' && selectedStory && (
-          <div className="py-8 px-4 sm:px-6 max-w-5xl mx-auto">
-            <button
-              onClick={() => setActiveTab('home')}
-              className="mb-8 flex items-center gap-2 text-gray-500 hover:text-gray-900 font-medium transition-colors"
-            >
-              ← <span className="underline underline-offset-4">목록으로 돌아가기</span>
-            </button>
-            <StoryLog episode={selectedStory} />
-            <div className="mt-12 border-t border-gray-100 pt-8">
-              <InFeedAd category="화해 아이템" />
-            </div>
-          </div>
         )}
 
         {/* 스토리 탭 (리스트만 모아보기) */}
         {activeTab === 'story' && (
-          <StoryList episodes={episodes} onReadStory={handleReadStory} />
+          <StoryList episodes={episodes} />
         )}
 
         {/* 심리 분석 탭 (MBTI 궁합 분석기) */}

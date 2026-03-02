@@ -182,8 +182,22 @@ export async function POST(request: Request) {
         }
         jsonStr = jsonStr.trim();
 
+        // Remove control characters and invalid escapes that break JSON.parse
+        // Sometimes AI generates unescaped newlines or quotes inside strings
+        jsonStr = jsonStr.replace(/[\u0000-\u001F\u007F-\u009F]/g, "");
+
+        // Try to fix common unescaped quotes inside values
+        // Replace unescaped double quotes inside string values that aren't property boundaries
+        jsonStr = jsonStr.replace(/(?<=:\s*")([^"]*?)"([^"]*?)(?="[,}\n])/g, '$1\\"$2');
+
         console.log('[GENERATE API] Cleaned JSON string:\n', jsonStr);
-        const episodeData = JSON.parse(jsonStr);
+        let episodeData;
+        try {
+            episodeData = JSON.parse(jsonStr);
+        } catch (parseError) {
+            console.error('[GENERATE API] JSON Parse Error. Raw string was:', jsonStr);
+            throw new Error(`Failed to parse AI response as JSON: ${parseError}`);
+        }
 
         // 4. Add additional metadata
         if (episodeData.coupang_keyword) {

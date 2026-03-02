@@ -5,13 +5,13 @@ import { DbEpisode } from '@/types';
 import { InFeedAd } from '@/components/ads/Ads';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/Select';
 import { SubscriptionPopup } from '@/components/subscription/SubscriptionPopup';
+import Link from 'next/link';
 
 interface HomeFeedProps {
     episodes: DbEpisode[];
-    onReadStory: (episode: DbEpisode) => void;
 }
 
-export function HomeFeed({ episodes, onReadStory }: HomeFeedProps) {
+export function HomeFeed({ episodes }: HomeFeedProps) {
     const [email, setEmail] = useState('');
     const [isSubscribing, setIsSubscribing] = useState(false);
     const [subscribeMessage, setSubscribeMessage] = useState('');
@@ -79,9 +79,9 @@ export function HomeFeed({ episodes, onReadStory }: HomeFeedProps) {
 
             {/* 1. 메인 매거진 커버 (Hero Post) - 에피소드 있을 때만 표시 */}
             {hasEpisodes && latestEpisode && (
-                <div
-                    className="group cursor-pointer relative w-full h-[280px] md:h-[350px] rounded-3xl overflow-hidden mb-12 shadow-md border border-gray-100"
-                    onClick={() => onReadStory(latestEpisode)}
+                <Link
+                    href={`/episodes/${latestEpisode.id}`}
+                    className="group cursor-pointer block relative w-full h-[280px] md:h-[350px] rounded-3xl overflow-hidden mb-12 shadow-md border border-gray-100"
                 >
                     {/* 임시 커버 이미지 처리 */}
                     <div className="absolute inset-0 bg-gray-100 flex items-center justify-center overflow-hidden">
@@ -109,7 +109,7 @@ export function HomeFeed({ episodes, onReadStory }: HomeFeedProps) {
                             {latestEpisode.situation}
                         </p>
                     </div>
-                </div>
+                </Link>
             )}
 
             {/* 2. 어피티 스타일 - 구독 유도 중간 배너 */}
@@ -177,10 +177,10 @@ export function HomeFeed({ episodes, onReadStory }: HomeFeedProps) {
 
                     <div className="space-y-10">
                         {previousEpisodes.map((episode) => (
-                            <div
+                            <Link
+                                href={`/episodes/${episode.id}`}
                                 key={episode.id}
                                 className="group cursor-pointer flex flex-col sm:flex-row gap-6 items-start hover:bg-gray-50 p-4 -mx-4 rounded-2xl transition-colors"
-                                onClick={() => onReadStory(episode)}
                             >
                                 {/* 썸네일 박스 (이미지가 있거나 데스크톱일 때만 표시) */}
                                 {(episode.image_url || true) && (
@@ -211,7 +211,7 @@ export function HomeFeed({ episodes, onReadStory }: HomeFeedProps) {
                                         <div className="text-body-sm font-bold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">🙍‍♂️ 남자의 시점</div>
                                     </div>
                                 </div>
-                            </div>
+                            </Link>
                         ))}
 
                         {/* 리스트 끝부분에 In-Feed 광고 배치 - 에피소드 키워드 기반 */}
