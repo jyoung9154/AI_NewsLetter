@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { DbEpisode } from '@/types';
 import { InFeedAd } from '@/components/ads/Ads';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/Select';
+import { NewsletterSubscribe } from '@/components/sections/NewsletterSubscribe';
 
 interface HomeFeedProps {
     episodes: DbEpisode[];
@@ -125,46 +126,8 @@ export function HomeFeed({ episodes, onReadStory }: HomeFeedProps) {
             )}
 
             {/* 2. 어피티 스타일 - 구독 유도 중간 배너 */}
-            <div id="subscribe-section" className="my-12 bg-gray-900 rounded-2xl p-8 md:p-12 text-center text-white relative overflow-hidden shadow-lg">
-                {/* 장식 요소 */}
-                <div className="absolute top-0 right-0 w-64 h-64 bg-pink-500 rounded-full mix-blend-multiply filter blur-3xl opacity-30 -translate-y-1/2 translate-x-1/2"></div>
-                <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-30 translate-y-1/2 -translate-x-1/2"></div>
-
-                <div className="relative z-10">
-                    <h3 className="text-title md:text-hero mb-4">화성 남자와 금성 여자의 번역기</h3>
-                    <p className="text-gray-300 text-body-lg mb-8 max-w-xl mx-auto">
-                        이해하기 어려운 속마음, 우리가 번역해 드립니다.<br />매주 금요일 아침 8시, 여러분의 메일함으로 찾아갈게요.
-                    </p>
-                    <form
-                        onSubmit={(e) => {
-                            e.preventDefault();
-                            handleSubscribe();
-                        }}
-                        className="max-w-md mx-auto flex flex-col sm:flex-row gap-3"
-                    >
-                        <input
-                            type="email"
-                            name="email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            placeholder="이메일 주소를 입력해주세요"
-                            required
-                            className="flex-1 px-5 py-4 rounded-xl text-gray-900 bg-white border-0 focus:ring-2 focus:ring-pink-500 focus:outline-none"
-                        />
-                        <button
-                            type="submit"
-                            disabled={isSubscribing}
-                            className="bg-pink-600 hover:bg-pink-500 disabled:bg-pink-400 text-white font-bold py-4 px-8 rounded-xl transition-colors whitespace-nowrap shadow-md"
-                        >
-                            {isSubscribing ? '처리 중...' : '무료 구독'}
-                        </button>
-                    </form>
-                    {subscribeMessage && (
-                        <p className={`mt-4 text-sm font-bold ${subscribeMessage.includes('실패') || subscribeMessage.includes('오류') ? 'text-red-400' : 'text-green-400'}`}>
-                            {subscribeMessage}
-                        </p>
-                    )}
-                </div>
+            <div id="subscribe-section" className="my-12">
+                <NewsletterSubscribe gender="neutral" />
             </div>
 
             {/* 3. 리스트 피드 (이전 스토리 & 네이티브 광고) - 에피소드 있을 때만 표시 */}
