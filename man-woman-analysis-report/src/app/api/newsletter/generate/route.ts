@@ -2,8 +2,7 @@ import { NextResponse } from 'next/server';
 import { getSupabaseService } from '@/lib/supabase';
 import OpenAI from 'openai';
 
-export const dynamic = 'force-dynamic';
-export const maxDuration = 600; // 10 minutes timeout (Vercel Pro/Enterprise plan requirement)
+export const maxDuration = 60; // Vercel hobby plan limit
 
 function buildPrompt(nextNumber: number, topic: string, existingTitles: string[] = []) {
     const topicText = topic
