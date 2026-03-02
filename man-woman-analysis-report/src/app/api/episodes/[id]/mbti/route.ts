@@ -71,7 +71,7 @@ export async function GET(
 `;
 
         const response = await zhipuClient.chat.completions.create({
-            model: "glm-4-flash", // Zhipu AI Flash 모델
+            model: "glm-4.5-flash", // Zhipu AI Flash 모델
             messages: [
                 { role: "system", content: systemPrompt },
                 { role: "user", content: userPrompt }
