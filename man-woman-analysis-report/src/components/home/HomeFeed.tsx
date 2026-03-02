@@ -84,8 +84,14 @@ export function HomeFeed({ episodes, onReadStory }: HomeFeedProps) {
                     onClick={() => onReadStory(latestEpisode)}
                 >
                     {/* 임시 커버 이미지 처리 */}
-                    <div className="absolute inset-0 bg-gradient-to-tr from-rose-300 via-pink-400 to-fuchsia-400 flex items-center justify-center">
-                        <span className="text-8xl opacity-10">💬</span>
+                    <div className="absolute inset-0 bg-gray-100 flex items-center justify-center overflow-hidden">
+                        {latestEpisode.image_url ? (
+                            <img src={latestEpisode.image_url} alt={latestEpisode.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                        ) : (
+                            <div className="w-full h-full bg-gradient-to-tr from-rose-300 via-pink-400 to-fuchsia-400 flex items-center justify-center">
+                                <span className="text-8xl opacity-10">💬</span>
+                            </div>
+                        )}
                     </div>
 
                     {/* 그라데이션 오버레이 */}
@@ -161,12 +167,18 @@ export function HomeFeed({ episodes, onReadStory }: HomeFeedProps) {
                                 className="group cursor-pointer flex flex-col sm:flex-row gap-6 items-start hover:bg-gray-50 p-4 -mx-4 rounded-2xl transition-colors"
                                 onClick={() => onReadStory(episode)}
                             >
-                                {/* 작은 썸네일 박스 */}
-                                <div className="w-full sm:w-48 aspect-[4/3] bg-gray-100 rounded-xl overflow-hidden flex-shrink-0 border border-gray-200">
-                                    <div className="w-full h-full bg-gradient-to-br from-pink-50 to-white flex items-center justify-center text-gray-300 text-hero md:text-[3rem]">
-                                        📖
+                                {/* 썸네일 박스 (이미지가 있거나 데스크톱일 때만 표시) */}
+                                {(episode.image_url || true) && (
+                                    <div className={`w-full sm:w-48 aspect-[4/3] bg-gray-100 rounded-xl overflow-hidden flex-shrink-0 border border-gray-200 ${!episode.image_url ? 'hidden sm:flex' : 'flex'}`}>
+                                        {episode.image_url ? (
+                                            <img src={episode.image_url} alt={episode.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                                        ) : (
+                                            <div className="w-full h-full bg-gradient-to-br from-pink-50 to-white flex items-center justify-center text-gray-300 text-hero md:text-[3rem]">
+                                                📖
+                                            </div>
+                                        )}
                                     </div>
-                                </div>
+                                )}
 
                                 {/* 리스트 텍스트 */}
                                 <div className="flex-1 pr-4">

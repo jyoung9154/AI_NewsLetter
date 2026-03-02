@@ -55,6 +55,17 @@ export function StoryList({ episodes, onReadStory }: StoryListProps) {
                                     </div>
                                 </div>
 
+                                {/* 썸네일 영역 (이미지가 있거나 데스크톱일 때만 표시) */}
+                                <div className={`w-full aspect-video bg-gray-50 rounded-xl overflow-hidden mb-4 border border-gray-100 ${!episode.image_url ? 'hidden sm:flex' : 'flex'}`}>
+                                    {episode.image_url ? (
+                                        <img src={episode.image_url} alt={episode.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                                    ) : (
+                                        <div className="w-full h-full bg-gradient-to-br from-pink-50/30 to-blue-50/30 flex items-center justify-center text-gray-200 text-4xl">
+                                            📖
+                                        </div>
+                                    )}
+                                </div>
+
                                 <h3 className="text-xl md:text-2xl font-serif text-gray-900 mb-3 group-hover:text-pink-600 transition-colors leading-snug">
                                     {episode.title}
                                 </h3>
