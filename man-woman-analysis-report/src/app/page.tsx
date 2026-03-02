@@ -33,6 +33,13 @@ function HomeContent() {
             setActiveTab('story-detail');
           }
         }
+
+        // Handle MBTI result deep link (?result=base64_data)
+        const hasMbtiResult = searchParams.get('result');
+        if (hasMbtiResult) {
+          setActiveTab('analysis');
+        }
+
         setIsLoading(false);
       })
       .catch(err => {
