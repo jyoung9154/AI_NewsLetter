@@ -125,37 +125,40 @@ export function HomeFeed({ episodes }: HomeFeedProps) {
             )}
 
             {/* 2. 어피티 스타일 - 구독 유도 중간 배너 */}
-            <div id="subscribe-section" className="my-12 bg-gray-900 rounded-2xl p-8 md:p-12 text-center text-white relative overflow-hidden shadow-lg">
+            <div id="subscribe-section" className="my-10 bg-gray-900 rounded-2xl p-6 md:p-8 text-center text-white relative overflow-hidden shadow-lg">
                 {/* 장식 요소 */}
                 <div className="absolute top-0 right-0 w-64 h-64 bg-pink-500 rounded-full mix-blend-multiply filter blur-3xl opacity-30 -translate-y-1/2 translate-x-1/2"></div>
                 <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-30 translate-y-1/2 -translate-x-1/2"></div>
 
-                <div className="relative z-10">
-                    <h3 className="text-title md:text-hero mb-4">화성 남자와 금성 여자의 번역기</h3>
-                    <p className="text-gray-300 text-body-lg mb-6 max-w-xl mx-auto">
+                <div className="relative z-10 w-full max-w-2xl mx-auto">
+                    <h3 className="text-2xl md:text-3xl font-bold mb-3 tracking-tight">화성 남자와 금성 여자의 번역기</h3>
+                    <p className="text-gray-300 text-sm md:text-base mb-5">
                         이해하기 어려운 속마음, 우리가 번역해 드립니다.<br />매일 아침 8시, 여러분의 메일함으로 찾아갈게요.
                     </p>
 
-                    <ul className="text-left max-w-sm mx-auto mb-8 space-y-3 bg-white/10 rounded-xl p-5 backdrop-blur-sm border border-white/20">
-                        <li className="flex items-start gap-3 text-gray-200">
-                            <span className="text-pink-400 font-bold shrink-0">✨</span>
-                            <span className="text-sm font-medium">매일매일 업데이트되는 새로운 연애/갈등 번역 에피소드</span>
-                        </li>
-                        <li className="flex items-start gap-3 text-gray-200">
-                            <span className="text-pink-400 font-bold shrink-0">💌</span>
-                            <span className="text-sm font-medium">바쁜 일상 속, 아침을 깨우는 5분 심리학 리포트</span>
-                        </li>
-                        <li className="flex items-start gap-3 text-gray-200">
-                            <span className="text-pink-400 font-bold shrink-0">🔥</span>
-                            <span className="text-sm font-medium">수많은 구독자가 이미 우리들의 진짜 속마음을 엿보고 있습니다</span>
-                        </li>
-                    </ul>
+                    <div className="bg-white/10 rounded-xl p-4 backdrop-blur-sm border border-white/20 mb-6 mx-auto w-full max-w-lg">
+                        <ul className="text-left space-y-2">
+                            <li className="flex items-center gap-2 text-gray-200">
+                                <span className="text-pink-400 font-bold shrink-0 text-sm">✨</span>
+                                <span className="text-xs md:text-sm font-medium">매일 업데이트되는 새로운 연애/갈등 번역 에피소드</span>
+                            </li>
+                            <li className="flex items-center gap-2 text-gray-200">
+                                <span className="text-pink-400 font-bold shrink-0 text-sm">💌</span>
+                                <span className="text-xs md:text-sm font-medium">바쁜 일상 속, 아침을 깨우는 5분 심리학 리포트</span>
+                            </li>
+                            <li className="flex items-center gap-2 text-gray-200">
+                                <span className="text-pink-400 font-bold shrink-0 text-sm">🔥</span>
+                                <span className="text-xs md:text-sm font-medium">수많은 구독자가 이미 진짜 속마음을 엿보고 있습니다</span>
+                            </li>
+                        </ul>
+                    </div>
+
                     <form
                         onSubmit={(e) => {
                             e.preventDefault();
                             handleSubscribe();
                         }}
-                        className="max-w-md mx-auto flex flex-col sm:flex-row gap-3"
+                        className="max-w-lg mx-auto flex flex-col sm:flex-row gap-2"
                     >
                         <input
                             type="email"
@@ -164,18 +167,18 @@ export function HomeFeed({ episodes }: HomeFeedProps) {
                             onChange={(e) => setEmail(e.target.value)}
                             placeholder="이메일 주소를 입력해주세요"
                             required
-                            className="flex-1 px-5 py-4 rounded-xl text-gray-900 bg-white border-0 focus:ring-2 focus:ring-pink-500 focus:outline-none"
+                            className="flex-1 px-4 py-3 rounded-xl text-gray-900 bg-white border-0 text-sm focus:ring-2 focus:ring-pink-500 focus:outline-none placeholder-gray-400 shadow-inner"
                         />
                         <button
                             type="submit"
                             disabled={isSubscribing}
-                            className="bg-pink-600 hover:bg-pink-500 disabled:bg-pink-400 text-white font-bold py-4 px-8 rounded-xl transition-colors whitespace-nowrap shadow-md"
+                            className="bg-pink-600 hover:bg-pink-500 disabled:bg-pink-400 text-white font-bold py-3 px-6 rounded-xl text-sm transition-colors whitespace-nowrap shadow-md focus:ring-2 focus:ring-pink-500 focus:ring-offset-2 focus:ring-offset-gray-900 focus:outline-none"
                         >
                             {isSubscribing ? '처리 중...' : '무료 구독'}
                         </button>
                     </form>
                     {subscribeMessage && (
-                        <p className={`mt-4 text-sm font-bold ${subscribeMessage.includes('실패') || subscribeMessage.includes('오류') ? 'text-red-400' : 'text-green-400'}`}>
+                        <p className={`mt-3 text-xs md:text-sm font-bold ${subscribeMessage.includes('실패') || subscribeMessage.includes('오류') ? 'text-red-400' : 'text-green-400'}`}>
                             {subscribeMessage}
                         </p>
                     )}
