@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { SubscriptionPopup } from '@/components/subscription/SubscriptionPopup';
 
 interface TabsNavigationProps {
     currentTab: string;
@@ -15,6 +16,41 @@ export function TabsNavigation({ currentTab, onTabChange }: TabsNavigationProps)
         { id: 'analysis', label: '심리 분석' },
         { id: 'picks', label: '추천템' }
     ];
+
+    const [isExpanding, setIsExpanding] = useState(false);
+    const [email, setEmail] = useState('');
+    const [isSubscribing, setIsSubscribing] = useState(false);
+    const [showPopup, setShowPopup] = useState(false);
+    const [subscribedEmail, setSubscribedEmail] = useState('');
+
+    const handleSubscribe = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!email) return;
+
+        setIsSubscribing(true);
+        try {
+            const res = await fetch('/api/subscribe', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, interested_gender: 'both' })
+            });
+
+            if (res.ok) {
+                setSubscribedEmail(email);
+                setEmail('');
+                setIsExpanding(false);
+                setShowPopup(true);
+            } else {
+                const data = await res.json();
+                alert(data.error || '구독에 실패했습니다.');
+            }
+        } catch (err) {
+            console.error(err);
+            alert('오류가 발생했습니다.');
+        } finally {
+            setIsSubscribing(false);
+        }
+    };
 
     return (
         <header className="sticky top-0 z-50 bg-white border-b border-gray-100 shadow-sm">
@@ -46,19 +82,44 @@ export function TabsNavigation({ currentTab, onTabChange }: TabsNavigationProps)
                         ))}
                     </nav>
 
-                    {/* 구독 버튼 (항상 우측) */}
-                    <div className="hidden md:block">
-                        <button
-                            onClick={() => {
-                                onTabChange('home');
-                                setTimeout(() => {
-                                    document.getElementById('subscribe-section')?.scrollIntoView({ behavior: 'smooth' });
-                                }, 100);
-                            }}
-                            className="bg-gray-900 hover:bg-gray-800 text-white text-body-sm font-semibold px-5 py-2 rounded-full transition-colors shadow-sm"
-                        >
-                            무료 뉴스레터 구독
-                        </button>
+                    {/* 구독 필드 (데스크탑 우측) */}
+                    <div className="hidden md:flex items-center">
+                        {!isExpanding ? (
+                            <button
+                                onClick={() => setIsExpanding(true)}
+                                className="bg-gray-900 hover:bg-gray-800 text-white text-body-sm font-semibold px-5 py-2 rounded-full transition-all shadow-sm whitespace-nowrap"
+                            >
+                                무료 뉴스레터 구독
+                            </button>
+                        ) : (
+                            <form onSubmit={handleSubscribe} className="flex items-center gap-2 animate-in slide-in-from-right-4 duration-300">
+                                <input
+                                    type="email"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    placeholder="이메일 입력"
+                                    autoFocus
+                                    className="px-4 py-2 border border-gray-200 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-pink-500 w-48 transition-all"
+                                    required
+                                />
+                                <button
+                                    type="submit"
+                                    disabled={isSubscribing}
+                                    className="bg-pink-600 hover:bg-pink-500 text-white text-xs font-bold px-4 py-2 rounded-full transition-colors disabled:opacity-50"
+                                >
+                                    {isSubscribing ? '...' : '구독'}
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setIsExpanding(false)}
+                                    className="text-gray-400 hover:text-gray-600 p-1"
+                                >
+                                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </form>
+                        )}
                     </div>
 
                     {/* 모바일 햄버거 메뉴 (임시) */}
@@ -91,6 +152,14 @@ export function TabsNavigation({ currentTab, onTabChange }: TabsNavigationProps)
                     </nav>
                 </div>
             </div>
+
+            {showPopup && (
+                <SubscriptionPopup
+                    email={subscribedEmail}
+                    onClose={() => setShowPopup(false)}
+                />
+            )}
         </header>
     );
 }
+

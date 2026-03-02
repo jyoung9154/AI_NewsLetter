@@ -42,9 +42,17 @@ export function StoryList({ episodes, onReadStory }: StoryListProps) {
                                     <span className="text-[10px] font-black uppercase tracking-[0.2em] px-3 py-1 bg-gray-900 text-white rounded-full">
                                         Ep. {String(episodeNum).padStart(2, '0')}
                                     </span>
-                                    <span className="text-[11px] font-bold text-gray-400">
-                                        {episode.published_at ? new Date(episode.published_at).toLocaleDateString() : ''}
-                                    </span>
+                                    <div className="flex items-center gap-3">
+                                        <span className="text-[11px] font-bold text-gray-400">
+                                            {episode.published_at ? new Date(episode.published_at).toLocaleDateString() : ''}
+                                        </span>
+                                        <span className="text-[11px] text-gray-400 flex items-center gap-1">
+                                            👁️ {episode.view_count || 0}
+                                        </span>
+                                        <span className="text-[11px] text-gray-400 flex items-center gap-1">
+                                            🔗 {episode.share_count || 0}
+                                        </span>
+                                    </div>
                                 </div>
 
                                 <h3 className="text-xl md:text-2xl font-serif text-gray-900 mb-3 group-hover:text-pink-600 transition-colors leading-snug">
