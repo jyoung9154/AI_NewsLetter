@@ -7,7 +7,7 @@ export const dynamic = 'force-dynamic';
 export const maxDuration = 60; // AI API 호출 대기 시간을 위해 증가
 
 const zhipuClient = new OpenAI({
-    baseURL: "https://open.bigmodel.finance/api/paas/v4/",
+    baseURL: "https://open.bigmodel.cn/api/paas/v4/",
     apiKey: process.env.ZAI_API_KEY || "",
 });
 
