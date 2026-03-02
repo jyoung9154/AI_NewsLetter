@@ -98,7 +98,7 @@ export function HomeFeed({ episodes, onReadStory }: HomeFeedProps) {
             {/* 1. 메인 매거진 커버 (Hero Post) - 에피소드 있을 때만 표시 */}
             {hasEpisodes && latestEpisode && (
                 <div
-                    className="group cursor-pointer relative w-full h-[400px] md:h-[480px] rounded-3xl overflow-hidden mb-12 shadow-lg border border-gray-200"
+                    className="group cursor-pointer relative w-full h-[280px] md:h-[350px] rounded-3xl overflow-hidden mb-12 shadow-md border border-gray-100"
                     onClick={() => onReadStory(latestEpisode)}
                 >
                     {/* 임시 커버 이미지 처리 */}
@@ -110,14 +110,14 @@ export function HomeFeed({ episodes, onReadStory }: HomeFeedProps) {
                     <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
 
                     {/* 콘텐츠 정보 */}
-                    <div className="absolute bottom-0 left-0 p-6 md:p-10 w-full">
-                        <div className="bg-white/20 backdrop-blur-md text-white border border-white/30 px-3 py-1 rounded-full text-body-sm font-bold uppercase tracking-wider inline-block mb-4">
+                    <div className="absolute bottom-0 left-0 p-6 md:p-8 w-full">
+                        <div className="bg-white/20 backdrop-blur-md text-white border border-white/30 px-3 py-1 rounded-full text-[10px] md:text-body-sm font-bold uppercase tracking-wider inline-block mb-3">
                             이번 주 최신 이야기
                         </div>
-                        <h2 className="text-hero md:text-[3rem] font-serif text-white mb-4 leading-tight group-hover:underline decoration-2 underline-offset-4 decoration-pink-400">
+                        <h2 className="text-title md:text-hero font-serif text-white mb-3 leading-tight group-hover:underline decoration-2 underline-offset-4 decoration-pink-400">
                             {latestEpisode.title}
                         </h2>
-                        <p className="text-gray-200 text-body md:text-body-lg line-clamp-2 md:line-clamp-3 max-w-2xl font-medium leading-relaxed">
+                        <p className="text-gray-200 text-body-sm md:text-body line-clamp-2 max-w-2xl font-medium leading-relaxed">
                             {latestEpisode.situation}
                         </p>
                     </div>
