@@ -211,7 +211,7 @@ export function HomeFeed({ episodes, onReadStory }: HomeFeedProps) {
                                     latestEpisode?.tags?.[0] ||
                                     '데이트'
                                 }
-                                category="이번 주 추천"
+                                category="데이트 선물"
                             />
                         </div>
                     </div>
