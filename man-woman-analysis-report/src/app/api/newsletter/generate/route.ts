@@ -5,7 +5,9 @@ import OpenAI from 'openai';
 export const dynamic = 'force-dynamic';
 
 function buildPrompt(nextNumber: number, topic: string) {
-    const topicText = topic ? `이번 에피소드 특별 주제: "${topic}"` : `이번 에피소드 특별 주제: "연락 빈도 갈등"`; // Fallback topic
+    const topicText = topic
+        ? `이번 에피소드 특별 주제: "${topic}"`
+        : `이번 에피소드는 2030 남녀 사이에서 가장 흔하게 발생하는 현실적이고 구체적인 연애 갈등(예: 데이트 비용, 연락 빈도, 남사친/여사친, 과거 연애사, 질투 등) 중 하나를 무작위로 선택해서 주제로 삼아 작성해줘.`;
     return {
         systemPrompt: `당신은 2030 남녀의 심리를 예리하게 파헤치는 '남녀분석보고서'의 수석 에디터이자 연애 심리 전문가입니다.
 당신의 글은 딱딱하지 않고, 마치 친한 친구가 술자리에서 썰을 푸는 것처럼 매우 자연스럽고, 위트 있으며, 때로는 뼈 때리는 통찰(팩트폭행)을 담고 있어야 합니다.
