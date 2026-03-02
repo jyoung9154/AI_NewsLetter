@@ -2,7 +2,8 @@ name: Daily Newsletter Dispatch
 
 on:
   schedule:
-    - cron: '0 23 * * *'
+    # 23:05 UTC = 매일 아침 8시 5분 KST (정각에는 GitHub Actions 큐가 밀려 누락/지연될 수 있음)
+    - cron: '05 23 * * *'
   
   workflow_dispatch: # Allow manual trigger
 
