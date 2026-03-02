@@ -34,7 +34,6 @@ export interface DbEpisode {
   vote_male: number;
   coupang_keyword?: string;
   coupang_product_url?: string;
-  image_prompt?: string;
   image_url?: string;
   published_at?: string;
   created_at: string;

@@ -46,7 +46,7 @@ ${topicText}${duplicateConstraint}
   "resolution": "결론 + 뼈 때리면서도 위트 있는 한 줄 요약",
   "advice": "남자 팁: (내일 당장 써먹을 수 있는 현실적 멘트나 행동) / 여자 팁: (현실적 마인드셋이나 행동)",
   "coupang_keyword": "이 갈등을 무마할 연인 패션잡화(예: 커플 반지, 지갑 등) 쿠팡 검색 단일 키워드 (예: '20대 커플 목걸이')",
-  "image_prompt": "A high-quality, cinematic illustration or photograph of the specific situation described above, focusing on the emotions/atmosphere of the couple, detailed background, 4k, realistic or high-end digital art style. (IMPORTANT: Write this prompt in English)",
+  "image_prompt": "A simple flat vector illustration of the specific situation described above, minimal style, solid colors, clean design. (IMPORTANT: Write this prompt in English)",
   "tags": ["연애", "갈등", "심리"]
 }`
     };
@@ -207,7 +207,8 @@ export async function POST(request: Request) {
 
         // Pollinations.ai 이미지 생성 연동
         if (episodeData.image_prompt) {
-            const encodedPrompt = encodeURIComponent(episodeData.image_prompt);
+            const simplePrompt = `${episodeData.image_prompt}, simple flat vector illustration, minimal style, solid colors`;
+            const encodedPrompt = encodeURIComponent(simplePrompt);
             // 시각적 퀄리티를 위해 파라미터 추가 (800x600, 로고 제거, 시드 추가)
             const seed = Math.floor(Math.random() * 1000000);
             episodeData.image_url = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=800&height=600&nologo=true&seed=${seed}`;
@@ -218,6 +219,11 @@ export async function POST(request: Request) {
         episodeData.share_count = 0;
         episodeData.vote_female = 0;
         episodeData.vote_male = 0;
+
+        // Remove image_prompt as it's not a database column (used only for image generation)
+        if (episodeData.image_prompt) {
+            delete episodeData.image_prompt;
+        }
 
         // 5. Insert to DB
         console.log('[GENERATE API] Inserting episode into Supabase...');
