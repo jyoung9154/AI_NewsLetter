@@ -25,9 +25,9 @@ export function MBTIAnalyzer() {
                 const decoded = decodeURIComponent(atob(sharedResult));
                 const parsed = JSON.parse(decoded);
                 setResult(parsed);
-                // 결과가 있으면 해당 위치로 스크롤
+                // 결과가 있으면 페이지 최상단으로 이동 (제목과 결과가 한눈에 보이도록)
                 setTimeout(() => {
-                    resultRef.current?.scrollIntoView({ behavior: 'smooth' });
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
                 }, 500);
             } catch (e) {
                 console.error('Failed to parse shared result:', e);
