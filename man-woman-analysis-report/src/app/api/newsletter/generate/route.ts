@@ -219,11 +219,6 @@ export async function POST(request: Request) {
         episodeData.vote_female = 0;
         episodeData.vote_male = 0;
 
-        // Remove image_prompt as it's not a database column (used only for image generation)
-        if (episodeData.image_prompt) {
-            delete episodeData.image_prompt;
-        }
-
         // 5. Insert to DB
         console.log('[GENERATE API] Inserting episode into Supabase...');
         const { data: savedEpisode, error: saveError } = await supabase
