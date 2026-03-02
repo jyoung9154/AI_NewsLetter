@@ -13,9 +13,9 @@ export async function POST(request: Request) {
         }
 
         // Zhipu AI (GLM-4.5-Flash) 설정
-        const zhipuApiKey = process.env.ZHIPU_API_KEY;
+        const zhipuApiKey = process.env.ZAI_API_KEY;
         if (!zhipuApiKey) {
-            return NextResponse.json({ error: 'ZHIPU_API_KEY 설정 오류' }, { status: 500 });
+            return NextResponse.json({ error: 'ZAI_API_KEY 설정 오류' }, { status: 500 });
         }
 
         const client = new OpenAI({
@@ -49,14 +49,24 @@ ${myGender === 'female' ? '여성' : '남성'} ${myMbti}와 ${targetGender === '
             messages: [
                 { role: "system", content: systemPrompt },
                 { role: "user", content: userPrompt }
-            ],
-            response_format: { type: "json_object" }
+            ]
         });
 
         const rawContent = response.choices[0]?.message?.content || "{}";
         let parsedContent;
         try {
-            parsedContent = JSON.parse(rawContent);
+            // JSON 코드 블록 제거 및 정리
+            let cleanJson = rawContent.trim();
+            if (cleanJson.startsWith('```json')) {
+                cleanJson = cleanJson.substring(7);
+            }
+            if (cleanJson.startsWith('```')) {
+                cleanJson = cleanJson.substring(3);
+            }
+            if (cleanJson.endsWith('```')) {
+                cleanJson = cleanJson.substring(0, cleanJson.length - 3);
+            }
+            parsedContent = JSON.parse(cleanJson.trim());
         } catch (e) {
             console.error('[Analyze API] JSON Parse Error:', rawContent);
             return NextResponse.json({ error: 'AI 응답 파싱 중 오류가 발생했습니다.' }, { status: 500 });
