@@ -4,6 +4,8 @@ on:
   schedule:
     # 22:30 UTC = 매일 아침 7시 30분 KST (트래픽 분산을 위해 분 단위 조정)
     - cron: '30 22 * * *'
+    # 임시 테스트: 오늘 9시 전까지 5분마다 (23:00~23:59 UTC 동안 5분 간격)
+    - cron: '*/5 23 * * *'
   
   # Allow manual triggering from the GitHub Actions UI
   workflow_dispatch:
