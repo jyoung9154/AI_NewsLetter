@@ -84,42 +84,49 @@ export function TabsNavigation({ currentTab, onTabChange }: TabsNavigationProps)
 
                     {/* 구독 필드 (데스크탑 우측) */}
                     <div className="hidden md:flex items-center">
-                        {!isExpanding ? (
+                        <div className={`relative h-10 flex items-center transition-all duration-500 ease-in-out ${isExpanding ? 'w-64' : 'w-32'}`}>
+                            {/* 기본 버튼 - 서서히 사라짐 */}
                             <button
                                 onClick={() => setIsExpanding(true)}
-                                className="bg-gray-900 hover:bg-gray-800 text-white text-body-sm font-semibold px-5 py-2 rounded-full transition-all shadow-sm whitespace-nowrap"
+                                className={`absolute inset-0 bg-gray-900 hover:bg-gray-800 text-white text-body-sm font-semibold px-5 py-2 rounded-full transition-all duration-500 shadow-sm whitespace-nowrap flex items-center justify-center ${isExpanding ? 'opacity-0 scale-95 pointer-events-none' : 'opacity-100 scale-100'}`}
                             >
-                                무료 뉴스레터 구독
+                                구독하기
                             </button>
-                        ) : (
-                            <form onSubmit={handleSubscribe} className="flex items-center gap-2 animate-in slide-in-from-right-4 duration-300">
-                                <input
-                                    type="email"
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                    placeholder="이메일 입력"
-                                    autoFocus
-                                    className="px-4 py-2 border border-gray-200 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-pink-500 w-48 transition-all"
-                                    required
-                                />
-                                <button
-                                    type="submit"
-                                    disabled={isSubscribing}
-                                    className="bg-pink-600 hover:bg-pink-500 text-white text-xs font-bold px-4 py-2 rounded-full transition-colors disabled:opacity-50"
-                                >
-                                    {isSubscribing ? '...' : '구독'}
-                                </button>
+
+                            {/* 입력 폼 - 서서히 나타나며 확장 */}
+                            <form
+                                onSubmit={handleSubscribe}
+                                className={`absolute inset-0 flex items-center gap-1 transition-all duration-500 ease-in-out ${isExpanding ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-4 pointer-events-none'}`}
+                            >
+                                <div className="relative flex-1">
+                                    <input
+                                        type="email"
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
+                                        placeholder="이메일 입력"
+                                        autoFocus={isExpanding}
+                                        className="w-full h-10 px-4 pr-10 border border-gray-200 rounded-full text-xs focus:outline-none focus:ring-2 focus:ring-pink-500 transition-all shadow-inner"
+                                        required
+                                    />
+                                    <button
+                                        type="submit"
+                                        disabled={isSubscribing}
+                                        className="absolute right-1 top-1 h-8 w-8 bg-pink-600 hover:bg-pink-500 text-white rounded-full flex items-center justify-center transition-colors disabled:opacity-50"
+                                    >
+                                        {isSubscribing ? '...' : '→'}
+                                    </button>
+                                </div>
                                 <button
                                     type="button"
                                     onClick={() => setIsExpanding(false)}
-                                    className="text-gray-400 hover:text-gray-600 p-1"
+                                    className="text-gray-400 hover:text-gray-600 p-1 flex-shrink-0"
                                 >
                                     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                                     </svg>
                                 </button>
                             </form>
-                        )}
+                        </div>
                     </div>
 
                     {/* 모바일 햄버거 메뉴 (임시) */}
