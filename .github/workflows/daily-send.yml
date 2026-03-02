@@ -27,8 +27,15 @@ jobs:
         working-directory: ./man-woman-analysis-report
         run: npm ci
 
-      - name: Broadcast Newsletters
-        working-directory: ./man-woman-analysis-report
+      - name: Broadcast Newsletters (Auto-Retry)
+        uses: nick-fields/retry@v3
+        with:
+          timeout_minutes: 10
+          max_attempts: 3
+          retry_wait_seconds: 300 # 5분 간격
+          command: |
+            cd ./man-woman-analysis-report
+            node scripts/send-newsletter.mjs
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
@@ -36,4 +43,28 @@ jobs:
           SMTP_PORT: ${{ secrets.SMTP_PORT }}
           SMTP_USER: ${{ secrets.SMTP_USER }}
           SMTP_PASS: ${{ secrets.SMTP_PASS }}
-        run: node scripts/send-newsletter.mjs
+
+      - name: Send Alert on Failure
+        if: failure()
+        working-directory: ./man-woman-analysis-report
+        env:
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
+          SMTP_PORT: ${{ secrets.SMTP_PORT }}
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASS: ${{ secrets.SMTP_PASS }}
+        run: |
+          node -e "
+            const nodemailer = require('nodemailer');
+            const transporter = nodemailer.createTransport({
+              host: process.env.SMTP_HOST || 'smtp.gmail.com',
+              port: parseInt(process.env.SMTP_PORT) || 465,
+              secure: true,
+              auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS }
+            });
+            transporter.sendMail({
+              from: '\"System Alert\" <'+process.env.SMTP_USER+'>',
+              to: process.env.SMTP_USER,
+              subject: '🚨 [긴급] (발송 실패) 남녀 심리 뉴스레터 이메일 발송 봇 작동 에러',
+              text: '크론잡(daily-send.yml)이 3회 재시도에도 불구하고 실패했습니다. GitHub Actions 로그를 확인해주세요.'
+            }).then(() => console.log('Alert sent')).catch(e => console.error(e));
+          "
