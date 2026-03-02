@@ -279,7 +279,7 @@ export function MBTIAnalyzer() {
             )}
 
             {/* 입력 섹션 (결과 아래에 배치하지만 처음에는 상단) */}
-            <div className={`transition-all duration-700 ${result ? 'opacity-50' : 'opacity-100'}`}>
+            <div className={`transition-opacity duration-700 ${result ? 'opacity-50' : 'opacity-100'}`}>
                 <div className="grid md:grid-cols-2 gap-8 mb-8">
                     {/* 본인 */}
                     <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
@@ -356,21 +356,8 @@ export function MBTIAnalyzer() {
                     </div>
                 </div>
 
-                {/* 상황 입력 섹션 */}
-                <div className="mb-12">
-                    <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
-                        <div className="flex items-center gap-2 mb-4">
-                            <AlertCircle size={18} className="text-gray-400" />
-                            <h3 className="font-bold text-gray-800">분석하고 싶은 상황 (선택사항)</h3>
-                        </div>
-                        <textarea
-                            value={situation}
-                            onChange={(e) => setSituation(e.target.value)}
-                            placeholder="예: 연락 문제로 자주 싸워요, 첫 데이트 장소를 정하고 싶어요, 상대방이 갑자기 차가워졌어요 등"
-                            className="w-full h-32 p-4 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-pink-500 focus:bg-white transition-all resize-none"
-                        />
-                    </div>
-                </div>
+                {/* 상황 입력 섹션 - 별도 컴포넌트로 분리하여 리랜더링 최적화 */}
+                <SituationInput value={situation} onChange={setSituation} />
 
                 {/* 분석 버튼 */}
                 <div className="text-center">
@@ -392,6 +379,26 @@ export function MBTIAnalyzer() {
                         )}
                     </button>
                 </div>
+            </div>
+        </div>
+    );
+}
+
+// 상황 입력 필드를 별도 컴포넌트로 분리 (타이핑 시 전체 리랜더링 방지)
+function SituationInput({ value, onChange }: { value: string; onChange: (val: string) => void }) {
+    return (
+        <div className="mb-12">
+            <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100">
+                <div className="flex items-center gap-2 mb-4">
+                    <AlertCircle size={18} className="text-gray-400" />
+                    <h3 className="font-bold text-gray-800">분석하고 싶은 상황 (선택사항)</h3>
+                </div>
+                <textarea
+                    value={value}
+                    onChange={(e) => onChange(e.target.value)}
+                    placeholder="예: 연락 문제로 자주 싸워요, 첫 데이트 장소를 정하고 싶어요, 상대방이 갑자기 차가워졌어요 등"
+                    className="w-full h-32 p-4 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-pink-500 focus:bg-white transition-opacity resize-none"
+                />
             </div>
         </div>
     );
