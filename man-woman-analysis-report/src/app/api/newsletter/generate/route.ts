@@ -3,6 +3,7 @@ import { getSupabaseService } from '@/lib/supabase';
 import OpenAI from 'openai';
 
 export const dynamic = 'force-dynamic';
+export const maxDuration = 60; // Allow enough time for AI generation & fallback
 
 function buildPrompt(nextNumber: number, topic: string) {
     const topicText = topic
@@ -59,9 +60,11 @@ export async function POST(request: Request) {
             console.log('[GENERATE API] No body or parse error. Using empty topic.');
         }
 
-        const apiKey = process.env.ZAI_API_KEY;
-        if (!apiKey) {
-            return NextResponse.json({ error: 'ZAI_API_KEY is not configured' }, { status: 500 });
+        const geminiApiKey = process.env.GEMINI_API_KEY;
+        const zhipuApiKey = process.env.ZAI_API_KEY;
+
+        if (!geminiApiKey && !zhipuApiKey) {
+            return NextResponse.json({ error: 'Both GEMINI_API_KEY and ZAI_API_KEY are missing' }, { status: 500 });
         }
 
         const supabase = getSupabaseService();
@@ -83,33 +86,54 @@ export async function POST(request: Request) {
         }
         console.log('[GENERATE API] Next episode number resolved to:', nextNumber);
 
-        // 2. Call Zhipu AI (GLM) via OpenAI SDK
-        console.log('[GENERATE API] Initializing OpenAI SDK for Zhipu AI...');
+        // 2. Call AI via OpenAI SDK with Fallback Logic
         const prompts = buildPrompt(nextNumber, topic);
-        const openai = new OpenAI({
-            apiKey: apiKey,
-            baseURL: "https://open.bigmodel.cn/api/paas/v4/"
-        });
+        let responseText = '';
 
-        console.log('[GENERATE API] Sending prompt to Zhipu AI...');
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 seconds timeout
-
-        let completion;
+        console.log('[GENERATE API] Attempting to generate newsletter using Gemini 2.5 Flash...');
         try {
-            completion = await openai.chat.completions.create({
+            if (!geminiApiKey) throw new Error("GEMINI_API_KEY is not configured");
+
+            // Use Google's OpenAI-compatible endpoint
+            const geminiClient = new OpenAI({
+                apiKey: geminiApiKey,
+                baseURL: "https://generativelanguage.googleapis.com/v1beta/openai/"
+            });
+
+            const completion = await geminiClient.chat.completions.create({
+                model: "gemini-2.5-flash",
+                messages: [
+                    { role: "system", content: prompts.systemPrompt },
+                    { role: "user", content: prompts.userPrompt }
+                ]
+            });
+            responseText = completion.choices[0].message.content || '';
+            console.log('[GENERATE API] Gemini generation successful!');
+
+        } catch (geminiError: any) {
+            console.warn('[GENERATE API] Gemini generation failed (e.g. Rate Limit):', geminiError.message || String(geminiError));
+            console.log('[GENERATE API] Falling back to Zhipu AI (GLM-4.5-Flash)...');
+
+            if (!zhipuApiKey) {
+                console.error('[GENERATE API] Fallback failed: ZAI_API_KEY is missing');
+                return NextResponse.json({ error: 'Fallback failed: ZAI_API_KEY is not configured.' }, { status: 500 });
+            }
+
+            const zhipuClient = new OpenAI({
+                apiKey: zhipuApiKey,
+                baseURL: "https://open.bigmodel.cn/api/paas/v4/"
+            });
+
+            const completion = await zhipuClient.chat.completions.create({
                 model: "glm-4.5-flash",
                 messages: [
                     { role: "system", content: prompts.systemPrompt },
                     { role: "user", content: prompts.userPrompt }
                 ]
-            }, { signal: controller.signal as any });
-        } finally {
-            clearTimeout(timeoutId);
+            });
+            responseText = completion.choices[0].message.content || '';
+            console.log('[GENERATE API] Zhipu AI generation successful!');
         }
-
-        console.log('[GENERATE API] Received response from Zhipu AI.');
-        const responseText = completion.choices[0].message.content || '';
 
         // 3. Parse JSON safely
         console.log('[GENERATE API] Parsing JSON output...');
