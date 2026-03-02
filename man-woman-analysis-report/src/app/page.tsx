@@ -1,13 +1,15 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { TabsNavigation } from '@/components/layout/TabsNavigation';
 import { HomeFeed } from '@/components/home/HomeFeed';
 import { StoryLog } from '@/components/story/StoryLog';
 import { TopBannerAd, InFeedAd } from '@/components/ads/Ads';
 import { DbEpisode } from '@/types';
 
-export default function Home() {
+function HomeContent() {
+  const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState('home');
   const [selectedStory, setSelectedStory] = useState<DbEpisode | null>(null);
   const [episodes, setEpisodes] = useState<DbEpisode[]>([]);
@@ -17,15 +19,25 @@ export default function Home() {
     fetch('/api/episodes')
       .then(res => res.json())
       .then(data => {
-        // API가 에러를 반환하거나 배열이 아닌 경우 빈 배열로 처리
-        setEpisodes(Array.isArray(data) ? data : []);
+        const episodesList = Array.isArray(data) ? data : [];
+        setEpisodes(episodesList);
+
+        // Handle direct deep link to an episode via query parameter (?episode=id)
+        const targetEpisodeId = searchParams.get('episode');
+        if (targetEpisodeId && episodesList.length > 0) {
+          const targetEpisode = episodesList.find(ep => ep.id === targetEpisodeId);
+          if (targetEpisode) {
+            setSelectedStory(targetEpisode);
+            setActiveTab('story-detail');
+          }
+        }
         setIsLoading(false);
       })
       .catch(err => {
         console.error('Failed to load episodes:', err);
         setIsLoading(false);
       });
-  }, []);
+  }, [searchParams]);
 
   // 스토리 읽기 핸들러 (홈에서 스토리 클릭 시)
   const handleReadStory = (episode: DbEpisode) => {
@@ -128,5 +140,13 @@ export default function Home() {
         </div>
       </footer>
     </div>
+  );
+}
+
+export default function Home() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
+      <HomeContent />
+    </Suspense>
   );
 }
