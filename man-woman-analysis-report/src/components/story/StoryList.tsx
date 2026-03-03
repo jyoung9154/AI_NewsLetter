@@ -16,32 +16,76 @@ export function StoryList({ episodes }: StoryListProps) {
         setBrokenImages((prev: Record<string, boolean>) => ({ ...prev, [String(id)]: true }));
     };
 
-    // 검색 및 유사도 정렬 로직
-    const filteredAndSortedEpisodes = useMemo(() => {
-        if (!searchTerm.trim()) {
-            return episodes;
-        }
+    // 유틸리티: 문자열 정규화 (소문자화 + 모든 공백 제거)
+    const normalize = (str: string) => str.toLowerCase().replace(/\s+/g, '');
 
-        const query = searchTerm.toLowerCase().trim();
-        const keywords = query.split(/\s+/).filter(k => k.length > 0);
+    // 검색 및 유사도 정렬 로직 (Fuzzy Matching 강화)
+    const filteredAndSortedEpisodes = useMemo(() => {
+        const trimmedQuery = searchTerm.trim().toLowerCase();
+        if (!trimmedQuery) return episodes;
+
+        const queryKeywords = trimmedQuery.split(/\s+/).filter(k => k.length > 0);
+        const normalizedQuery = normalize(trimmedQuery);
 
         return episodes
             .map(episode => {
                 let score = 0;
+
+                // 원본 필드
                 const title = episode.title.toLowerCase();
                 const situation = episode.situation.toLowerCase();
-                const tags = (episode.tags || []).map(t => t.toLowerCase());
+                const tagsStr = (episode.tags || []).join(' ').toLowerCase();
 
-                // 1. 정확한 문구 포함 시 가산점
-                if (title.includes(query)) score += 50;
-                if (situation.includes(query)) score += 30;
+                // 정규화 필드 (공백 제거 버전)
+                const nTitle = normalize(episode.title);
+                const nSituation = normalize(episode.situation);
+                const nTags = normalize((episode.tags || []).join(''));
 
-                // 2. 키워드별 매칭 점수
-                keywords.forEach(keyword => {
-                    if (title.includes(keyword)) score += 10;
-                    if (situation.includes(keyword)) score += 5;
-                    if (tags.some(tag => tag.includes(keyword))) score += 8;
+                // 1. 전체 문구 일치 및 정규화 일치 (최고 가중치)
+                if (title.includes(trimmedQuery)) score += 100;
+                else if (nTitle.includes(normalizedQuery)) score += 80;
+
+                if (situation.includes(trimmedQuery)) score += 40;
+                else if (nSituation.includes(normalizedQuery)) score += 30;
+
+                // 2. 키워드별 개별 매칭 (부분 일치 대응)
+                let matchedKeywordsCount = 0;
+                queryKeywords.forEach(keyword => {
+                    let keywordScore = 0;
+                    const nKeyword = normalize(keyword);
+
+                    // 제목 매칭
+                    if (title.includes(keyword)) {
+                        keywordScore += 20;
+                        if (title.startsWith(keyword)) keywordScore += 10; // 시작 단어 가산점
+                    } else if (nTitle.includes(nKeyword)) {
+                        keywordScore += 15;
+                    }
+
+                    // 상황 매칭
+                    if (situation.includes(keyword)) {
+                        keywordScore += 10;
+                    } else if (nSituation.includes(nKeyword)) {
+                        keywordScore += 7;
+                    }
+
+                    // 태그 매칭
+                    if (tagsStr.includes(keyword)) {
+                        keywordScore += 12;
+                    } else if (nTags.includes(nKeyword)) {
+                        keywordScore += 8;
+                    }
+
+                    if (keywordScore > 0) {
+                        score += keywordScore;
+                        matchedKeywordsCount++;
+                    }
                 });
+
+                // 3. 키워드 보너스 (여러 키워드를 입력했을 때 많이 포함할수록 가산점)
+                if (queryKeywords.length > 1 && matchedKeywordsCount > 0) {
+                    score += (matchedKeywordsCount / queryKeywords.length) * 50;
+                }
 
                 return { ...episode, score };
             })
