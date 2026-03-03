@@ -228,9 +228,9 @@ export function DynamicCoupangAd() {
                             href={products[0]?.affiliateUrl}
                             target="_blank"
                             rel="noopener noreferrer sponsored"
-                            className="bg-gray-100 text-gray-700 text-[10px] font-bold px-3 py-1.5 rounded-lg hover:bg-gray-200 transition-colors shrink-0"
+                            className="bg-gray-900 text-white text-[11px] font-bold px-4 py-2 rounded-2xl hover:bg-gray-800 transition-colors shrink-0"
                         >
-                            더보기
+                            전체 상품 구경하기
                         </a>
                     </div>
                 </div>
