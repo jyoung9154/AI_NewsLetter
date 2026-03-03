@@ -88,7 +88,7 @@ export function HomeFeed({ episodes }: HomeFeedProps) {
             {/* 1. 메인 매거진 커버 (Hero Post) - 에피소드 있을 때만 표시 */}
             {hasEpisodes && latestEpisode && (
                 <Link
-                    href={`/episodes/${latestEpisode.episode_number}`}
+                    href={`/episodes/episode-${latestEpisode.episode_number}`}
                     className="group cursor-pointer block relative w-full h-[280px] md:h-[350px] rounded-3xl overflow-hidden mb-12 shadow-md border border-gray-100"
                 >
                     {/* 임시 커버 이미지 처리 */}
@@ -238,7 +238,7 @@ export function HomeFeed({ episodes }: HomeFeedProps) {
                     <div className="space-y-10">
                         {previousEpisodes.map((episode) => (
                             <Link
-                                href={`/episodes/${episode.episode_number}`}
+                                href={`/episodes/episode-${episode.episode_number}`}
                                 key={episode.id}
                                 className="group cursor-pointer flex flex-col sm:flex-row gap-6 items-start hover:bg-gray-50 p-4 -mx-4 rounded-2xl transition-colors"
                             >

@@ -40,7 +40,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
         if (episodes && episodes.length > 0) {
             const episodeRoutes = episodes.map((episode) => ({
-                url: `${BASE_URL}/episodes/${episode.episode_number}`,
+                url: `${BASE_URL}/episodes/episode-${episode.episode_number}`,
                 lastModified: episode.published_at || episode.created_at || now,
                 changeFrequency: 'weekly' as const,
                 priority: 0.9, // 개별 에피소드는 검색 노출의 핵심이므로 높은 우선순위 부여
