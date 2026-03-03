@@ -140,28 +140,43 @@ async function sendNewsletters() {
 </html>
 `;
 
-        await transporter.sendMail({
-          from: `"남녀분석보고서" <${smtpUser}>`,
-          bcc: recipientEmails,
-          subject: `Episode ${episode.episode_number}. ${episode.title}`,
-          html: emailHtml,
-        });
+        // 4. 개별 발송 (BCC 대신 개별 발송으로 안정성 및 추적성 강화)
+        let successCount = 0;
+        let failCount = 0;
 
-        // 4. 발송 성공 후 구독자 진도 업데이트 (Next Episode + 1)
-        const { error: updateError } = await supabase
-          .from('subscribers')
-          .update({ next_episode_to_send: epNum + 1 })
-          .in('email', recipientEmails);
-
-        if (updateError) {
-          console.error(`[SEND BOT] Failed to update progress for Episode ${epNum}:`, updateError);
+        for (const email of recipientEmails) {
+          try {
+            const info = await transporter.sendMail({
+              from: `"남녀분석보고서" <${smtpUser}>`,
+              to: email, // 개별 발송
+              subject: `Episode ${episode.episode_number}. ${episode.title}`,
+              html: emailHtml,
+            });
+            console.log(`[SEND BOT] Mail sent to ${email}: ${info.messageId}`);
+            successCount++;
+          } catch (sendErr) {
+            console.error(`[SEND BOT] Failed to send to ${email}:`, sendErr.message);
+            failCount++;
+          }
         }
 
-        results.push({ episode: epNum, count: recipientEmails.length, success: true });
+        // 5. 발송 성공한 인원만 진도 업데이트 (전체 성공 시에만)
+        if (successCount > 0) {
+          const { error: updateError } = await supabase
+            .from('subscribers')
+            .update({ next_episode_to_send: epNum + 1 })
+            .in('email', recipientEmails);
 
-      } catch (sendErr) {
-        console.error(`[SEND BOT] Failed to send Episode ${epNum}:`, sendErr);
-        results.push({ episode: epNum, count: recipientEmails.length, success: false, error: String(sendErr) });
+          if (updateError) {
+            console.error(`[SEND BOT] Failed to update progress for Episode ${epNum}:`, updateError);
+          }
+        }
+
+        results.push({ episode: epNum, total: recipientEmails.length, success: successCount, fail: failCount });
+
+      } catch (epProcErr) {
+        console.error(`[SEND BOT] Fatal error processing Episode ${epNum}:`, epProcErr);
+        results.push({ episode: epNum, error: String(epProcErr) });
       }
     }
 
