@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { DbEpisode } from '@/types';
 import Link from 'next/link';
-import { Search, X, MessageSquare, Heart } from 'lucide-react';
+import { Search, X, MessageSquare, Heart, Eye, Share2 } from 'lucide-react';
 
 interface StoryListProps {
     episodes: DbEpisode[];
@@ -200,15 +200,27 @@ export function StoryList({ episodes }: StoryListProps) {
                                 </p>
 
                                 <div className="pt-5 border-t border-gray-50 flex items-center justify-between">
-                                    <div className="flex gap-2">
-                                        <div className="px-3 py-1 rounded-full bg-pink-50 text-[11px] font-bold text-pink-600 flex items-center gap-1">
-                                            <MessageSquare className="w-3 h-3" /> 여자의 시점
+                                    <div className="flex flex-wrap items-center gap-3 flex-1">
+                                        <div className="flex gap-2">
+                                            <div className="px-3 py-1 rounded-full bg-pink-50 text-[10px] font-bold text-pink-600 flex items-center gap-1">
+                                                <MessageSquare className="w-3 h-3" /> 여자의 시점
+                                            </div>
+                                            <div className="px-3 py-1 rounded-full bg-blue-50 text-[10px] font-bold text-blue-600 flex items-center gap-1">
+                                                <Heart className="w-2.5 h-2.5" /> 남자의 시점
+                                            </div>
                                         </div>
-                                        <div className="px-3 py-1 rounded-full bg-blue-50 text-[11px] font-bold text-blue-600 flex items-center gap-1">
-                                            <Heart className="w-3 h-3" /> 남자의 시점
+                                        <div className="flex items-center gap-2.5 ml-auto text-gray-400">
+                                            <div className="flex items-center gap-1">
+                                                <Eye className="w-3.5 h-3.5" />
+                                                <span className="text-[11px] font-medium">{(episode.view_count || 0).toLocaleString()}</span>
+                                            </div>
+                                            <div className="flex items-center gap-1">
+                                                <Share2 className="w-3.5 h-3.5" />
+                                                <span className="text-[11px] font-medium">{(episode.share_count || 0).toLocaleString()}</span>
+                                            </div>
                                         </div>
                                     </div>
-                                    <div className="text-gray-400 group-hover:text-pink-500 transition-colors translate-x-0 group-hover:translate-x-1 duration-300">
+                                    <div className="text-gray-400 group-hover:text-pink-500 transition-colors translate-x-0 group-hover:translate-x-1 duration-300 ml-4">
                                         <Search className="w-5 h-5" />
                                     </div>
                                 </div>
@@ -235,6 +247,6 @@ export function StoryList({ episodes }: StoryListProps) {
                     </button>
                 </div>
             </div>
-        </div>
+        </div >
     );
 }
