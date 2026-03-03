@@ -72,7 +72,7 @@ export function HomeFeed({ episodes }: HomeFeedProps) {
     // episodes가 있을 때만 Hero/List 섹션 표시
     const hasEpisodes = Array.isArray(episodes) && episodes.length > 0;
     const latestEpisode = hasEpisodes ? episodes[0] : null;
-    const previousEpisodes = hasEpisodes ? episodes.slice(1) : [];
+    const previousEpisodes = hasEpisodes ? episodes.slice(1, 11) : [];
 
     // 깨진 이미지 처리를 위한 로컬 상태
     const [brokenImages, setBrokenImages] = useState<Record<string, boolean>>({});
