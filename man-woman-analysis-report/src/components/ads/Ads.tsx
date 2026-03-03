@@ -126,3 +126,34 @@ export function InFeedAd({ keyword = '데이트', category = '추천 상품' }: 
         </div>
     );
 }
+
+/**
+ * 쿠팡 파트너스 다이나믹 배너 (고객 관심 기반 추천)
+ */
+export function DynamicCoupangAd() {
+    return (
+        <div className="w-full my-12 flex justify-center">
+            <div className="w-full max-w-4xl bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 flex flex-col items-center">
+                <span className="text-[10px] font-bold text-gray-300 uppercase tracking-widest py-2 border-b border-gray-50 w-full text-center bg-gray-50/50">
+                    ADVERTISEMENT
+                </span>
+                <div className="w-full flex justify-center p-4">
+                    {/* 쿠팡 파트너스 다이나믹 배너 스크립트/아이프레임 영역 */}
+                    {/* 아래는 표준 다이나믹 배너 iframe 코드의 예시입니다. */}
+                    <iframe
+                        src="https://ads-partners.coupang.com/widgets.html?id=799863&template=carousel&trackingCode=AF4413346&subId=&width=100%&height=140"
+                        width="100%"
+                        height="140"
+                        frameBorder="0"
+                        scrolling="no"
+                        referrerPolicy="unsafe-url"
+                        className="max-w-full"
+                    ></iframe>
+                </div>
+                <span className="text-[9px] text-gray-400 pb-2">
+                    이 포스팅은 쿠팡 파트너스 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다.
+                </span>
+            </div>
+        </div>
+    );
+}

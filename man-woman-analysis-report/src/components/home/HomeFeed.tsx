@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { DbEpisode } from '@/types';
-import { InFeedAd } from '@/components/ads/Ads';
+import { InFeedAd, DynamicCoupangAd } from '@/components/ads/Ads';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/Select';
 import { SubscriptionPopup } from '@/components/subscription/SubscriptionPopup';
 import Link from 'next/link';
@@ -226,7 +226,10 @@ export function HomeFeed({ episodes }: HomeFeedProps) {
                 </div>
             </div>
 
-            {/* 3. 리스트 피드 (이전 스토리 & 네이티브 광고) - 에피소드 있을 때만 표시 */}
+            {/* 3. 쿠팡 다이나믹 배너 (고객 관심 기반 추천) */}
+            <DynamicCoupangAd />
+
+            {/* 4. 리스트 피드 (이전 스토리 & 네이티브 광고) - 에피소드 있을 때만 표시 */}
             {hasEpisodes && (
                 <div className="mt-16">
                     <h3 className="text-section font-serif text-gray-900 mb-8 border-b-2 border-gray-900 pb-4 inline-block">지난 이야기 모아보기</h3>
