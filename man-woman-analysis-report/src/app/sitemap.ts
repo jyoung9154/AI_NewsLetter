@@ -34,13 +34,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         // 최신순으로 활성화된 에피소드 가져오기
         const { data: episodes } = await supabase
             .from('episodes')
-            .select('slug, published_at, created_at')
+            .select('episode_number, published_at, created_at')
             .eq('status', 'published')
             .order('created_at', { ascending: false });
 
         if (episodes && episodes.length > 0) {
             const episodeRoutes = episodes.map((episode) => ({
-                url: `${BASE_URL}/episodes/${episode.slug}`,
+                url: `${BASE_URL}/episodes/${episode.episode_number}`,
                 lastModified: episode.published_at || episode.created_at || now,
                 changeFrequency: 'weekly' as const,
                 priority: 0.9, // 개별 에피소드는 검색 노출의 핵심이므로 높은 우선순위 부여
