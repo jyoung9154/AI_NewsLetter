@@ -148,7 +148,7 @@ export function HomeFeed({ episodes }: HomeFeedProps) {
                             </li>
                             <li className="flex items-center gap-2 text-gray-200">
                                 <span className="text-pink-400 font-bold shrink-0 text-sm">🔥</span>
-                                <span className="text-xs md:text-sm font-medium">수많은 구독자가 이미 진짜 속마음을 엿보고 있습니다</span>
+                                <span className="text-xs md:text-sm font-medium">1만명+ 구독자가 이미 진짜 속마음을 엿보고 있습니다</span>
                             </li>
                         </ul>
                     </div>
