@@ -374,7 +374,7 @@ export function MBTIAnalyzer() {
                         ) : (
                             <>
                                 <Sparkles size={20} />
-                                {result ? '다시 분석하기' : 'AI가 분석하는 궁합 확인하기'}
+                                {result ? '다시 분석하기' : '우리 둘의 궁합 확인하기'}
                             </>
                         )}
                     </button>

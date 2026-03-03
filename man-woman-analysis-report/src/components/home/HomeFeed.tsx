@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { DbEpisode } from '@/types';
 import { InFeedAd, DynamicCoupangAd } from '@/components/ads/Ads';
+import { Eye, Share2 } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/Select';
 import { SubscriptionPopup } from '@/components/subscription/SubscriptionPopup';
 import Link from 'next/link';
@@ -270,9 +271,21 @@ export function HomeFeed({ episodes }: HomeFeedProps) {
                                     <p className="text-gray-600 text-body line-clamp-2 md:line-clamp-3 leading-relaxed">
                                         {episode.situation}
                                     </p>
-                                    <div className="mt-4 flex gap-4">
-                                        <div className="text-body-sm font-bold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">🙋‍♀️ 여자의 시점</div>
-                                        <div className="text-body-sm font-bold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">🙍‍♂️ 남자의 시점</div>
+                                    <div className="mt-4 flex flex-wrap items-center gap-4">
+                                        <div className="flex items-center gap-3">
+                                            <div className="text-[11px] font-bold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">🙋‍♀️ 여자의 시점</div>
+                                            <div className="text-[11px] font-bold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">🙍‍♂️ 남자의 시점</div>
+                                        </div>
+                                        <div className="flex items-center gap-3 ml-auto text-gray-400">
+                                            <div className="flex items-center gap-1">
+                                                <Eye className="w-3.5 h-3.5" />
+                                                <span className="text-[11px] font-medium">{(episode.view_count || 0).toLocaleString()}</span>
+                                            </div>
+                                            <div className="flex items-center gap-1">
+                                                <Share2 className="w-3.5 h-3.5" />
+                                                <span className="text-[11px] font-medium">{(episode.share_count || 0).toLocaleString()}</span>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </Link>
