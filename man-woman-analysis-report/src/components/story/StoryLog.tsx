@@ -93,7 +93,7 @@ export function StoryLog({ episode }: StoryLogProps) {
   // 공유하기 핸들러
   const handleShare = async (platform: 'link' | 'twitter' | 'kakao') => {
     try {
-      const url = `${window.location.origin}/episodes/episode-${episode.episode_number}`;
+      const url = `${window.location.origin}/episodes/${episode.slug}`;
 
       if (platform === 'link') {
         await navigator.clipboard.writeText(url);
