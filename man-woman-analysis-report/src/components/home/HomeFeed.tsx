@@ -139,7 +139,7 @@ export function HomeFeed({ episodes }: HomeFeedProps) {
                             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-pink-500/10 border border-pink-500/20 text-pink-400 text-[10px] font-bold uppercase tracking-widest mb-6">
                                 Newsletter
                             </div>
-                            <h3 className="text-3xl md:text-4xl font-bold text-white mb-4 tracking-tight leading-tight">
+                            <h3 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-4 tracking-tight leading-tight whitespace-nowrap">
                                 화성 남자와 금성 여자의 번역기
                             </h3>
                             <p className="text-gray-400 text-base md:text-lg mb-8 leading-relaxed max-w-lg">
@@ -182,7 +182,7 @@ export function HomeFeed({ episodes }: HomeFeedProps) {
                         <div className="lg:w-2/5 p-8 md:p-10 lg:p-12 flex flex-col justify-center bg-white/5 backdrop-blur-sm">
                             <div className="mb-6 text-center lg:text-left">
                                 <h4 className="text-xl font-bold text-white mb-2">무료로 시작하기</h4>
-                                <p className="text-gray-400 text-sm">지금 구독하고 첫 분석 보고서를 즉시 받으세요.</p>
+                                <p className="text-gray-400 text-[13px] sm:text-sm whitespace-nowrap">지금 구독하고 첫 분석 보고서를 즉시 받으세요.</p>
                             </div>
 
                             <form
