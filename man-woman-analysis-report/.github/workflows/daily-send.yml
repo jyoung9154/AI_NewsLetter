@@ -2,7 +2,7 @@ name: Daily Newsletter Sender
 
 on:
   schedule:
-    - cron: '*/1 * * * *' # 테스트를 위해 1분마다 실행
+    - cron: '40 */2 * * *' # 2시간마다 (홀수 시간 40분) 실행
   workflow_dispatch: # 수동 실행 가능
 
 jobs:
