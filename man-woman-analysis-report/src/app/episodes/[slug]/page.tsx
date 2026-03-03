@@ -4,13 +4,31 @@ import { StoryLog } from '@/components/story/StoryLog';
 import { InFeedAd } from '@/components/ads/Ads';
 import Link from 'next/link';
 
+// Helper to parse episode number from slug (e.g., "episode-6" -> 6)
+function parseEpisodeNumber(slug: string): number | null {
+    if (!slug) return null;
+
+    // Support both "episode-6" and "6" formats for robustness
+    const match = slug.match(/^(?:episode-)?(\d+)$/i);
+    if (match) {
+        return parseInt(match[1], 10);
+    }
+    return null;
+}
+
 // Dynamically generate metadata for each episode for SEO
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
     const supabase = getSupabaseService();
+    const episodeNum = parseEpisodeNumber(params.slug);
+
+    if (episodeNum === null) {
+        return { title: '에피소드를 찾을 수 없습니다 | 남녀분석보고서' };
+    }
+
     const { data: episode } = await supabase
         .from('episodes')
         .select('*')
-        .eq('slug', params.slug)
+        .eq('episode_number', episodeNum)
         .single();
 
     if (!episode) {
@@ -29,7 +47,7 @@ export async function generateMetadata({ params }: { params: { slug: string } })
             title,
             description,
             type: 'article',
-            url: `https://man-woman-analysis-report.vercel.app/episodes/${episode.slug}`,
+            url: `https://man-woman-analysis-report.vercel.app/episodes/episode-${episode.episode_number}`,
             images: episode.image_url ? [{ url: episode.image_url }] : [],
             siteName: '남녀분석보고서',
         },
@@ -44,11 +62,17 @@ export async function generateMetadata({ params }: { params: { slug: string } })
 
 export default async function EpisodePage({ params }: { params: { slug: string } }) {
     const supabase = getSupabaseService();
-    const { data: episode } = await supabase
-        .from('episodes')
-        .select('*')
-        .eq('slug', params.slug)
-        .single();
+    const episodeNum = parseEpisodeNumber(params.slug);
+
+    let episode = null;
+    if (episodeNum !== null) {
+        const { data } = await supabase
+            .from('episodes')
+            .select('*')
+            .eq('episode_number', episodeNum)
+            .single();
+        episode = data;
+    }
 
     if (!episode) {
         return (
