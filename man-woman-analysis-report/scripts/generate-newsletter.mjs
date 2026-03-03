@@ -2,11 +2,19 @@ import { createClient } from '@supabase/supabase-js';
 import OpenAI from 'openai';
 
 // Env variables are provided by GitHub Actions Secrets
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const geminiApiKey = process.env.GEMINI_API_KEY;
-const zhipuApiKey = process.env.ZAI_API_KEY;
+const zhipuApiKey = process.env.ZAI_API_KEY || process.env.ZHIPU_API_KEY;
 const coupangAffiliateId = process.env.NEXT_PUBLIC_COUPANG_AFFILIATE_ID || '';
+
+console.log('[GENERATE BOT] Environment Check:', {
+    hasSupabaseUrl: !!supabaseUrl,
+    hasSupabaseKey: !!supabaseKey,
+    hasGeminiKey: !!geminiApiKey,
+    hasZhipuKey: !!zhipuApiKey,
+    nodeVersion: process.version
+});
 
 if (!supabaseUrl || !supabaseKey) {
     console.error('Missing Supabase credentials');

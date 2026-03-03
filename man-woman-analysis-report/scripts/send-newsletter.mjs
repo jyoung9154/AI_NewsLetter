@@ -1,12 +1,21 @@
 import { createClient } from '@supabase/supabase-js';
 import nodemailer from 'nodemailer';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const smtpHost = process.env.SMTP_HOST || 'smtp.gmail.com';
 const smtpPort = process.env.SMTP_PORT ? parseInt(process.env.SMTP_PORT) : 465;
 const smtpUser = process.env.SMTP_USER;
 const smtpPass = process.env.SMTP_PASS;
+
+console.log('[SEND BOT] Environment Check:', {
+  hasSupabaseUrl: !!supabaseUrl,
+  hasSupabaseKey: !!supabaseKey,
+  hasSmtpHost: !!smtpHost,
+  hasSmtpUser: !!smtpUser,
+  hasSmtpPass: !!smtpPass,
+  nodeVersion: process.version
+});
 
 if (!supabaseUrl || !supabaseKey) {
   console.error('[SEND BOT] Missing Supabase credentials');
