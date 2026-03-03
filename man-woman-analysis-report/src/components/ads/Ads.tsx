@@ -173,62 +173,64 @@ export function DynamicCoupangAd() {
     if (products.length === 0) return null;
 
     return (
-        <div className="w-full my-12 relative group">
-            {/* 배경 장식 */}
-            <div className="absolute -inset-1 bg-gradient-to-r from-blue-100 to-pink-100 rounded-[2rem] blur-xl opacity-50 group-hover:opacity-100 transition duration-1000"></div>
+        <div className="w-full my-8 relative group">
+            {/* 배경 장식 (더 은은하게) */}
+            <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-50/50 to-pink-50/50 rounded-2xl blur-lg opacity-40 transition duration-1000"></div>
 
-            <div className="relative bg-white rounded-3xl overflow-hidden shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100">
-                <div className="bg-gray-900 px-6 py-2 flex items-center justify-between">
-                    <span className="text-[10px] font-black text-white uppercase tracking-[0.2em] flex items-center gap-2">
-                        <span className="w-1.5 h-1.5 rounded-full bg-pink-500 animate-pulse"></span>
-                        Recommended for You
+            <div className="relative bg-white rounded-2xl overflow-hidden shadow-[0_4px_20px_rgb(0,0,0,0.03)] border border-gray-100">
+                <div className="bg-gray-900 px-4 py-1.5 flex items-center justify-between">
+                    <span className="text-[9px] font-black text-white uppercase tracking-[0.2em] flex items-center gap-1.5">
+                        <span className="w-1 h-1 rounded-full bg-pink-500 animate-pulse"></span>
+                        Recommended
                     </span>
-                    <span className="text-[9px] text-gray-500 font-medium">Interest-based matching</span>
+                    <span className="text-[8px] text-gray-500">Interest-based</span>
                 </div>
 
-                <div className="p-4 md:p-6">
-                    {/* 가로 스크롤 가능한 상품 리스트 */}
-                    <div className="flex gap-4 md:gap-6 overflow-x-auto pb-4 scrollbar-hide snap-x">
+                <div className="p-3 md:p-4">
+                    {/* 가로 스크롤 가능한 상품 리스트 (높이 축소) */}
+                    <div className="flex gap-3 md:gap-4 overflow-x-auto pb-2 scrollbar-hide snap-x">
                         {products.map((product) => (
                             <a
                                 key={product.productId}
                                 href={product.affiliateUrl}
                                 target="_blank"
                                 rel="noopener noreferrer sponsored"
-                                className="min-w-[150px] md:min-w-[180px] flex-1 group/item cursor-pointer snap-start"
+                                className="min-w-[120px] md:min-w-[150px] flex-1 group/item cursor-pointer snap-start"
                             >
-                                <div className="aspect-square bg-gray-50 rounded-2xl mb-3 overflow-hidden border border-gray-50 relative">
+                                <div className="h-28 md:h-32 bg-gray-50 rounded-xl mb-2 overflow-hidden border border-gray-50 relative">
                                     <img
                                         src={product.image}
                                         alt={product.title}
-                                        className="w-full h-full object-cover group-hover/item:scale-110 transition-transform duration-500"
+                                        // object-contain으로 변경하여 이미지가 잘리지 않으면서 슬림하게 표현
+                                        className="w-full h-full object-contain p-2 group-hover/item:scale-105 transition-transform duration-500"
                                     />
                                     {product.discountRate !== undefined && product.discountRate > 0 && (
-                                        <div className="absolute top-2 right-2 bg-pink-600 text-white text-[10px] font-black px-2 py-0.5 rounded-lg shadow-sm">
+                                        <div className="absolute top-1.5 right-1.5 bg-pink-600 text-white text-[9px] font-black px-1.5 py-0.5 rounded shadow-sm">
                                             {product.discountRate}%
                                         </div>
                                     )}
                                 </div>
-                                <h4 className="text-[13px] font-bold text-gray-800 line-clamp-1 mb-1 group-hover/item:text-pink-600 transition-colors">
+                                <h4 className="text-[11px] font-bold text-gray-800 line-clamp-1 mb-0.5 group-hover/item:text-pink-600 transition-colors">
                                     {product.title}
                                 </h4>
-                                <p className="text-sm font-black text-gray-900">
+                                <p className="text-[12px] font-black text-gray-900">
                                     {product.price.toLocaleString()}원
                                 </p>
                             </a>
                         ))}
                     </div>
 
-                    <div className="mt-4 pt-4 border-t border-gray-50 flex flex-col md:flex-row items-center justify-between gap-3">
-                        <p className="text-[10px] text-gray-400 text-center md:text-left leading-relaxed">
-                            이 포스팅은 쿠팡 파트너스 활동의 일환으로, 이에 따른 일정액의 수수료를 제공받습니다.
+                    <div className="mt-2 pt-2 border-t border-gray-50 flex items-center justify-between gap-2">
+                        <p className="text-[9px] text-gray-400 leading-tight">
+                            이 포스팅은 쿠팡 파트너스 활동의 일환으로 일정액의 수수료를 제공받습니다.
                         </p>
                         <a
-                            href={products[0].affiliateUrl}
+                            href={products[0]?.affiliateUrl}
                             target="_blank"
-                            className="bg-gray-900 text-white text-[11px] font-bold px-4 py-2 rounded-xl hover:bg-pink-600 transition-colors shrink-0"
+                            rel="noopener noreferrer sponsored"
+                            className="bg-gray-100 text-gray-700 text-[10px] font-bold px-3 py-1.5 rounded-lg hover:bg-gray-200 transition-colors shrink-0"
                         >
-                            전체 상품 구경하기
+                            더보기
                         </a>
                     </div>
                 </div>
