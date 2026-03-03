@@ -124,64 +124,105 @@ export function HomeFeed({ episodes }: HomeFeedProps) {
                 </Link>
             )}
 
-            {/* 2. 어피티 스타일 - 구독 유도 중간 배너 */}
-            <div id="subscribe-section" className="my-10 bg-gray-900 rounded-2xl p-6 md:p-8 text-center text-white relative overflow-hidden shadow-lg">
-                {/* 장식 요소 */}
-                <div className="absolute top-0 right-0 w-64 h-64 bg-pink-500 rounded-full mix-blend-multiply filter blur-3xl opacity-30 -translate-y-1/2 translate-x-1/2"></div>
-                <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-30 translate-y-1/2 -translate-x-1/2"></div>
+            {/* 2. 어피티 스타일 - 구독 유도 중간 배너 (2분할 프리미엄 레이아웃) */}
+            <div id="subscribe-section" className="my-14 relative group">
+                <div className="absolute -inset-1 bg-gradient-to-r from-pink-500 to-blue-500 rounded-3xl blur opacity-10 group-hover:opacity-20 transition duration-1000"></div>
 
-                <div className="relative z-10 w-full max-w-2xl mx-auto">
-                    <h3 className="text-2xl md:text-3xl font-bold mb-3 tracking-tight">화성 남자와 금성 여자의 번역기</h3>
-                    <p className="text-gray-300 text-sm md:text-base mb-5">
-                        이해하기 어려운 속마음, 우리가 번역해 드립니다.<br />매일 아침 8시, 여러분의 메일함으로 찾아갈게요.
-                    </p>
+                <div className="relative bg-gray-900 rounded-2xl overflow-hidden shadow-2xl border border-white/5">
+                    {/* 장식용 배경 요소 */}
+                    <div className="absolute top-0 right-0 w-80 h-80 bg-pink-600 rounded-full mix-blend-screen filter blur-[100px] opacity-20 -translate-y-1/2 translate-x-1/3"></div>
+                    <div className="absolute bottom-0 left-0 w-80 h-80 bg-blue-600 rounded-full mix-blend-screen filter blur-[100px] opacity-20 translate-y-1/2 -translate-x-1/3"></div>
 
-                    <div className="bg-white/10 rounded-xl p-4 backdrop-blur-sm border border-white/20 mb-6 mx-auto w-full max-w-lg">
-                        <ul className="text-left space-y-2">
-                            <li className="flex items-center gap-2 text-gray-200">
-                                <span className="text-pink-400 font-bold shrink-0 text-sm">✨</span>
-                                <span className="text-xs md:text-sm font-medium">매일 업데이트되는 새로운 연애/갈등 번역 에피소드</span>
-                            </li>
-                            <li className="flex items-center gap-2 text-gray-200">
-                                <span className="text-pink-400 font-bold shrink-0 text-sm">💌</span>
-                                <span className="text-xs md:text-sm font-medium">바쁜 일상 속, 아침을 깨우는 5분 심리학 리포트</span>
-                            </li>
-                            <li className="flex items-center gap-2 text-gray-200">
-                                <span className="text-pink-400 font-bold shrink-0 text-sm">🔥</span>
-                                <span className="text-xs md:text-sm font-medium">1만명+ 구독자가 이미 진짜 속마음을 엿보고 있습니다</span>
-                            </li>
-                        </ul>
+                    <div className="relative z-10 flex flex-col lg:flex-row items-stretch">
+                        {/* 왼쪽: 가치 제안 섹션 */}
+                        <div className="lg:w-3/5 p-8 md:p-10 lg:p-12 text-left border-b lg:border-b-0 lg:border-r border-white/10">
+                            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-pink-500/10 border border-pink-500/20 text-pink-400 text-[10px] font-bold uppercase tracking-widest mb-6">
+                                Newsletter
+                            </div>
+                            <h3 className="text-3xl md:text-4xl font-bold text-white mb-4 tracking-tight leading-tight">
+                                화성 남자와 금성 여자의 번역기
+                            </h3>
+                            <p className="text-gray-400 text-base md:text-lg mb-8 leading-relaxed max-w-lg">
+                                이해하기 어려운 속마음, 우리가 번역해 드립니다.<br className="hidden md:block" />
+                                <span className="text-white font-medium">매일 아침 8시, 여러분의 메일함으로 찾아갈게요.</span>
+                            </p>
+
+                            <div className="space-y-4">
+                                <div className="flex items-start gap-4">
+                                    <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center shrink-0 border border-white/10">
+                                        <span className="text-lg">✨</span>
+                                    </div>
+                                    <div>
+                                        <h4 className="text-white font-semibold text-sm mb-1">매일 업데이트되는 새로운 에피소드</h4>
+                                        <p className="text-gray-500 text-xs leading-relaxed">복잡한 관계의 실마리를 풀어주는 남녀 심리 분석</p>
+                                    </div>
+                                </div>
+                                <div className="flex items-start gap-4">
+                                    <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center shrink-0 border border-white/10">
+                                        <span className="text-lg">💌</span>
+                                    </div>
+                                    <div>
+                                        <h4 className="text-white font-semibold text-sm mb-1">아침을 깨우는 5분 심리학 리포트</h4>
+                                        <p className="text-gray-500 text-xs leading-relaxed">출근길 대중교통에서 가볍게 읽는 관계 인사이트</p>
+                                    </div>
+                                </div>
+                                <div className="flex items-start gap-4">
+                                    <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center shrink-0 border border-white/10">
+                                        <span className="text-lg">🔥</span>
+                                    </div>
+                                    <div>
+                                        <h4 className="text-white font-semibold text-sm mb-1">1만명+ 구독자가 증명하는 가치</h4>
+                                        <p className="text-gray-500 text-xs leading-relaxed">이미 수많은 분들이 관계의 해답을 찾고 있습니다</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* 오른쪽: 구독 폼 섹션 */}
+                        <div className="lg:w-2/5 p-8 md:p-10 lg:p-12 flex flex-col justify-center bg-white/5 backdrop-blur-sm">
+                            <div className="mb-6 text-center lg:text-left">
+                                <h4 className="text-xl font-bold text-white mb-2">무료로 시작하기</h4>
+                                <p className="text-gray-400 text-sm">지금 구독하고 첫 분석 보고서를 즉시 받으세요.</p>
+                            </div>
+
+                            <form
+                                onSubmit={(e) => {
+                                    e.preventDefault();
+                                    handleSubscribe();
+                                }}
+                                className="space-y-3"
+                            >
+                                <div className="relative group">
+                                    <input
+                                        type="email"
+                                        name="email"
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
+                                        placeholder="이메일 주소를 입력해주세요"
+                                        required
+                                        className="w-full px-5 py-4 rounded-xl text-white bg-gray-800 border border-white/10 focus:ring-2 focus:ring-pink-500 focus:border-transparent outline-none transition-all placeholder:text-gray-500"
+                                    />
+                                </div>
+                                <button
+                                    type="submit"
+                                    disabled={isSubscribing}
+                                    className="w-full bg-gradient-to-r from-pink-600 to-pink-500 hover:from-pink-500 hover:to-pink-400 disabled:from-gray-700 disabled:to-gray-700 text-white font-bold py-4 rounded-xl transition-all shadow-lg active:scale-[0.98]"
+                                >
+                                    {isSubscribing ? '처리 중...' : '뉴스레터 무료 구독'}
+                                </button>
+                            </form>
+
+                            {subscribeMessage && (
+                                <p className={`mt-4 text-center text-sm font-bold ${subscribeMessage.includes('실패') || subscribeMessage.includes('오류') ? 'text-red-400' : 'text-green-400'}`}>
+                                    {subscribeMessage}
+                                </p>
+                            )}
+
+                            <p className="mt-6 text-[10px] text-center text-gray-500 leading-relaxed uppercase tracking-tighter">
+                                No spam. Unsubscribe anytime with one click.
+                            </p>
+                        </div>
                     </div>
-
-                    <form
-                        onSubmit={(e) => {
-                            e.preventDefault();
-                            handleSubscribe();
-                        }}
-                        className="max-w-lg mx-auto flex flex-col sm:flex-row gap-2"
-                    >
-                        <input
-                            type="email"
-                            name="email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            placeholder="이메일 주소를 입력해주세요"
-                            required
-                            className="flex-1 px-4 py-3 rounded-xl text-gray-900 bg-white border-0 text-sm focus:ring-2 focus:ring-pink-500 focus:outline-none placeholder-gray-400 shadow-inner"
-                        />
-                        <button
-                            type="submit"
-                            disabled={isSubscribing}
-                            className="bg-pink-600 hover:bg-pink-500 disabled:bg-pink-400 text-white font-bold py-3 px-6 rounded-xl text-sm transition-colors whitespace-nowrap shadow-md focus:ring-2 focus:ring-pink-500 focus:ring-offset-2 focus:ring-offset-gray-900 focus:outline-none"
-                        >
-                            {isSubscribing ? '처리 중...' : '무료 구독'}
-                        </button>
-                    </form>
-                    {subscribeMessage && (
-                        <p className={`mt-3 text-xs md:text-sm font-bold ${subscribeMessage.includes('실패') || subscribeMessage.includes('오류') ? 'text-red-400' : 'text-green-400'}`}>
-                            {subscribeMessage}
-                        </p>
-                    )}
                 </div>
             </div>
 
