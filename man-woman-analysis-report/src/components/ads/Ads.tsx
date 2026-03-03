@@ -57,9 +57,9 @@ export function InFeedAd({ keyword = '데이트', category = '추천 상품' }: 
 
     if (loading) {
         return (
-            <div className="w-full my-12 bg-white rounded-2xl p-6 md:p-8 border border-pink-100 shadow-sm animate-pulse">
+            <div className="w-full my-8 md:my-12 bg-white rounded-2xl p-4 md:p-8 border border-pink-100 shadow-sm animate-pulse">
                 <div className="h-4 bg-gray-200 rounded w-1/4 mb-6 relative"></div>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                <div className="grid grid-cols-3 gap-3 md:gap-6">
                     {[1, 2, 3].map(i => (
                         <div key={i} className="flex flex-col gap-3">
                             <div className="w-full aspect-square bg-gray-100 rounded-xl"></div>
@@ -75,11 +75,11 @@ export function InFeedAd({ keyword = '데이트', category = '추천 상품' }: 
     if (products.length === 0) return null;
 
     return (
-        <div className="w-full my-12 bg-white rounded-2xl p-6 md:p-8 border border-pink-100 shadow-sm">
+        <div className="w-full my-8 md:my-12 bg-white rounded-2xl p-4 md:p-8 border border-pink-100 shadow-sm">
             <span className="text-xs font-bold text-gray-400 uppercase tracking-widest block mb-6 text-center">
                 💝 오늘의 {category}
             </span>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+            <div className="grid grid-cols-3 gap-3 md:gap-6">
                 {products.map((product) => {
                     const discountText = product.discountRate && product.discountRate > 0
                         ? ` (${product.discountRate}% 할인)`
