@@ -273,8 +273,20 @@ export function HomeFeed({ episodes }: HomeFeedProps) {
                                     </p>
                                     <div className="mt-4 flex flex-wrap items-center gap-4">
                                         <div className="flex items-center gap-2 flex-wrap">
-                                            <div className="text-[11px] font-bold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">🙋‍♀️ 여자의 시점</div>
-                                            <div className="text-[11px] font-bold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">🙍‍♂️ 남자의 시점</div>
+                                            {/* 시점 태그: tags 배열에서 동적으로 렌더 */}
+                                            {episode.tags?.includes('여자의 시점') && (
+                                                <div className="text-[11px] font-bold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">🙋‍♀️ 여자의 시점</div>
+                                            )}
+                                            {episode.tags?.includes('남자의 시점') && (
+                                                <div className="text-[11px] font-bold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">🙍‍♂️ 남자의 시점</div>
+                                            )}
+                                            {/* 기존 에피소드 (tags에 시점 태그 없는 경우) fallback */}
+                                            {!episode.tags?.includes('여자의 시점') && !episode.tags?.includes('남자의 시점') && (
+                                                <>
+                                                    <div className="text-[11px] font-bold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">🙋‍♀️ 여자의 시점</div>
+                                                    <div className="text-[11px] font-bold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">🙍‍♂️ 남자의 시점</div>
+                                                </>
+                                            )}
                                             {episode.dialogue && (
                                                 <div className="text-[11px] font-bold text-yellow-700 bg-yellow-50 px-3 py-1 rounded-full">💬 대화 재현</div>
                                             )}

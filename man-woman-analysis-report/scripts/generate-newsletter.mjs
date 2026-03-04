@@ -119,7 +119,7 @@ ${topicText}${duplicateConstraint}
   "advice": "남자 팁: (내일 당장 써먹을 수 있는 현실적 멘트나 행동) / 여자 팁: (현실적 마인드셋이나 행동)",
   "coupang_keyword": "이 갈등을 무마할 연인 패션잡화(예: 커플 반지, 지갑 등) 쿠팡 검색 단일 키워드 (예: '20대 커플 목걸이')",
   "image_prompt": "A simple flat vector illustration of the specific situation described above, minimal style, solid colors, clean design. (IMPORTANT: Write this prompt in English)",
-  "tags": ["연애", "갈등", "심리"]
+  "tags": ["이 에피소드의 핵심 태그 3~5개. 반드시 첫 번째 태그로 스토리가 여자 중심이면 '여자의 시점', 남자 중심이면 '남자의 시점', 양쪽 모두면 둘 다 포함. 이후 연애, 갈등, 심리 등 주제 태그 추가"]
 }`
     };
 }
