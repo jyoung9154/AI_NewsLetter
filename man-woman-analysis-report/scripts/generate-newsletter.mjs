@@ -6,6 +6,7 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const geminiApiKey = process.env.GEMINI_API_KEY;
 const zhipuApiKey = process.env.ZAI_API_KEY || process.env.ZHIPU_API_KEY;
+const hfApiToken = process.env.HF_API_TOKEN;
 const coupangAffiliateId = process.env.NEXT_PUBLIC_COUPANG_AFFILIATE_ID || '';
 
 console.log('[GENERATE BOT] Environment Check:', {
@@ -13,6 +14,7 @@ console.log('[GENERATE BOT] Environment Check:', {
     hasSupabaseKey: !!supabaseKey,
     hasGeminiKey: !!geminiApiKey,
     hasZhipuKey: !!zhipuApiKey,
+    hasHfApiToken: !!hfApiToken,
     nodeVersion: process.version
 });
 
@@ -191,11 +193,73 @@ async function generateNewsletter() {
             episodeData.coupang_product_url = buildCoupangUrl(episodeData.coupang_keyword);
         }
 
-        if (episodeData.image_prompt) {
-            const simplePrompt = `${episodeData.image_prompt}, simple flat vector illustration, minimal style, solid colors`;
-            const encodedPrompt = encodeURIComponent(simplePrompt);
-            const seed = Math.floor(Math.random() * 1000000);
-            episodeData.image_url = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=800&height=600&nologo=true&seed=${seed}`;
+        if (episodeData.image_prompt && hfApiToken) {
+            console.log('[GENERATE BOT] Generating image via Hugging Face Inference API...');
+            const hfApiUrl = "https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-xl-base-1.0";
+            const enhancedPrompt = `${episodeData.image_prompt}, realistic photography, cinematic lighting, highly detailed, 8k resolution, photorealistic`;
+
+            let imageBuffer = null;
+            let retries = 3;
+            let waitTime = 20000; // 20초
+
+            for (let i = 0; i < retries; i++) {
+                try {
+                    const response = await fetch(hfApiUrl, {
+                        method: 'POST',
+                        headers: {
+                            "Authorization": `Bearer ${hfApiToken}`,
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({ inputs: enhancedPrompt })
+                    });
+
+                    if (response.ok) {
+                        const arrayBuffer = await response.arrayBuffer();
+                        imageBuffer = Buffer.from(arrayBuffer);
+                        console.log('[GENERATE BOT] Hugging Face image generated successfully.');
+                        break;
+                    } else if (response.status === 503) {
+                        const errorData = await response.json();
+                        const estimatedTime = (errorData.estimated_time || 20) * 1000;
+                        console.log(`[GENERATE BOT] Model is loading (503). Retrying in ${estimatedTime / 1000} seconds...`);
+                        await new Promise(resolve => setTimeout(resolve, estimatedTime));
+                    } else {
+                        const errorText = await response.text();
+                        console.warn(`[GENERATE BOT] Hugging Face API Error (${response.status}):`, errorText);
+                        break; // Stop retrying on non-503 errors
+                    }
+                } catch (hfError) {
+                    console.error('[GENERATE BOT] Fetch error during HF call:', hfError);
+                    break;
+                }
+            }
+
+            if (imageBuffer) {
+                const fileName = `episode_${episodeData.episode_number}_${Date.now()}.jpg`;
+                console.log(`[GENERATE BOT] Uploading image to Supabase Storage: episode_images/${fileName}...`);
+
+                const { data: uploadData, error: uploadError } = await supabase.storage
+                    .from('episode_images')
+                    .upload(fileName, imageBuffer, {
+                        contentType: 'image/jpeg',
+                        upsert: false
+                    });
+
+                if (uploadError) {
+                    console.error('[GENERATE BOT] Supabase Storage Upload failed:', uploadError);
+                } else {
+                    const { data: publicUrlData } = supabase.storage
+                        .from('episode_images')
+                        .getPublicUrl(uploadData.path);
+
+                    episodeData.image_url = publicUrlData.publicUrl;
+                    console.log('[GENERATE BOT] Image URL attached:', episodeData.image_url);
+                }
+            } else {
+                console.warn('[GENERATE BOT] Failed to generate image after retries. Proceeding without image.');
+            }
+        } else if (episodeData.image_prompt && !hfApiToken) {
+            console.warn('[GENERATE BOT] Warning: HF_API_TOKEN is missing. Skipping image generation.');
         }
 
         episodeData.status = 'published';
