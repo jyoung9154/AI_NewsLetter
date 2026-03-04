@@ -231,25 +231,34 @@ export function StoryLog({ episode }: StoryLogProps) {
             <span className="text-xl">💬</span>
             <h3 className="text-section text-gray-900 font-serif m-0">파국으로 가는 실제 대화</h3>
           </div>
-          <div className="p-6 md:p-8 bg-white/50 space-y-4">
+          <div className="p-5 md:p-8 bg-[#babcce] space-y-5 rounded-b-3xl">
             {episode.dialogue.split('\n').filter(line => line.trim().length > 0).map((line, idx) => {
               const isFemale = line.includes('👩');
               const isMale = line.includes('👨');
               const content = line.replace(/^[👩👨]+[:\s]*/, '').trim();
               
-              if (!isFemale && !isMale) return <p key={idx} className="text-center text-gray-500 text-sm italic py-2">{line}</p>;
+              // 나레이션 등은 가운데 정렬
+              if (!isFemale && !isMale) {
+                return (
+                  <div key={idx} className="flex justify-center my-2">
+                    <span className="bg-black/15 text-white/90 px-3 py-1 rounded-full text-xs shrink-0">{line}</span>
+                  </div>
+                );
+              }
               
               return (
-                <div key={idx} className={`flex w-full ${isFemale ? 'justify-start' : 'justify-end'}`}>
-                  <div className={`max-w-[80%] rounded-2xl px-5 py-3 ${
+                <div key={idx} className={`flex w-full flex-col ${isFemale ? 'items-start' : 'items-end'}`}>
+                  {/* 프로필 이름 */}
+                  <div className="text-[13px] text-gray-700 font-medium mb-1 px-1">
+                    {isFemale ? '👩 여자' : '👨 남자'}
+                  </div>
+                  {/* 말풍선 */}
+                  <div className={`max-w-[80%] md:max-w-[70%] px-4 py-2.5 shadow-sm text-[15px] leading-relaxed break-words ${
                     isFemale 
-                      ? 'bg-pink-50 text-gray-900 rounded-tl-none border border-pink-100' 
-                      : 'bg-blue-50 text-gray-900 rounded-tr-none border border-blue-100'
+                      ? 'bg-white text-gray-900 rounded-2xl rounded-tl-[4px]' 
+                      : 'bg-[#fee500] text-gray-900 rounded-2xl rounded-tr-[4px]'
                   }`}>
-                    <div className="text-xs font-bold text-gray-500 mb-1">
-                      {isFemale ? '👩 여자' : '👨 남자'}
-                    </div>
-                    <p className="whitespace-pre-line text-[15px]">{content}</p>
+                    <p className="whitespace-pre-line m-0">{content}</p>
                   </div>
                 </div>
               );
