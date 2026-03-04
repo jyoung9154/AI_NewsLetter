@@ -42,6 +42,7 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const keyword = searchParams.get('keyword') || '데이트';
     const limit = parseInt(searchParams.get('limit') || '3');
+    const offset = parseInt(searchParams.get('offset') || '0');
 
     if (!ACCESS_KEY || !SECRET_KEY) {
         console.warn('[Coupang API] Credentials not configured in Vercel. Using fallback products.');
@@ -52,7 +53,7 @@ export async function GET(request: Request) {
     const path = '/v2/providers/affiliate_open_api/apis/openapi/v1/products/search';
     const queryParams = new URLSearchParams({
         keyword,
-        limit: String(limit),
+        limit: String(limit + offset),
     });
     const queryString = queryParams.toString();
 
@@ -78,7 +79,7 @@ export async function GET(request: Request) {
 
         // 쿠팡 API 응답 구조: { rCode, rMessage, data: { productData: [...] } }
         const products = data?.data?.productData || [];
-        const formatted = products.slice(0, limit).map((p: any) => ({
+        const formatted = products.slice(offset, offset + limit).map((p: any) => ({
             productId: String(p.productId),
             title: p.productName,
             description: p.productTypeName || '',

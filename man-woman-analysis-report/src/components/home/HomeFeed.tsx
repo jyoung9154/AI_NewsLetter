@@ -272,9 +272,33 @@ export function HomeFeed({ episodes }: HomeFeedProps) {
                                         {episode.situation}
                                     </p>
                                     <div className="mt-4 flex flex-wrap items-center gap-4">
-                                        <div className="flex items-center gap-3">
-                                            <div className="text-[11px] font-bold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">🙋‍♀️ 여자의 시점</div>
-                                            <div className="text-[11px] font-bold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">🙍‍♂️ 남자의 시점</div>
+                                        <div className="flex items-center gap-2 flex-wrap">
+                                            {/* 시점 태그: tags 배열에서 동적으로 렌더 */}
+                                            {episode.tags?.includes('여자의 시점') && (
+                                                <div className="text-[11px] font-bold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">🙋‍♀️ 여자의 시점</div>
+                                            )}
+                                            {episode.tags?.includes('남자의 시점') && (
+                                                <div className="text-[11px] font-bold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">🙍‍♂️ 남자의 시점</div>
+                                            )}
+                                            {/* 기존 에피소드 (tags에 시점 태그 없는 경우) fallback */}
+                                            {!episode.tags?.includes('여자의 시점') && !episode.tags?.includes('남자의 시점') && (
+                                                <>
+                                                    <div className="text-[11px] font-bold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">🙋‍♀️ 여자의 시점</div>
+                                                    <div className="text-[11px] font-bold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">🙍‍♂️ 남자의 시점</div>
+                                                </>
+                                            )}
+                                            {episode.dialogue && (
+                                                <div className="text-[11px] font-bold text-yellow-700 bg-yellow-50 px-3 py-1 rounded-full">💬 대화 재현</div>
+                                            )}
+                                            {episode.expert_analysis && (
+                                                <div className="text-[11px] font-bold text-purple-600 bg-purple-50 px-3 py-1 rounded-full">🕵️ 심리 분석</div>
+                                            )}
+                                            {episode.probability_stats && (
+                                                <div className="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full">📊 확률 통계</div>
+                                            )}
+                                            {episode.worst_response && (
+                                                <div className="text-[11px] font-bold text-red-600 bg-red-50 px-3 py-1 rounded-full">⚠️ 최악의 응수</div>
+                                            )}
                                         </div>
                                         <div className="flex items-center gap-3 ml-auto text-gray-400">
                                             <div className="flex items-center gap-1">
