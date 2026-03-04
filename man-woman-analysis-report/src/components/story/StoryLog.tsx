@@ -5,6 +5,7 @@ import { ChevronDown, ChevronUp, AlertOctagon, TrendingUp, Brain } from 'lucide-
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
+import { InFeedAd } from '@/components/ads/Ads';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/Select';
 import { DbEpisode } from '@/types';
 
@@ -55,7 +56,11 @@ export function StoryLog({ episode }: StoryLogProps) {
   const [message, setMessage] = useState('');
   const [viewCount, setViewCount] = useState(episode.view_count || 0);
   const [shareCount, setShareCount] = useState(episode.share_count || 0);
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [expandedBlocks, setExpandedBlocks] = useState<Record<number, boolean>>({});
+
+  const toggleBlock = (blockType: number) => {
+    setExpandedBlocks(prev => ({ ...prev, [blockType]: !prev[blockType] }));
+  };
 
   // MBTI 반응 관련 상태
   const [selectedMbti, setSelectedMbti] = useState('');
@@ -231,7 +236,7 @@ export function StoryLog({ episode }: StoryLogProps) {
             <span className="text-xl">💬</span>
             <h3 className="text-section text-gray-900 font-serif m-0">파국으로 가는 실제 대화</h3>
           </div>
-          <div className="p-5 md:p-8 bg-[#babcce] space-y-5 rounded-b-3xl">
+          <div className="p-5 md:p-8 bg-[#babcce] space-y-4 rounded-b-3xl">
             {episode.dialogue.split('\n').filter(line => line.trim().length > 0).map((line, idx) => {
               const isFemale = line.includes('👩');
               const isMale = line.includes('👨');
@@ -247,13 +252,18 @@ export function StoryLog({ episode }: StoryLogProps) {
               }
               
               return (
-                <div key={idx} className={`flex w-full flex-col ${isFemale ? 'items-start' : 'items-end'}`}>
-                  {/* 프로필 이름 */}
-                  <div className="text-[13px] text-gray-700 font-medium mb-1 px-1">
-                    {isFemale ? '👩 여자' : '👨 남자'}
+                <div key={idx} className={`flex w-full gap-2 ${isFemale ? 'justify-start' : 'justify-end flex-row-reverse'}`}>
+                  {/* 원형 프로필 아이콘 */}
+                  <div className="flex flex-col items-center shrink-0 mt-0.5">
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center text-lg shadow-sm border-2 border-white ${
+                      isFemale ? 'bg-pink-200' : 'bg-blue-200'
+                    }`}>
+                      {isFemale ? '👩' : '👨'}
+                    </div>
+                    <span className="text-[11px] text-white/80 mt-0.5 font-medium">{isFemale ? '여자' : '남자'}</span>
                   </div>
                   {/* 말풍선 */}
-                  <div className={`max-w-[80%] md:max-w-[70%] px-4 py-2.5 shadow-sm text-[15px] leading-relaxed break-words ${
+                  <div className={`max-w-[75%] md:max-w-[65%] px-4 py-2.5 shadow-sm text-[15px] leading-relaxed break-words ${
                     isFemale 
                       ? 'bg-white text-gray-900 rounded-2xl rounded-tl-[4px]' 
                       : 'bg-[#fee500] text-gray-900 rounded-2xl rounded-tr-[4px]'
@@ -267,51 +277,51 @@ export function StoryLog({ episode }: StoryLogProps) {
         </div>
       )}
 
-      {/* 2~4번: 랜덤 중간 콘텐츠 (토글 아코디언) */}
-      {episode.selected_block_type && (
-        <div className="mb-12">
-          <button 
-            onClick={() => setIsExpanded(!isExpanded)}
-            className="w-full flex items-center justify-between bg-white border border-gray-200 hover:border-gray-300 rounded-2xl p-5 shadow-sm transition-all group"
-          >
-            <div className="flex items-center gap-3">
-              <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                episode.selected_block_type === 2 ? 'bg-purple-100 text-purple-600' :
-                episode.selected_block_type === 3 ? 'bg-emerald-100 text-emerald-600' :
-                'bg-red-100 text-red-600'
-              }`}>
-                {episode.selected_block_type === 2 ? <Brain size={20} /> :
-                 episode.selected_block_type === 3 ? <TrendingUp size={20} /> :
-                 <AlertOctagon size={20} />}
-              </div>
-              <h3 className="text-section font-bold text-gray-900 m-0 text-left">
-                {episode.selected_block_type === 2 ? '심리 분석관의 팩트체크 보기' :
-                 episode.selected_block_type === 3 ? '에디터의 뇌피셜 확률표 보기' :
-                 '절대 하면 안 되는 최악의 응수 보기'}
-              </h3>
-            </div>
-            {isExpanded ? <ChevronUp className="text-gray-400 group-hover:text-gray-600" /> : <ChevronDown className="text-gray-400 group-hover:text-gray-600" />}
-          </button>
-          
-          {/* 토글 콘텐츠 본문 */}
-          {isExpanded && (
-            <div className={`mt-3 p-6 md:p-8 rounded-2xl border animate-fade-in ${
-              episode.selected_block_type === 2 ? 'bg-purple-50/30 border-purple-100' :
-              episode.selected_block_type === 3 ? 'bg-emerald-50/30 border-emerald-100' :
-              'bg-red-50/30 border-red-100'
-            }`}>
-              
-              {/* === Type 2: 전문가 분석 === */}
-              {episode.selected_block_type === 2 && episode.expert_analysis && (
-                <div className="text-center">
-                  <p className="text-gray-800 text-body-lg leading-relaxed whitespace-pre-line font-medium">
-                    "{episode.expert_analysis}"
-                  </p>
-                </div>
-              )}
+      {/* 2~4번: 데이터가 있는 블록마다 독립 토글 아코디언 */}
+      <div className="space-y-4 mb-12">
 
-              {/* === Type 3: 확률 통계 === */}
-              {episode.selected_block_type === 3 && episode.probability_stats && Array.isArray(episode.probability_stats) && (
+        {/* === Type 2: 심리 분석 === */}
+        {episode.expert_analysis && (
+          <div>
+            <button 
+              onClick={() => toggleBlock(2)}
+              className="w-full flex items-center justify-between bg-white border border-gray-200 hover:border-purple-300 rounded-2xl p-5 shadow-sm transition-all group"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full flex items-center justify-center bg-purple-100 text-purple-600">
+                  <Brain size={20} />
+                </div>
+                <h3 className="text-section font-bold text-gray-900 m-0 text-left">🕵️ 심리 분석관의 팩트체크</h3>
+              </div>
+              {expandedBlocks[2] ? <ChevronUp className="text-gray-400 group-hover:text-purple-500" /> : <ChevronDown className="text-gray-400 group-hover:text-purple-500" />}
+            </button>
+            {expandedBlocks[2] && (
+              <div className="mt-3 p-6 md:p-8 rounded-2xl border bg-purple-50/30 border-purple-100 animate-fade-in">
+                <p className="text-gray-800 text-body-lg leading-relaxed whitespace-pre-line font-medium text-center">
+                  "{episode.expert_analysis}"
+                </p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* === Type 3: 확률 통계 === */}
+        {episode.probability_stats && Array.isArray(episode.probability_stats) && (
+          <div>
+            <button 
+              onClick={() => toggleBlock(3)}
+              className="w-full flex items-center justify-between bg-white border border-gray-200 hover:border-emerald-300 rounded-2xl p-5 shadow-sm transition-all group"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full flex items-center justify-center bg-emerald-100 text-emerald-600">
+                  <TrendingUp size={20} />
+                </div>
+                <h3 className="text-section font-bold text-gray-900 m-0 text-left">📊 에디터의 뇌피셜 확률표</h3>
+              </div>
+              {expandedBlocks[3] ? <ChevronUp className="text-gray-400 group-hover:text-emerald-500" /> : <ChevronDown className="text-gray-400 group-hover:text-emerald-500" />}
+            </button>
+            {expandedBlocks[3] && (
+              <div className="mt-3 p-6 md:p-8 rounded-2xl border bg-emerald-50/30 border-emerald-100 animate-fade-in">
                 <div className="space-y-4">
                   {episode.probability_stats.map((stat: any, idx: number) => (
                     <div key={idx} className="relative">
@@ -328,10 +338,28 @@ export function StoryLog({ episode }: StoryLogProps) {
                     </div>
                   ))}
                 </div>
-              )}
+              </div>
+            )}
+          </div>
+        )}
 
-              {/* === Type 4: 최악의 응수 === */}
-              {episode.selected_block_type === 4 && episode.worst_response && (
+        {/* === Type 4: 최악의 응수 === */}
+        {episode.worst_response && (
+          <div>
+            <button 
+              onClick={() => toggleBlock(4)}
+              className="w-full flex items-center justify-between bg-white border border-gray-200 hover:border-red-300 rounded-2xl p-5 shadow-sm transition-all group"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full flex items-center justify-center bg-red-100 text-red-600">
+                  <AlertOctagon size={20} />
+                </div>
+                <h3 className="text-section font-bold text-gray-900 m-0 text-left">⚠️ 절대 하면 안 되는 최악의 응수</h3>
+              </div>
+              {expandedBlocks[4] ? <ChevronUp className="text-gray-400 group-hover:text-red-500" /> : <ChevronDown className="text-gray-400 group-hover:text-red-500" />}
+            </button>
+            {expandedBlocks[4] && (
+              <div className="mt-3 p-6 md:p-8 rounded-2xl border bg-red-50/30 border-red-100 animate-fade-in">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="bg-white p-5 rounded-xl border border-red-200 shadow-sm relative overflow-hidden">
                     <div className="absolute top-0 right-0 w-2 h-full bg-red-400"></div>
@@ -344,10 +372,17 @@ export function StoryLog({ episode }: StoryLogProps) {
                     <p className="text-gray-800 font-bold">"{episode.worst_response.male}"</p>
                   </div>
                 </div>
-              )}
+              </div>
+            )}
+          </div>
+        )}
 
-            </div>
-          )}
+      </div>
+
+      {/* 오늘의 연관상품 */}
+      {episode.coupang_keyword && (
+        <div className="mb-8">
+          <InFeedAd category="🛍️ 오늘의 연관상품" keyword={episode.coupang_keyword} />
         </div>
       )}
 

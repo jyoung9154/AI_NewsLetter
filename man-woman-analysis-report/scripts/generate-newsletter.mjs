@@ -51,14 +51,17 @@ function getRandomTitlePattern() {
     return TITLE_PATTERNS[Math.floor(Math.random() * TITLE_PATTERNS.length)];
 }
 
-function getRandomBlockType() {
-    const blocks = [2, 3, 4];
-    return blocks[Math.floor(Math.random() * blocks.length)];
+function getRandomBlockTypes() {
+    const allBlocks = [2, 3, 4];
+    // 랜덤하게 1~3개 블록을 선택
+    const shuffled = allBlocks.sort(() => Math.random() - 0.5);
+    const count = Math.floor(Math.random() * 3) + 1; // 1, 2, or 3
+    return shuffled.slice(0, count).sort();
 }
 
-function buildPrompt(nextNumber, topic, existingTitles = [], blockType = 2) {
+function buildPrompt(nextNumber, topic, existingTitles = [], blockTypes = [2]) {
     const pattern = getRandomTitlePattern();
-    console.log(`[GENERATE BOT] Selected title pattern: "${pattern.name}", Block Type: ${blockType}`);
+    console.log(`[GENERATE BOT] Selected title pattern: "${pattern.name}", Block Types: [${blockTypes.join(', ')}]`);
     const topicText = topic
         ? `이번 에피소드 특별 주제: "${topic}"`
         : `이번 에피소드는 2030 남녀 사이에서 가장 흔하게 발생하는 현실적이고 구체적인 연애 갈등(예: 데이트 비용, 연락 빈도, 남사친/여사친, 과거 연애사, 질투 등) 중 하나를 무작위로 선택해서 주제로 삼아 작성해줘.`;
@@ -72,12 +75,18 @@ ${existingTitles.map(t => `- ${t}`).join('\n')}
         : '';
         
     let extraBlockInstructions = '';
-    if (blockType === 2) {
-        extraBlockInstructions = `\n  "expert_analysis": "심리 분석관의 시선 (왜 이런 행동/말이 나오는지 진화심리학이나 뇌과학 등 분석적이고 위트있는 2~3줄 짜리 팩트폭행 기사)",\n  "selected_block_type": 2,`;
-    } else if (blockType === 3) {
-        extraBlockInstructions = `\n  "probability_stats": [\n    {"reason": "남/녀의 해당 행동의 진짜 이유 중 가장 큰 비율 (예: 단톡방 뻘소리 들킬까봐)", "percentage": 60},\n    {"reason": "두번째 이유", "percentage": 25},\n    {"reason": "세번째 이유", "percentage": 10},\n    {"reason": "네번째 이유", "percentage": 5}\n  ],\n  "selected_block_type": 3,`;
-    } else if (blockType === 4) {
-        extraBlockInstructions = `\n  "worst_response": {\n    "female": "여자의 최악수 (이 상황에서 흔히 치는, 100% 싸움으로 번지는 대사)",\n    "male": "남자의 최악수 (이 상황에서 흔히 치는, 100% 의심병 시작되는 대사)"\n  },\n  "selected_block_type": 4,`;
+    const blockParts = [];
+    if (blockTypes.includes(2)) {
+        blockParts.push(`"expert_analysis": "심리 분석관의 시선 (왜 이런 행동/말이 나오는지 진화심리학이나 뇌과학 등 분석적이고 위트있는 2~3줄 짜리 팩트폭행 기사)"`);
+    }
+    if (blockTypes.includes(3)) {
+        blockParts.push(`"probability_stats": [\n    {"reason": "남/녀의 해당 행동의 진짜 이유 중 가장 큰 비율 (예: 단톡방 뻘소리 들킬까봐)", "percentage": 60},\n    {"reason": "두번째 이유", "percentage": 25},\n    {"reason": "세번째 이유", "percentage": 10},\n    {"reason": "네번째 이유", "percentage": 5}\n  ]`);
+    }
+    if (blockTypes.includes(4)) {
+        blockParts.push(`"worst_response": {\n    "female": "여자의 최악수 (이 상황에서 흔히 치는, 100% 싸움으로 번지는 대사)",\n    "male": "남자의 최악수 (이 상황에서 흔히 치는, 100% 의심병 시작되는 대사)"\n  }`);
+    }
+    if (blockParts.length > 0) {
+        extraBlockInstructions = '\n  ' + blockParts.join(',\n  ') + ',';
     }
 
     return {
@@ -162,8 +171,8 @@ async function generateNewsletter() {
             .limit(50);
         const existingTitles = existingEpisodes?.map(e => e.title) || [];
 
-        const blockType = getRandomBlockType();
-        const prompts = buildPrompt(nextNumber, topic, existingTitles, blockType);
+        const blockTypes = getRandomBlockTypes();
+        const prompts = buildPrompt(nextNumber, topic, existingTitles, blockTypes);
         let responseText = '';
 
         console.log('[GENERATE BOT] Attempting to generate newsletter using Gemini 2.5 Flash...');
