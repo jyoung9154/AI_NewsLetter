@@ -60,7 +60,7 @@ export function CommentSection({ episodeId }: CommentSectionProps) {
         setErrorMsg('');
 
         try {
-            console.log('[CommentSection] Submitting comment:', { episodeId, nickname, content, gender });
+            // console.log('[CommentSection] Submitting comment:', { episodeId, nickname, content, gender });
             const res = await fetch('/api/comments', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -68,7 +68,7 @@ export function CommentSection({ episodeId }: CommentSectionProps) {
             });
 
             const data = await res.json();
-            console.log('[CommentSection] API Response:', { status: res.status, data });
+            // console.log('[CommentSection] API Response:', { status: res.status, data });
 
             if (res.ok) {
                 setContent('');
@@ -79,7 +79,7 @@ export function CommentSection({ episodeId }: CommentSectionProps) {
                 setErrorMsg(data.error || '댓글 작성 실패');
             }
         } catch (error: any) {
-            console.error('[CommentSection] Submit error:', error);
+            // console.error('[CommentSection] Submit error:', error);
             setErrorMsg(`오류가 발생했습니다: ${error.message || '알 수 없는 오류'}`);
         } finally {
             setIsSubmitting(false);

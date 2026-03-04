@@ -1,13 +1,14 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { ChevronDown, ChevronUp, AlertOctagon, TrendingUp, Brain } from 'lucide-react';
+import { Eye, Share2, EyeOff, MessageSquare, TrendingUp, Brain, AlertOctagon, Heart, Send, ChevronDown, ChevronUp } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { InFeedAd } from '@/components/ads/Ads';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/Select';
 import { DbEpisode } from '@/types';
+import { formatTitle } from '@/lib/utils';
 import { CommentSection } from './CommentSection';
 
 interface StoryLogProps {
@@ -209,7 +210,9 @@ export function StoryLog({ episode }: StoryLogProps) {
             <span>💬 {totalVotes}</span>
           </div>
         </div>
-        <h1 className="text-hero text-gray-900 mb-6 font-serif tracking-tight">{cleanTitle}</h1>
+        <h1 className="text-hero text-gray-900 mb-6 font-serif tracking-tight whitespace-pre-line">
+          {formatTitle(cleanTitle)}
+        </h1>
 
         {/* Hook 영역 - 부드러운 인용구 스타일 */}
         {episode.hook && (

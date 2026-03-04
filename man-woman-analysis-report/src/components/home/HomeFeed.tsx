@@ -5,6 +5,8 @@ import { DbEpisode } from '@/types';
 import { InFeedAd, DynamicCoupangAd } from '@/components/ads/Ads';
 import { Eye, Share2 } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/Select';
+import { Badge } from "@/components/ui/Badge";
+import { formatTitle } from "@/lib/utils";
 import { SubscriptionPopup } from '@/components/subscription/SubscriptionPopup';
 import Link from 'next/link';
 
@@ -265,9 +267,10 @@ export function HomeFeed({ episodes }: HomeFeedProps) {
                                     <span className="text-body-sm font-bold text-gray-400 uppercase tracking-widest block mb-2">
                                         스토리로그 {episode.episode_number ? `Episode.${episode.episode_number}` : ''}
                                     </span>
-                                    <h4 className="text-section text-gray-900 mb-3 group-hover:text-blue-600 transition-colors font-serif">
-                                        {episode.title}
-                                    </h4>
+                                    {/* 제목 */}
+                                    <h3 className="text-xl font-serif font-bold text-gray-900 mb-3 group-hover:text-pink-600 transition-colors line-clamp-2 leading-tight whitespace-pre-line">
+                                        {formatTitle(episode.title.replace(/^Episode\s*\d+\.?\s*/i, '').trim())}
+                                    </h3>
                                     <p className="text-gray-600 text-body line-clamp-2 md:line-clamp-3 leading-relaxed">
                                         {episode.situation}
                                     </p>

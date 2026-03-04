@@ -1,7 +1,9 @@
 import { useState, useMemo } from 'react';
 import { DbEpisode } from '@/types';
 import Link from 'next/link';
-import { Search, X, MessageSquare, Heart, Eye, Share2 } from 'lucide-react';
+import { Badge } from '@/components/ui/Badge';
+import { formatTitle } from '@/lib/utils';
+import { MessageSquare, Eye, Share2, Clock, ChevronRight, Search, X, Heart } from 'lucide-react';
 
 interface StoryListProps {
     episodes: DbEpisode[];
@@ -191,8 +193,8 @@ export function StoryList({ episodes }: StoryListProps) {
                                     )}
                                 </div>
 
-                                <h3 className="text-xl md:text-2xl font-serif text-gray-900 mb-4 group-hover:text-pink-600 transition-colors leading-tight tracking-tight">
-                                    {episode.title}
+                                <h3 className="text-lg md:text-xl font-serif font-bold text-gray-900 group-hover:text-pink-600 transition-colors mb-3 line-clamp-2 whitespace-pre-line">
+                                    {formatTitle(episode.title.replace(/^Episode\s*\d+\.?\s*/i, '').trim())}
                                 </h3>
 
                                 <p className="text-gray-500 line-clamp-3 mb-8 flex-grow leading-relaxed text-[15px]">
