@@ -2,7 +2,8 @@ name: Daily Newsletter Dispatch
 
 on:
   schedule:
-    - cron: '0 */2 * * *'
+    - cron: '0 21 * * *'  # KST 새벽 6:00 (UTC 21:00)
+    - cron: '0 8 * * *'   # KST 저녁 17:00 (UTC 08:00)
   
   workflow_dispatch: # Allow manual trigger
 
