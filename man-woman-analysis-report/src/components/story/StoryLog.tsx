@@ -252,16 +252,16 @@ export function StoryLog({ episode }: StoryLogProps) {
               }
               
               return (
-                <div key={idx} className={`flex w-full gap-2 ${isFemale ? 'justify-start' : 'justify-end flex-row-reverse'}`}>
-                  {/* 원형 프로필 아이콘 */}
-                  <div className="flex flex-col items-center shrink-0 mt-0.5">
-                    <div className={`w-10 h-10 rounded-full flex items-center justify-center text-lg shadow-sm border-2 border-white ${
-                      isFemale ? 'bg-pink-200' : 'bg-blue-200'
-                    }`}>
-                      {isFemale ? '👩' : '👨'}
+                <div key={idx} className={`flex w-full gap-2 ${isFemale ? 'justify-start' : 'justify-end'}`}>
+                  {/* 여자: 아이콘 → 말풍선 */}
+                  {isFemale && (
+                    <div className="flex flex-col items-center shrink-0 mt-0.5">
+                      <div className="w-10 h-10 rounded-full flex items-center justify-center text-lg shadow-sm border-2 border-white bg-pink-200">
+                        👩
+                      </div>
+                      <span className="text-[11px] text-white/80 mt-0.5 font-medium">여자</span>
                     </div>
-                    <span className="text-[11px] text-white/80 mt-0.5 font-medium">{isFemale ? '여자' : '남자'}</span>
-                  </div>
+                  )}
                   {/* 말풍선 */}
                   <div className={`max-w-[75%] md:max-w-[65%] px-4 py-2.5 shadow-sm text-[15px] leading-relaxed break-words ${
                     isFemale 
@@ -270,6 +270,15 @@ export function StoryLog({ episode }: StoryLogProps) {
                   }`}>
                     <p className="whitespace-pre-line m-0">{content}</p>
                   </div>
+                  {/* 남자: 말풍선 → 아이콘 */}
+                  {isMale && (
+                    <div className="flex flex-col items-center shrink-0 mt-0.5">
+                      <div className="w-10 h-10 rounded-full flex items-center justify-center text-lg shadow-sm border-2 border-white bg-blue-200">
+                        👨
+                      </div>
+                      <span className="text-[11px] text-white/80 mt-0.5 font-medium">남자</span>
+                    </div>
+                  )}
                 </div>
               );
             })}
