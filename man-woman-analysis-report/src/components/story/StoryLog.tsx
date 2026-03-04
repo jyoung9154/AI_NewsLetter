@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/Button';
 import { InFeedAd } from '@/components/ads/Ads';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/Select';
 import { DbEpisode } from '@/types';
+import { CommentSection } from './CommentSection';
 
 interface StoryLogProps {
   episode: DbEpisode;
@@ -108,6 +109,24 @@ export function StoryLog({ episode }: StoryLogProps) {
       } else if (platform === 'twitter') {
         const text = encodeURIComponent(`[남녀분석보고서] ${episode.title}\n`);
         window.open(`https://twitter.com/intent/tweet?text=${text}&url=${encodeURIComponent(url)}`, '_blank');
+      } else if (platform === 'kakao') {
+        if (window.Kakao) {
+          window.Kakao.Share.sendDefault({
+            objectType: 'feed',
+            content: {
+              title: `[남녀분석보고서] ${episode.title}`,
+              description: episode.situation.substring(0, 100) + '...',
+              imageUrl: episode.image_url || `${window.location.origin}/og-image.jpg`,
+              link: { mobileWebUrl: url, webUrl: url },
+            },
+            buttons: [
+              {
+                title: '스토리 보기',
+                link: { mobileWebUrl: url, webUrl: url },
+              },
+            ],
+          });
+        }
       }
 
       // 서버에 공유 기록
@@ -241,7 +260,7 @@ export function StoryLog({ episode }: StoryLogProps) {
               const isFemale = line.includes('👩');
               const isMale = line.includes('👨');
               const content = line.replace(/^[👩👨]+[:\s]*/, '').trim();
-              
+
               // 나레이션 등은 가운데 정렬
               if (!isFemale && !isMale) {
                 return (
@@ -250,7 +269,7 @@ export function StoryLog({ episode }: StoryLogProps) {
                   </div>
                 );
               }
-              
+
               return (
                 <div key={idx} className={`flex w-full gap-2 ${isFemale ? 'justify-start' : 'justify-end'}`}>
                   {/* 여자: 아이콘 → 말풍선 */}
@@ -263,11 +282,10 @@ export function StoryLog({ episode }: StoryLogProps) {
                     </div>
                   )}
                   {/* 말풍선 */}
-                  <div className={`max-w-[75%] md:max-w-[65%] px-4 py-2.5 shadow-sm text-[15px] leading-relaxed break-words ${
-                    isFemale 
-                      ? 'bg-white text-gray-900 rounded-2xl rounded-tl-[4px]' 
-                      : 'bg-[#fee500] text-gray-900 rounded-2xl rounded-tr-[4px]'
-                  }`}>
+                  <div className={`max-w-[75%] md:max-w-[65%] px-4 py-2.5 shadow-sm text-[15px] leading-relaxed break-words ${isFemale
+                    ? 'bg-white text-gray-900 rounded-2xl rounded-tl-[4px]'
+                    : 'bg-[#fee500] text-gray-900 rounded-2xl rounded-tr-[4px]'
+                    }`}>
                     <p className="whitespace-pre-line m-0">{content}</p>
                   </div>
                   {/* 남자: 말풍선 → 아이콘 */}
@@ -292,7 +310,7 @@ export function StoryLog({ episode }: StoryLogProps) {
         {/* === Type 2: 심리 분석 === */}
         {episode.expert_analysis && (
           <div>
-            <button 
+            <button
               onClick={() => toggleBlock(2)}
               className="w-full flex items-center justify-between bg-white border border-gray-200 hover:border-purple-300 rounded-2xl p-5 shadow-sm transition-all group"
             >
@@ -317,7 +335,7 @@ export function StoryLog({ episode }: StoryLogProps) {
         {/* === Type 3: 확률 통계 === */}
         {episode.probability_stats && Array.isArray(episode.probability_stats) && (
           <div>
-            <button 
+            <button
               onClick={() => toggleBlock(3)}
               className="w-full flex items-center justify-between bg-white border border-gray-200 hover:border-emerald-300 rounded-2xl p-5 shadow-sm transition-all group"
             >
@@ -339,8 +357,8 @@ export function StoryLog({ episode }: StoryLogProps) {
                         <span className="text-emerald-700 font-bold">{stat.percentage}%</span>
                       </div>
                       <div className="w-full bg-gray-100 rounded-full h-3 overflow-hidden">
-                        <div 
-                          className="bg-emerald-500 h-3 rounded-full" 
+                        <div
+                          className="bg-emerald-500 h-3 rounded-full"
                           style={{ width: `${stat.percentage}%` }}
                         ></div>
                       </div>
@@ -355,7 +373,7 @@ export function StoryLog({ episode }: StoryLogProps) {
         {/* === Type 4: 최악의 응수 === */}
         {episode.worst_response && (
           <div>
-            <button 
+            <button
               onClick={() => toggleBlock(4)}
               className="w-full flex items-center justify-between bg-white border border-gray-200 hover:border-red-300 rounded-2xl p-5 shadow-sm transition-all group"
             >
@@ -440,7 +458,22 @@ export function StoryLog({ episode }: StoryLogProps) {
           <span className="text-gray-500 text-body-sm bg-gray-50 px-3 py-1 rounded-full">조회 {viewCount}</span>
           <span className="text-gray-500 text-body-sm bg-gray-50 px-3 py-1 rounded-full">공유 {shareCount}</span>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2 justify-center">
+          <button onClick={() => handleShare('kakao')} className="px-4 py-2 bg-[#FEE500] text-[#000000] rounded-xl text-body-sm font-bold hover:bg-[#F4DC00] transition-colors shadow-sm">
+            💬 카카오톡
+          </button>
+          <button
+            onClick={async () => {
+              const url = `${window.location.origin}/episodes/${episode.slug}`;
+              await navigator.clipboard.writeText(url);
+              alert('스토리 링크가 복사되었습니다. 인스타그램 스토리에 링크를 붙여넣어 공유해보세요!');
+              window.open('instagram://story-camera', '_blank');
+              handleShare('link'); // share count update
+            }}
+            className="px-4 py-2 bg-gradient-to-tr from-[#f9ce34] via-[#ee2a7b] to-[#6228d7] text-white rounded-xl text-body-sm font-bold hover:opacity-90 transition-opacity shadow-sm"
+          >
+            📸 인스타그램
+          </button>
           <button onClick={() => handleShare('twitter')} className="px-4 py-2 bg-[#1DA1F2] text-white rounded-xl text-body-sm font-bold hover:bg-[#1a8cd8] transition-colors shadow-sm">
             🐦 트위터
           </button>
@@ -551,6 +584,9 @@ export function StoryLog({ episode }: StoryLogProps) {
           <p className="text-gray-600 font-serif text-body-lg italic">{episode.next_teaser}</p>
         </div>
       )}
+
+      {/* 댓글 섹션 */}
+      <CommentSection episodeId={episode.id} />
     </article>
   );
 }

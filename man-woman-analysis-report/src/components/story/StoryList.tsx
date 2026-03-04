@@ -209,14 +209,55 @@ export function StoryList({ episodes }: StoryListProps) {
                                                 <Heart className="w-2.5 h-2.5" /> 남자의 시점
                                             </div>
                                         </div>
-                                        <div className="flex items-center gap-2.5 ml-auto text-gray-400">
-                                            <div className="flex items-center gap-1">
-                                                <Eye className="w-3.5 h-3.5" />
-                                                <span className="text-[11px] font-medium">{(episode.view_count || 0).toLocaleString()}</span>
+                                        <div className="flex flex-wrap items-center gap-4 ml-auto no-capture">
+                                            <div className="flex items-center gap-2.5 text-gray-400">
+                                                <div className="flex items-center gap-1">
+                                                    <Eye className="w-3.5 h-3.5" />
+                                                    <span className="text-[11px] font-medium">{(episode.view_count || 0).toLocaleString()}</span>
+                                                </div>
+                                                <div className="flex items-center gap-1">
+                                                    <Share2 className="w-3.5 h-3.5" />
+                                                    <span className="text-[11px] font-medium">{(episode.share_count || 0).toLocaleString()}</span>
+                                                </div>
                                             </div>
-                                            <div className="flex items-center gap-1">
-                                                <Share2 className="w-3.5 h-3.5" />
-                                                <span className="text-[11px] font-medium">{(episode.share_count || 0).toLocaleString()}</span>
+                                            <div className="flex items-center gap-2 border-l border-gray-200 pl-4 h-4">
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.preventDefault();
+                                                        e.stopPropagation();
+                                                        const url = `${window.location.origin}/episodes/${episode.slug}`;
+                                                        if (window.Kakao) {
+                                                            window.Kakao.Share.sendDefault({
+                                                                objectType: 'feed',
+                                                                content: {
+                                                                    title: `[남녀분석보고서] ${episode.title}`,
+                                                                    description: episode.situation.substring(0, 100) + '...',
+                                                                    imageUrl: episode.image_url || `${window.location.origin}/og-image.jpg`,
+                                                                    link: { mobileWebUrl: url, webUrl: url },
+                                                                },
+                                                                buttons: [{ title: '스토리 보기', link: { mobileWebUrl: url, webUrl: url } }],
+                                                            });
+                                                        }
+                                                    }}
+                                                    className="w-7 h-7 bg-[#FEE500] rounded-full flex items-center justify-center hover:scale-110 transition-transform shadow-sm"
+                                                    title="카카오톡 공유"
+                                                >
+                                                    <span className="text-[8px] font-bold text-[#3C1E1E]">Talk</span>
+                                                </button>
+                                                <button
+                                                    onClick={async (e) => {
+                                                        e.preventDefault();
+                                                        e.stopPropagation();
+                                                        const url = `${window.location.origin}/episodes/${episode.slug}`;
+                                                        await navigator.clipboard.writeText(url);
+                                                        alert('스토리 링크가 복사되었습니다. 인스타그램 스토리에 링크를 붙여넣어 공유해보세요!');
+                                                        window.open('instagram://story-camera', '_blank');
+                                                    }}
+                                                    className="w-7 h-7 bg-gradient-to-tr from-[#f9ce34] via-[#ee2a7b] to-[#6228d7] rounded-full flex items-center justify-center hover:scale-110 transition-transform shadow-sm"
+                                                    title="인스타그램 공유"
+                                                >
+                                                    <Share2 className="w-3.5 h-3.5 text-white" />
+                                                </button>
                                             </div>
                                         </div>
                                     </div>
