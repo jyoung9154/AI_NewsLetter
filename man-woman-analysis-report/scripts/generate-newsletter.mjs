@@ -241,11 +241,77 @@ async function generateNewsletter() {
             episodeData.coupang_product_url = buildCoupangUrl(episodeData.coupang_keyword);
         }
 
+        // 이미지 생성: Gemini Image Generation API + Supabase Storage 업로드
         if (episodeData.image_prompt) {
-            const simplePrompt = `${episodeData.image_prompt}, simple flat vector illustration, minimal style, solid colors`;
-            const encodedPrompt = encodeURIComponent(simplePrompt);
-            const seed = Math.floor(Math.random() * 1000000);
-            episodeData.image_url = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=800&height=600&nologo=true&seed=${seed}`;
+            console.log('[GENERATE BOT] Generating episode image with Gemini...');
+            try {
+                const imageResponse = await fetch(
+                    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-preview-image-generation:generateContent`,
+                    {
+                        method: 'POST',
+                        headers: {
+                            'x-goog-api-key': geminiApiKey,
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            contents: [{
+                                parts: [{
+                                    text: `${episodeData.image_prompt}. Style: simple flat vector illustration, minimal, solid pastel colors, clean design, no text, 16:9 aspect ratio`
+                                }]
+                            }],
+                            generationConfig: {
+                                responseModalities: ["TEXT", "IMAGE"]
+                            }
+                        })
+                    }
+                );
+
+                if (!imageResponse.ok) {
+                    throw new Error(`Image API returned ${imageResponse.status}`);
+                }
+
+                const imageData = await imageResponse.json();
+                const parts = imageData?.candidates?.[0]?.content?.parts || [];
+                const imagePart = parts.find(p => p.inlineData);
+
+                if (imagePart && imagePart.inlineData?.data) {
+                    console.log('[GENERATE BOT] Image generated! Uploading to Supabase Storage...');
+                    const base64Data = imagePart.inlineData.data;
+                    const imageBuffer = Buffer.from(base64Data, 'base64');
+                    const fileName = `episode-${episodeData.episode_number}-${Date.now()}.png`;
+
+                    const { data: uploadData, error: uploadError } = await supabase.storage
+                        .from('episode-images')
+                        .upload(fileName, imageBuffer, {
+                            contentType: 'image/png',
+                            upsert: true,
+                        });
+
+                    if (uploadError) {
+                        console.warn('[GENERATE BOT] Storage upload failed:', uploadError.message);
+                        // fallback: Pollinations.ai
+                        const encodedPrompt = encodeURIComponent(episodeData.image_prompt);
+                        const seed = Math.floor(Math.random() * 1000000);
+                        episodeData.image_url = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=800&height=600&nologo=true&seed=${seed}`;
+                    } else {
+                        const { data: publicUrl } = supabase.storage
+                            .from('episode-images')
+                            .getPublicUrl(fileName);
+                        episodeData.image_url = publicUrl.publicUrl;
+                        console.log('[GENERATE BOT] Image uploaded:', episodeData.image_url);
+                    }
+                } else {
+                    console.warn('[GENERATE BOT] No image data in response, using fallback');
+                    const encodedPrompt = encodeURIComponent(episodeData.image_prompt);
+                    const seed = Math.floor(Math.random() * 1000000);
+                    episodeData.image_url = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=800&height=600&nologo=true&seed=${seed}`;
+                }
+            } catch (imgErr) {
+                console.warn('[GENERATE BOT] Image generation failed:', imgErr.message, '- using fallback');
+                const encodedPrompt = encodeURIComponent(episodeData.image_prompt);
+                const seed = Math.floor(Math.random() * 1000000);
+                episodeData.image_url = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=800&height=600&nologo=true&seed=${seed}`;
+            }
         }
 
         episodeData.status = 'published';
