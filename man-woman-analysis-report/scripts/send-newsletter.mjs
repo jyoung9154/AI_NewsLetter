@@ -123,7 +123,7 @@ async function sendNewsletters() {
             <div style="font-size: 24px;">🛍️</div>
             <div style="text-align: left;">
               <div style="color: #111827; font-weight: 700; font-size: 15px; margin-bottom: 4px;">센스있는 데이트/연애 선물 기획전</div>
-              <div style="color: #ec4899; font-size: 13px; font-weight: 600;">쿠팡에서 인기 상품 확인하기 ↗</div>
+              <div style="color: #ec4899; font-size: 13px; font-weight: 600;">인기 상품 확인하기 ↗</div>
             </div>
           </div>
         </a>
@@ -132,7 +132,7 @@ async function sendNewsletters() {
       <div style="margin-top: 24px; font-size: 12px; color: #9ca3af;">
         본 메일은 수신 동의를 하신 분들께 발송되는 뉴스레터입니다. 
         <br/>
-        <a href="https://man-woman-analysis-report.vercel.app/unsubscribe" style="color: #9ca3af; text-decoration: underline;">수신거부</a>
+        <a href="https://man-woman-analysis-report.vercel.app/unsubscribe?email={{SUBSCRIBER_EMAIL}}" style="color: #9ca3af; text-decoration: underline;">수신거부</a>
       </div>
     </div>
   </div>
@@ -150,7 +150,7 @@ async function sendNewsletters() {
               from: `"남녀분석보고서" <${smtpUser}>`,
               to: email, // 개별 발송
               subject: `Episode ${episode.episode_number}. ${episode.title}`,
-              html: emailHtml,
+              html: emailHtml.replace('{{SUBSCRIBER_EMAIL}}', encodeURIComponent(email)),
             });
             console.log(`[SEND BOT] Mail sent to ${email}: ${info.messageId}`);
             successCount++;

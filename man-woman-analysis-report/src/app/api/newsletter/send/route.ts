@@ -106,7 +106,7 @@ export async function POST(request: Request) {
       <div style="margin-top: 24px; font-size: 12px; color: #9ca3af;">
         본 메일은 수신 동의를 하신 분들께 발송되는 뉴스레터입니다. 
         <br/>
-        <a href="https://man-woman-analysis-report.vercel.app/unsubscribe" style="color: #9ca3af; text-decoration: underline;">수신거부</a>
+        <a href="https://man-woman-analysis-report.vercel.app/unsubscribe?email={{SUBSCRIBER_EMAIL}}" style="color: #9ca3af; text-decoration: underline;">수신거부</a>
       </div>
     </div>
   </div>
@@ -114,24 +114,37 @@ export async function POST(request: Request) {
 </html>
 `;
 
-            await transporter.sendMail({
-                from: `"남녀분석보고서" <${smtpUser}>`,
-                bcc: recipientEmails,
-                subject: `Episode ${episode.episode_number}. ${episode.title}`,
-                html: emailHtml,
-            });
+            let successCount = 0;
+            let failCount = 0;
 
-            // 4. 발송 성공 후 구독자 진도 업데이트 (Next Episode + 1)
-            const { error: updateError } = await supabase
-                .from('subscribers')
-                .update({ next_episode_to_send: epNum + 1 })
-                .in('email', recipientEmails);
-
-            if (updateError) {
-                console.error(`[SEND BATCH] Failed to update progress for Episode ${epNum}:`, updateError);
+            for (const email of recipientEmails) {
+                try {
+                    await transporter.sendMail({
+                        from: `"남녀분석보고서" <${smtpUser}>`,
+                        to: email,
+                        subject: `Episode ${episode.episode_number}. ${episode.title}`,
+                        html: emailHtml.replace('{{SUBSCRIBER_EMAIL}}', encodeURIComponent(email)),
+                    });
+                    successCount++;
+                } catch (sendErr: any) {
+                    console.error(`[SEND BATCH] Failed to send to ${email}:`, sendErr.message);
+                    failCount++;
+                }
             }
 
-            results.push({ episode: epNum, count: recipientEmails.length, success: true });
+            // 4. 발송 성공 후 구독자 진도 업데이트 (Next Episode + 1)
+            if (successCount > 0) {
+                const { error: updateError } = await supabase
+                    .from('subscribers')
+                    .update({ next_episode_to_send: epNum + 1 })
+                    .in('email', recipientEmails);
+
+                if (updateError) {
+                    console.error(`[SEND BATCH] Failed to update progress for Episode ${epNum}:`, updateError);
+                }
+            }
+
+            results.push({ episode: epNum, total: recipientEmails.length, success: successCount, fail: failCount });
 
         } catch (sendErr) {
             console.error(`[SEND BATCH] Failed to send Episode ${epNum}:`, sendErr);
