@@ -25,6 +25,11 @@ export interface DbEpisode {
   male_thought: string;
   resolution: string;
   advice: string;
+  dialogue?: string; // 1번: 대화 재현
+  expert_analysis?: string; // 2번: 심리 분석관
+  probability_stats?: { reason: string; percentage: number }[]; // 3번: 확률표
+  worst_response?: { male: string; female: string }; // 4번: 최악의 응수
+  selected_block_type?: number; // 2, 3, 4 중 선택된 블록 타입
   next_teaser?: string;
   tags: string[];
   status: 'draft' | 'published' | 'archived';

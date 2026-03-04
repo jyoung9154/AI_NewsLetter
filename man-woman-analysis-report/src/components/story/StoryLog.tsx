@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { ChevronDown, ChevronUp, AlertOctagon, TrendingUp, Brain } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
@@ -54,6 +55,7 @@ export function StoryLog({ episode }: StoryLogProps) {
   const [message, setMessage] = useState('');
   const [viewCount, setViewCount] = useState(episode.view_count || 0);
   const [shareCount, setShareCount] = useState(episode.share_count || 0);
+  const [isExpanded, setIsExpanded] = useState(false);
 
   // MBTI 반응 관련 상태
   const [selectedMbti, setSelectedMbti] = useState('');
@@ -221,6 +223,124 @@ export function StoryLog({ episode }: StoryLogProps) {
           </div>
         </div>
       </div>
+
+      {/* 1번: 대화 재현 (필수 항목) */}
+      {episode.dialogue && (
+        <div className="mb-12 border border-gray-100 rounded-3xl overflow-hidden shadow-sm">
+          <div className="bg-gray-50 border-b border-gray-100 p-4 shrink-0 flex items-center justify-center gap-2">
+            <span className="text-xl">💬</span>
+            <h3 className="text-section text-gray-900 font-serif m-0">파국으로 가는 실제 대화</h3>
+          </div>
+          <div className="p-6 md:p-8 bg-white/50 space-y-4">
+            {episode.dialogue.split('\n').filter(line => line.trim().length > 0).map((line, idx) => {
+              const isFemale = line.includes('👩');
+              const isMale = line.includes('👨');
+              const content = line.replace(/^[👩👨]+[:\s]*/, '').trim();
+              
+              if (!isFemale && !isMale) return <p key={idx} className="text-center text-gray-500 text-sm italic py-2">{line}</p>;
+              
+              return (
+                <div key={idx} className={`flex w-full ${isFemale ? 'justify-start' : 'justify-end'}`}>
+                  <div className={`max-w-[80%] rounded-2xl px-5 py-3 ${
+                    isFemale 
+                      ? 'bg-pink-50 text-gray-900 rounded-tl-none border border-pink-100' 
+                      : 'bg-blue-50 text-gray-900 rounded-tr-none border border-blue-100'
+                  }`}>
+                    <div className="text-xs font-bold text-gray-500 mb-1">
+                      {isFemale ? '👩 여자' : '👨 남자'}
+                    </div>
+                    <p className="whitespace-pre-line text-[15px]">{content}</p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* 2~4번: 랜덤 중간 콘텐츠 (토글 아코디언) */}
+      {episode.selected_block_type && (
+        <div className="mb-12">
+          <button 
+            onClick={() => setIsExpanded(!isExpanded)}
+            className="w-full flex items-center justify-between bg-white border border-gray-200 hover:border-gray-300 rounded-2xl p-5 shadow-sm transition-all group"
+          >
+            <div className="flex items-center gap-3">
+              <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                episode.selected_block_type === 2 ? 'bg-purple-100 text-purple-600' :
+                episode.selected_block_type === 3 ? 'bg-emerald-100 text-emerald-600' :
+                'bg-red-100 text-red-600'
+              }`}>
+                {episode.selected_block_type === 2 ? <Brain size={20} /> :
+                 episode.selected_block_type === 3 ? <TrendingUp size={20} /> :
+                 <AlertOctagon size={20} />}
+              </div>
+              <h3 className="text-section font-bold text-gray-900 m-0 text-left">
+                {episode.selected_block_type === 2 ? '심리 분석관의 팩트체크 보기' :
+                 episode.selected_block_type === 3 ? '에디터의 뇌피셜 확률표 보기' :
+                 '절대 하면 안 되는 최악의 응수 보기'}
+              </h3>
+            </div>
+            {isExpanded ? <ChevronUp className="text-gray-400 group-hover:text-gray-600" /> : <ChevronDown className="text-gray-400 group-hover:text-gray-600" />}
+          </button>
+          
+          {/* 토글 콘텐츠 본문 */}
+          {isExpanded && (
+            <div className={`mt-3 p-6 md:p-8 rounded-2xl border animate-fade-in ${
+              episode.selected_block_type === 2 ? 'bg-purple-50/30 border-purple-100' :
+              episode.selected_block_type === 3 ? 'bg-emerald-50/30 border-emerald-100' :
+              'bg-red-50/30 border-red-100'
+            }`}>
+              
+              {/* === Type 2: 전문가 분석 === */}
+              {episode.selected_block_type === 2 && episode.expert_analysis && (
+                <div className="text-center">
+                  <p className="text-gray-800 text-body-lg leading-relaxed whitespace-pre-line font-medium">
+                    "{episode.expert_analysis}"
+                  </p>
+                </div>
+              )}
+
+              {/* === Type 3: 확률 통계 === */}
+              {episode.selected_block_type === 3 && episode.probability_stats && Array.isArray(episode.probability_stats) && (
+                <div className="space-y-4">
+                  {episode.probability_stats.map((stat: any, idx: number) => (
+                    <div key={idx} className="relative">
+                      <div className="flex justify-between text-body-sm font-medium mb-1">
+                        <span className="text-gray-700">{stat.reason}</span>
+                        <span className="text-emerald-700 font-bold">{stat.percentage}%</span>
+                      </div>
+                      <div className="w-full bg-gray-100 rounded-full h-3 overflow-hidden">
+                        <div 
+                          className="bg-emerald-500 h-3 rounded-full" 
+                          style={{ width: `${stat.percentage}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* === Type 4: 최악의 응수 === */}
+              {episode.selected_block_type === 4 && episode.worst_response && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="bg-white p-5 rounded-xl border border-red-200 shadow-sm relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-2 h-full bg-red-400"></div>
+                    <Badge variant="outline" className="text-red-600 border-red-200 bg-red-50 mb-3 block w-max">👩 여자의 최악수</Badge>
+                    <p className="text-gray-800 font-bold">"{episode.worst_response.female}"</p>
+                  </div>
+                  <div className="bg-white p-5 rounded-xl border border-red-200 shadow-sm relative overflow-hidden">
+                    <div className="absolute top-0 right-0 w-2 h-full bg-red-400"></div>
+                    <Badge variant="outline" className="text-red-600 border-red-200 bg-red-50 mb-3 block w-max">👨 남자의 최악수</Badge>
+                    <p className="text-gray-800 font-bold">"{episode.worst_response.male}"</p>
+                  </div>
+                </div>
+              )}
+
+            </div>
+          )}
+        </div>
+      )}
 
       <div className="border-t border-gray-100 pt-8 mt-6">
         <h3 className="text-section text-center text-gray-800 mb-6 font-serif">결론 및 제안</h3>

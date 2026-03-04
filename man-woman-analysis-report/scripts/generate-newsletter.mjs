@@ -28,7 +28,37 @@ if (!geminiApiKey && !zhipuApiKey) {
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-function buildPrompt(nextNumber, topic, existingTitles = []) {
+// ── 타이틀 패턴 풀 (15종) ──────────────────────────────────────────
+const TITLE_PATTERNS = [
+    { name: '숫자 리스트형', example: '"연애 고수만 아는 3가지 답장 타이밍"', guide: '숫자를 활용해 구체성과 호기심을 동시에 자극하는 제목' },
+    { name: 'VS 대결형', example: '"읽씹남 vs 늦답남, 더 가망 없는 쪽은?"', guide: '두 가지를 비교해서 선택을 유도하는 제목' },
+    { name: '반전 훅형', example: '"매일 사랑해 하는 커플이 더 빨리 깨지는 이유"', guide: '상식을 뒤집는 반전 포인트로 클릭을 유도하는 제목' },
+    { name: '직접 겨냥형', example: '"솔직히 너, 연애할 자격 없을 수도 있어"', guide: '"너"를 직접 겨냥해 도발적으로 관심을 끄는 제목' },
+    { name: '테스트/진단형', example: '"이 질문 하나로 알 수 있다, 그 사람이 진심인지"', guide: '자가진단, 테스트 느낌으로 참여를 유도하는 제목' },
+    { name: '비밀/폭로형', example: '"남자들이 절대 말 안 하는 진짜 이별 사유"', guide: '숨겨진 진실, 비밀을 폭로하는 느낌의 제목' },
+    { name: '경고/공포형', example: '"이 문자 보내면 100% 차인다"', guide: '손실 회피 심리를 자극하는 경고성 제목' },
+    { name: '타임라인형', example: '"고백 후 72시간: 남자의 뇌에서 벌어지는 일"', guide: '시간 흐름을 강조해 스토리텔링 느낌을 주는 제목' },
+    { name: '대화록/시뮬레이션형', example: '"그가 보낸 ㅋㅋ는 웃은 게 아니다"', guide: '실제 대화나 메시지를 재현하는 느낌의 제목' },
+    { name: '공식/법칙형', example: '"밀당의 황금비율은 7:3이다 (근거 있음)"', guide: '법칙이나 공식처럼 전문성을 강조하는 제목' },
+    { name: '고백/고해성사형', example: '"3년 사귄 여자친구가 떠난 진짜 이유를 이제야 알았다"', guide: '1인칭 고백 느낌으로 감정 공감을 유도하는 제목' },
+    { name: '논쟁 유발형', example: '"연애에서 존중보다 중요한 게 있다고요? (반박 불가)"', guide: '논쟁과 반박을 유도해 참여를 이끄는 제목' },
+    { name: '비유 극대화형', example: '"당신의 연애는 지금 넷플릭스 자동재생 상태입니다"', guide: '재치 있는 비유로 상황을 한 방에 요약하는 제목' },
+    { name: '짧고 강렬한 한 줄형', example: '"안 바쁜 거야. 네가 후순위인 거야."', guide: '짧고 임팩트 있는 한 문장으로 찔러서 클릭을 유도하는 제목' },
+    { name: '트렌드 연결형', example: '"요즘 Z세대가 읽씹을 연애 기술로 쓰는 이유"', guide: '최신 트렌드나 시의성 있는 키워드와 연결한 제목' },
+];
+
+function getRandomTitlePattern() {
+    return TITLE_PATTERNS[Math.floor(Math.random() * TITLE_PATTERNS.length)];
+}
+
+function getRandomBlockType() {
+    const blocks = [2, 3, 4];
+    return blocks[Math.floor(Math.random() * blocks.length)];
+}
+
+function buildPrompt(nextNumber, topic, existingTitles = [], blockType = 2) {
+    const pattern = getRandomTitlePattern();
+    console.log(`[GENERATE BOT] Selected title pattern: "${pattern.name}", Block Type: ${blockType}`);
     const topicText = topic
         ? `이번 에피소드 특별 주제: "${topic}"`
         : `이번 에피소드는 2030 남녀 사이에서 가장 흔하게 발생하는 현실적이고 구체적인 연애 갈등(예: 데이트 비용, 연락 빈도, 남사친/여사친, 과거 연애사, 질투 등) 중 하나를 무작위로 선택해서 주제로 삼아 작성해줘.`;
@@ -40,6 +70,15 @@ ${existingTitles.map(t => `- ${t}`).join('\n')}
 
 만약 소재가 겹치더라도, 위 리스트와는 '다른 성별의 시점'을 강조하거나 '전혀 다른 심리적 포인트'를 짚어서 차별화해야 합니다.`
         : '';
+        
+    let extraBlockInstructions = '';
+    if (blockType === 2) {
+        extraBlockInstructions = `\n  "expert_analysis": "심리 분석관의 시선 (왜 이런 행동/말이 나오는지 진화심리학이나 뇌과학 등 분석적이고 위트있는 2~3줄 짜리 팩트폭행 기사)",\n  "selected_block_type": 2,`;
+    } else if (blockType === 3) {
+        extraBlockInstructions = `\n  "probability_stats": [\n    {"reason": "남/녀의 해당 행동의 진짜 이유 중 가장 큰 비율 (예: 단톡방 뻘소리 들킬까봐)", "percentage": 60},\n    {"reason": "두번째 이유", "percentage": 25},\n    {"reason": "세번째 이유", "percentage": 10},\n    {"reason": "네번째 이유", "percentage": 5}\n  ],\n  "selected_block_type": 3,`;
+    } else if (blockType === 4) {
+        extraBlockInstructions = `\n  "worst_response": {\n    "female": "여자의 최악수 (이 상황에서 흔히 치는, 100% 싸움으로 번지는 대사)",\n    "male": "남자의 최악수 (이 상황에서 흔히 치는, 100% 의심병 시작되는 대사)"\n  },\n  "selected_block_type": 4,`;
+    }
 
     return {
         systemPrompt: `당신은 2030 남녀의 심리를 예리하게 파헤치는 '남녀분석보고서'의 수석 에디터이자 연애 심리 전문가입니다.
@@ -59,13 +98,14 @@ ${topicText}${duplicateConstraint}
 {
   "episode_number": ${nextNumber},
   "slug": "a-short-english-url-friendly-slug-for-seo (e.g. why-do-men-lie-about-small-things)",
-  "title": "제목 — 예: \\"오빠 나 뭐 바뀐 거 없어?\\"라는 질문이 공포인 이유",
+  "title": "제목 — 반드시 '${pattern.name}' 패턴으로 작성할 것. 예시: ${pattern.example}. 가이드: ${pattern.guide}",
   "hook": "1문장 요약/후킹 멘트 (메일 프리뷰 용도)",
   "situation": "2~4줄 상황 묘사 (아주 구체적이고 현실적인 상황 설정, 예: 홍대 파스타집에서 계산서를 사이에 둔 3초의 침묵)",
   "female_text": "여자 시점 2~4문장 (겉으로 하는 말이나 행동 묘사, 자연스러운 구어체)",
   "female_thought": "여자 속마음 한 줄 (진짜 속내, 팩트)",
   "male_text": "남자 시점 2~4문장 (겉으로 하는 말이나 뚝딱거리는 행동 묘사, 구어체)",
   "male_thought": "남자 속마음 한 줄 (진짜 속내, 팩트)",
+  "dialogue": "파국으로 가는 실제 카톡 재현 (해당 상황 직후 남녀가 나눴을 법한 숨막히는 티키타카 대화 3~4줄. 인물 이름 없이 '👩/👨: 대사' 형태로 작성)",${extraBlockInstructions}
   "resolution": "결론 + 뼈 때리면서도 위트 있는 한 줄 요약",
   "advice": "남자 팁: (내일 당장 써먹을 수 있는 현실적 멘트나 행동) / 여자 팁: (현실적 마인드셋이나 행동)",
   "coupang_keyword": "이 갈등을 무마할 연인 패션잡화(예: 커플 반지, 지갑 등) 쿠팡 검색 단일 키워드 (예: '20대 커플 목걸이')",
@@ -122,7 +162,8 @@ async function generateNewsletter() {
             .limit(50);
         const existingTitles = existingEpisodes?.map(e => e.title) || [];
 
-        const prompts = buildPrompt(nextNumber, topic, existingTitles);
+        const blockType = getRandomBlockType();
+        const prompts = buildPrompt(nextNumber, topic, existingTitles, blockType);
         let responseText = '';
 
         console.log('[GENERATE BOT] Attempting to generate newsletter using Gemini 2.5 Flash...');
