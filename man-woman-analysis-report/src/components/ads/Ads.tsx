@@ -30,9 +30,10 @@ interface CoupangProduct {
 interface InFeedAdProps {
     keyword?: string;  // 에피소드에서 전달받은 키워드
     category?: string; // 표시 레이블
+    offset?: number;
 }
 
-export function InFeedAd({ keyword = '데이트', category = '추천 상품' }: InFeedAdProps) {
+export function InFeedAd({ keyword = '데이트', category = '추천 상품', offset = 0 }: InFeedAdProps) {
     const [products, setProducts] = useState<CoupangProduct[]>([]);
     const [loading, setLoading] = useState(true);
 
@@ -40,7 +41,7 @@ export function InFeedAd({ keyword = '데이트', category = '추천 상품' }: 
         const fetchProduct = async () => {
             try {
                 // Fetch up to 3 products
-                const res = await fetch(`/api/coupang/products?keyword=${encodeURIComponent(keyword)}&limit=3`);
+                const res = await fetch(`/api/coupang/products?keyword=${encodeURIComponent(keyword)}&limit=3&offset=${offset}`);
                 if (!res.ok) throw new Error('fetch failed');
                 const data = await res.json();
                 if (Array.isArray(data) && data.length > 0) {

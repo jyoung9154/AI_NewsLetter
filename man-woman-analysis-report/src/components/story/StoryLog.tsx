@@ -391,7 +391,7 @@ export function StoryLog({ episode }: StoryLogProps) {
       {/* 오늘의 연관상품 */}
       {episode.coupang_keyword && (
         <div className="mb-8">
-          <InFeedAd category="🛍️ 오늘의 연관상품" keyword={episode.coupang_keyword} />
+          <InFeedAd category="🛍️ 오늘의 연관상품" keyword={episode.coupang_keyword} offset={3} />
         </div>
       )}
 
