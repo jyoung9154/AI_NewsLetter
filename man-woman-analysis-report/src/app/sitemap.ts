@@ -14,19 +14,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
             changeFrequency: 'always',
             priority: 1.0,
         },
-        // 메인 페이지 내부 탭들은 SEO 관점에서 개별 페이지가 아니므로 중요도를 낮추거나 제거할 수 있지만 기존 유지
-        {
-            url: `${BASE_URL}/#story`,
-            lastModified: now,
-            changeFrequency: 'weekly',
-            priority: 0.8,
-        },
-        {
-            url: `${BASE_URL}/#analysis`,
-            lastModified: now,
-            changeFrequency: 'monthly',
-            priority: 0.7,
-        },
     ];
 
     try {

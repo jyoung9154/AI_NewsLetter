@@ -25,19 +25,24 @@ export async function generateMetadata({ params }: { params: { slug: string } })
     return {
         title,
         description,
+        alternates: {
+            canonical: `https://man-woman-analysis-report.vercel.app/episodes/${episode.slug}`,
+        },
         openGraph: {
             title,
             description,
             type: 'article',
             url: `https://man-woman-analysis-report.vercel.app/episodes/${episode.slug}`,
-            images: episode.image_url ? [{ url: episode.image_url }] : [],
+            images: episode.image_url
+                ? [{ url: episode.image_url }]
+                : [{ url: '/og-image.png', width: 1200, height: 630 }],
             siteName: '남녀분석보고서',
         },
         twitter: {
             card: 'summary_large_image',
             title,
             description,
-            images: episode.image_url ? [episode.image_url] : [],
+            images: episode.image_url ? [episode.image_url] : ['/og-image.png'],
         },
     };
 }
@@ -69,7 +74,7 @@ export default async function EpisodePage({ params }: { params: { slug: string }
         description: episode.hook || episode.situation,
         image: episode.image_url ? [episode.image_url] : [],
         datePublished: episode.published_at || episode.created_at,
-        dateModified: episode.created_at,
+        dateModified: episode.updated_at || episode.published_at || episode.created_at,
         author: [{
             '@type': 'Organization',
             name: '남녀분석보고서',

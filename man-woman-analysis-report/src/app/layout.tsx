@@ -29,10 +29,6 @@ export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || 'https://man-woman-analysis-report.vercel.app'),
   alternates: {
     canonical: '/',
-    languages: {
-      'ko-KR': '/ko',
-      'en-US': '/en',
-    },
   },
   openGraph: {
     type: 'website',
@@ -43,7 +39,7 @@ export const metadata: Metadata = {
     siteName: '남녀분석보고서',
     images: [
       {
-        url: '/og-image.jpg',
+        url: '/og-image.png',
         width: 1200,
         height: 630,
         alt: '남녀분석보고서 메인 이미지',
@@ -54,7 +50,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: '남녀분석보고서 | 관계의 모든 것',
     description: '남녀의 관계, 심리, 라이프스타일을 깊이 있게 분석하는 스토리텔링형 뉴스레터',
-    images: ['/twitter-image.jpg'],
+    images: ['/og-image.png'],
     creator: '@man_woman_report',
   },
   robots: {
