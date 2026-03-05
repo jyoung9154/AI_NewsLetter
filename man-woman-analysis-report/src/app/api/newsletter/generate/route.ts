@@ -204,13 +204,76 @@ export async function POST(request: Request) {
             episodeData.coupang_product_url = buildCoupangUrl(episodeData.coupang_keyword);
         }
 
-        // Pollinations.ai 이미지 생성 연동
-        if (episodeData.image_prompt) {
-            const simplePrompt = `${episodeData.image_prompt}, simple flat vector illustration, minimal style, solid colors`;
-            const encodedPrompt = encodeURIComponent(simplePrompt);
-            // 시각적 퀄리티를 위해 파라미터 추가 (800x600, 로고 제거, 시드 추가)
-            const seed = Math.floor(Math.random() * 1000000);
-            episodeData.image_url = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=800&height=600&nologo=true&seed=${seed}`;
+        const hfApiToken = process.env.HF_API_TOKEN;
+
+        // Hugging Face 이미지 생성 및 Supabase Storage 업로드 연동
+        if (episodeData.image_prompt && hfApiToken) {
+            console.log('[GENERATE API] Generating image via Hugging Face Inference API...');
+            const hfApiUrl = "https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-xl-base-1.0";
+            const enhancedPrompt = `${episodeData.image_prompt}, realistic photography, cinematic lighting, highly detailed, 8k resolution, photorealistic`;
+
+            let imageBuffer: ArrayBuffer | null = null;
+            let retries = 3;
+
+            for (let i = 0; i < retries; i++) {
+                try {
+                    console.log(`[GENERATE API] HF API attempt ${i + 1}/${retries}...`);
+                    const response = await fetch(hfApiUrl, {
+                        method: 'POST',
+                        headers: {
+                            "Authorization": `Bearer ${hfApiToken}`,
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({ inputs: enhancedPrompt })
+                    });
+
+                    if (response.ok) {
+                        imageBuffer = await response.arrayBuffer();
+                        console.log('[GENERATE API] Hugging Face image generated successfully.');
+                        break;
+                    } else if (response.status === 503) {
+                        const errorData = await response.json();
+                        const estimatedTime = (errorData.estimated_time || 20) * 1000;
+                        console.log(`[GENERATE API] Model is loading (503). Retrying in ${estimatedTime / 1000} seconds...`);
+                        await new Promise(resolve => setTimeout(resolve, estimatedTime));
+                    } else {
+                        const errorText = await response.text();
+                        console.warn(`[GENERATE API] Hugging Face API Error (${response.status}):`, errorText);
+                        break; // Stop retrying on non-503 errors
+                    }
+                } catch (hfError) {
+                    console.error('[GENERATE API] Fetch error during HF call:', hfError);
+                    break;
+                }
+            }
+
+            if (imageBuffer) {
+                const fileName = `episode_${nextNumber}_${Date.now()}.jpg`;
+                console.log(`[GENERATE API] Uploading image to Supabase Storage: episode_images/${fileName}...`);
+
+                // Create a File object or rely on ArrayBuffer. Next.js server handles ArrayBuffer directly for supabase upload
+                const { data: uploadData, error: uploadError } = await supabase.storage
+                    .from('episode_images')
+                    .upload(fileName, imageBuffer, {
+                        contentType: 'image/jpeg',
+                        upsert: false
+                    });
+
+                if (uploadError) {
+                    console.error('[GENERATE API] Supabase Storage Upload failed:', uploadError);
+                } else if (uploadData) {
+                    const { data: publicUrlData } = supabase.storage
+                        .from('episode_images')
+                        .getPublicUrl(uploadData.path);
+
+                    episodeData.image_url = publicUrlData.publicUrl;
+                    console.log('[GENERATE API] Image URL attached:', episodeData.image_url);
+                }
+            } else {
+                console.warn('[GENERATE API] Failed to generate image after retries. Proceeding without image.');
+            }
+        } else if (episodeData.image_prompt && !hfApiToken) {
+            console.warn('[GENERATE API] Warning: HF_API_TOKEN is missing in env. Skipping image generation.');
         }
 
         episodeData.status = 'published';
