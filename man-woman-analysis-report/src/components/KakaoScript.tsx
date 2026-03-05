@@ -8,8 +8,9 @@ export function KakaoScript() {
             src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.2/kakao.min.js"
             strategy="afterInteractive"
             onLoad={() => {
+                const kakaoKey = process.env.NEXT_PUBLIC_KAKAO_APP_KEY || 'cd80ff0fca951f062a069084d804f8a9';
                 if (window.Kakao && !window.Kakao.isInitialized()) {
-                    window.Kakao.init('1ba8745c1109a9f24ef780dfcded20ae');
+                    window.Kakao.init(kakaoKey);
                 }
             }}
         />
