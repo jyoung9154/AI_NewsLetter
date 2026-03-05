@@ -23,7 +23,7 @@ interface CommentSectionProps {
 export function CommentSection({ episodeId }: CommentSectionProps) {
     const { user } = useAuth();
     const isLoggedIn = !!user;
-    
+
     const [comments, setComments] = useState<Comment[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [nickname, setNickname] = useState('');
@@ -35,7 +35,7 @@ export function CommentSection({ episodeId }: CommentSectionProps) {
     const [deletePassword, setDeletePassword] = useState('');
     const [isDeleting, setIsDeleting] = useState(false);
     const [errorMsg, setErrorMsg] = useState('');
-    
+
     // 대댓글 상태
     const [replyToId, setReplyToId] = useState<number | null>(null);
     const [replyNickname, setReplyNickname] = useState('');
@@ -54,11 +54,11 @@ export function CommentSection({ episodeId }: CommentSectionProps) {
     useEffect(() => {
         // 로그인 상태면 유저 정보로 자동 채움
         if (isLoggedIn && user) {
-            const displayName = 
-                user.user_metadata?.nickname || 
-                user.user_metadata?.full_name || 
-                user.user_metadata?.name || 
-                user.email?.split('@')[0] || 
+            const displayName =
+                user.user_metadata?.nickname ||
+                user.user_metadata?.full_name ||
+                user.user_metadata?.name ||
+                user.email?.split('@')[0] ||
                 '사용자';
             const autoPassword = `oauth_${user.id.substring(0, 8)}`;
             setNickname(displayName);
@@ -69,10 +69,10 @@ export function CommentSection({ episodeId }: CommentSectionProps) {
             // 비로그인 시 로컬 저장 정보 복원
             const savedNickname = localStorage.getItem('comment_nickname');
             if (savedNickname) { setNickname(savedNickname); setReplyNickname(savedNickname); }
-            
+
             const savedPw = localStorage.getItem('comment_password');
             if (savedPw) { setPassword(savedPw); setReplyPassword(savedPw); }
-            
+
             const savedGender = localStorage.getItem('comment_gender') as any;
             if (savedGender) { setGender(savedGender); setReplyGender(savedGender); }
         }
@@ -95,13 +95,13 @@ export function CommentSection({ episodeId }: CommentSectionProps) {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        
+
         // 비로그인 시에만 닉네임과 비밀번호 필수 검사
         if (!isLoggedIn && (!nickname || !password)) {
             setErrorMsg('닉네임, 비밀번호, 내용을 모두 입력해주세요.');
             return;
         }
-        
+
         if (!content) {
             setErrorMsg('내용을 입력해주세요.');
             return;
@@ -112,7 +112,7 @@ export function CommentSection({ episodeId }: CommentSectionProps) {
             localStorage.setItem('comment_nickname', nickname);
             localStorage.setItem('comment_password', password);
             localStorage.setItem('comment_gender', gender);
-            
+
             const res = await fetch('/api/comments', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -140,7 +140,7 @@ export function CommentSection({ episodeId }: CommentSectionProps) {
             localStorage.setItem('comment_nickname', replyNickname);
             localStorage.setItem('comment_password', replyPassword);
             localStorage.setItem('comment_gender', replyGender);
-            
+
             const res = await fetch('/api/comments', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -207,7 +207,7 @@ export function CommentSection({ episodeId }: CommentSectionProps) {
     const totalCount = comments.reduce((acc, c) => acc + 1 + (c.replies?.length || 0), 0);
 
     const renderComment = (comment: Comment, isReply = false) => (
-        <div key={comment.id} className={`group flex gap-3 ${isReply ? 'ml-12 mt-3' : ''} bg-white p-5 rounded-2xl border border-gray-100 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.04)] hover:border-pink-100 hover:shadow-md transition-all`}>
+        <div key={comment.id} className={`group flex gap-3 ${isReply ? 'ml-6 md:ml-12 mt-3' : ''} bg-white p-4 md:p-5 rounded-2xl border border-gray-100 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.04)] hover:border-pink-100 hover:shadow-md transition-all`}>
             <div className={`flex-shrink-0 ${isReply ? 'w-9 h-9 text-lg' : 'w-12 h-12 text-2xl'} rounded-full flex items-center justify-center bg-gray-50 border border-gray-100`}>
                 {comment.gender === 'female' ? '👩' : comment.gender === 'male' ? '👨' : '👻'}
             </div>
@@ -230,16 +230,15 @@ export function CommentSection({ episodeId }: CommentSectionProps) {
                     </button>
                 </div>
                 <p className="text-gray-700 whitespace-pre-line leading-relaxed text-sm break-words">{comment.content}</p>
-                
+
                 {/* 좋아요 + 답글 버튼 */}
                 <div className="flex items-center gap-4 mt-2.5">
                     <button
                         onClick={() => handleLike(comment.id)}
-                        className={`flex items-center gap-1 text-xs font-medium transition-colors ${
-                            likedIds.has(comment.id)
+                        className={`flex items-center gap-1 text-xs font-medium transition-colors ${likedIds.has(comment.id)
                                 ? 'text-pink-500'
                                 : 'text-gray-400 hover:text-pink-500'
-                        }`}
+                            }`}
                     >
                         <Heart className={`w-3.5 h-3.5 ${likedIds.has(comment.id) ? 'fill-pink-500' : ''}`} />
                         {(comment.likes || 0) > 0 && <span>{comment.likes}</span>}
@@ -370,13 +369,13 @@ export function CommentSection({ episodeId }: CommentSectionProps) {
 
                             {/* 대댓글 입력 폼 */}
                             {replyToId === comment.id && (
-                                <div className="ml-12 mt-3 bg-blue-50/50 border border-blue-100 rounded-2xl p-4">
+                                <div className="ml-6 md:ml-12 mt-3 bg-blue-50/50 border border-blue-100 rounded-2xl p-4">
                                     <div className="flex items-center gap-2 mb-3 text-sm text-blue-600 font-medium">
                                         <CornerDownRight className="w-4 h-4" />
                                         <span>{comment.nickname}님에게 답글</span>
                                     </div>
                                     {!isLoggedIn && (
-                                        <div className="grid grid-cols-3 gap-2 mb-2">
+                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-2 mb-2">
                                             <input
                                                 type="text"
                                                 placeholder="닉네임"
