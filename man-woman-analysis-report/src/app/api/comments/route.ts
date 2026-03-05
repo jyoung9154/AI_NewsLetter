@@ -50,15 +50,16 @@ export async function POST(request: Request) {
     try {
         const { episodeId, nickname, password, content, gender, parentId } = await request.json();
 
-        if (!episodeId || !nickname || !password || !content) {
-            return NextResponse.json({ error: 'All fields are required' }, { status: 400 });
+        // 필수 필드 체크 (에피소드 ID와 내용만 필수로 체크하고 나머지는 유동적으로 처리)
+        if (!episodeId || !content) {
+            return NextResponse.json({ error: 'Episode ID and content are required' }, { status: 400 });
         }
 
         const supabase = getSupabaseService();
         const insertData: any = {
             episode_id: episodeId,
-            nickname,
-            password,
+            nickname: nickname || '익명',
+            password: password || 'SOCIAL_AUTH', // 소셜 로그인 등으로 비밀번호가 없는 경우를 위한 더미 값
             content,
             gender: gender || 'unknown',
         };

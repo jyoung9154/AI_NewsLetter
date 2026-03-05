@@ -49,25 +49,34 @@ export function CommentSection({ episodeId }: CommentSectionProps) {
 
     useEffect(() => {
         fetchComments();
-        
+    }, [episodeId]);
+
+    useEffect(() => {
         // 로그인 상태면 유저 정보로 자동 채움
         if (isLoggedIn && user) {
-            const displayName = user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split('@')[0] || '사용자';
+            const displayName = 
+                user.user_metadata?.nickname || 
+                user.user_metadata?.full_name || 
+                user.user_metadata?.name || 
+                user.email?.split('@')[0] || 
+                '사용자';
             const autoPassword = `oauth_${user.id.substring(0, 8)}`;
             setNickname(displayName);
             setPassword(autoPassword);
             setReplyNickname(displayName);
             setReplyPassword(autoPassword);
         } else {
-            // 비로그인 시 로컬 저장 닉네임 복원
-            const saved = localStorage.getItem('comment_nickname');
-            if (saved) { setNickname(saved); setReplyNickname(saved); }
+            // 비로그인 시 로컬 저장 정보 복원
+            const savedNickname = localStorage.getItem('comment_nickname');
+            if (savedNickname) { setNickname(savedNickname); setReplyNickname(savedNickname); }
+            
             const savedPw = localStorage.getItem('comment_password');
             if (savedPw) { setPassword(savedPw); setReplyPassword(savedPw); }
+            
             const savedGender = localStorage.getItem('comment_gender') as any;
             if (savedGender) { setGender(savedGender); setReplyGender(savedGender); }
         }
-    }, [episodeId, isLoggedIn]);
+    }, [isLoggedIn, user]);
 
     const fetchComments = async () => {
         setIsLoading(true);
