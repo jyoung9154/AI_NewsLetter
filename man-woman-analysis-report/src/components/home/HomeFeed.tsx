@@ -282,7 +282,7 @@ export function HomeFeed({ episodes }: HomeFeedProps) {
                                         스토리로그 {episode.episode_number ? `Episode.${episode.episode_number}` : ''}
                                     </span>
                                     {/* 제목 */}
-                                    <h3 className="text-xl font-serif font-bold text-gray-900 mb-3 group-hover:text-pink-600 transition-colors line-clamp-2 leading-tight whitespace-pre-line">
+                                    <h3 className="text-xl font-serif font-bold text-gray-900 mb-3 group-hover:text-pink-600 transition-colors line-clamp-2 leading-tight">
                                         {formatTitle(episode.title.replace(/^Episode\s*\d+\.?\s*/i, '').trim())}
                                     </h3>
                                     <p className="text-gray-600 text-body line-clamp-2 md:line-clamp-3 leading-relaxed">

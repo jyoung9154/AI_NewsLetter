@@ -196,7 +196,7 @@ export function StoryList({ episodes }: StoryListProps) {
                                     )}
                                 </div>
 
-                                <h3 className="text-lg md:text-xl font-serif font-bold text-gray-900 group-hover:text-pink-600 transition-colors mb-3 line-clamp-2 whitespace-pre-line">
+                                <h3 className="text-lg md:text-xl font-serif font-bold text-gray-900 group-hover:text-pink-600 transition-colors mb-3 line-clamp-2">
                                     {formatTitle(episode.title.replace(/^Episode\s*\d+\.?\s*/i, '').trim())}
                                 </h3>
 
