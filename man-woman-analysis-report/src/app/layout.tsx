@@ -1,9 +1,9 @@
 import type { Metadata } from 'next';
 import localFont from 'next/font/local';
-import Script from 'next/script';
 import './globals.css';
 import { GenderThemeProvider } from '@/components/ui/GenderThemeProvider';
 import { AuthProvider } from '@/components/auth/AuthProvider';
+import { KakaoScript } from '@/components/KakaoScript';
 
 const pretendard = localFont({
   src: '../../node_modules/pretendard/dist/web/variable/woff2/PretendardVariable.woff2',
@@ -114,15 +114,7 @@ export default function RootLayout({
             }),
           }}
         />
-        <Script
-          src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.2/kakao.min.js"
-          strategy="afterInteractive"
-          onLoad={() => {
-            if (window.Kakao && !window.Kakao.isInitialized()) {
-              window.Kakao.init('1ba8745c1109a9f24ef780dfcded20ae'); // Use a placeholder or environment variable here, but since it's client-side, hardcoding the js key is sometimes necessary if not in .env
-            }
-          }}
-        />
+        <KakaoScript />
         <AuthProvider>
           <GenderThemeProvider>
             {children}
