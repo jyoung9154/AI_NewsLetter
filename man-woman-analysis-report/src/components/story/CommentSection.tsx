@@ -86,8 +86,15 @@ export function CommentSection({ episodeId }: CommentSectionProps) {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!nickname || !password || !content) {
+        
+        // 비로그인 시에만 닉네임과 비밀번호 필수 검사
+        if (!isLoggedIn && (!nickname || !password)) {
             setErrorMsg('닉네임, 비밀번호, 내용을 모두 입력해주세요.');
+            return;
+        }
+        
+        if (!content) {
+            setErrorMsg('내용을 입력해주세요.');
             return;
         }
         setIsSubmitting(true);
@@ -117,7 +124,8 @@ export function CommentSection({ episodeId }: CommentSectionProps) {
     };
 
     const handleReplySubmit = async (parentId: number) => {
-        if (!replyNickname || !replyPassword || !replyContent) return;
+        if (!isLoggedIn && (!replyNickname || !replyPassword)) return;
+        if (!replyContent) return;
         setIsReplySubmitting(true);
         try {
             localStorage.setItem('comment_nickname', replyNickname);
