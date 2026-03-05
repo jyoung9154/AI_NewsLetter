@@ -122,8 +122,8 @@ export function HomeFeed({ episodes }: HomeFeedProps) {
                         <div className="bg-white/20 backdrop-blur-md text-white border border-white/30 px-3 py-1 rounded-full text-[10px] md:text-body-sm font-bold uppercase tracking-wider inline-block mb-3">
                             이번 주 최신 이야기
                         </div>
-                        <h2 className="text-title md:text-hero font-serif text-white mb-3 leading-tight group-hover:underline decoration-2 underline-offset-4 decoration-pink-400">
-                            {latestEpisode.title}
+                        <h2 className="text-title md:text-hero font-serif text-white mb-3 leading-tight whitespace-pre-line group-hover:underline decoration-2 underline-offset-4 decoration-pink-400">
+                            {formatTitle(latestEpisode.title.replace(/^Episode\s*\d+\.?\s*/i, '').trim())}
                         </h2>
                         <p className="text-gray-200 text-body-sm md:text-body line-clamp-2 max-w-2xl font-medium leading-relaxed">
                             {latestEpisode.situation}
