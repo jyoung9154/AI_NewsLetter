@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { SubscriptionPopup } from '@/components/subscription/SubscriptionPopup';
+import { UserMenu } from '@/components/auth/UserMenu';
 
 interface TabsNavigationProps {
     currentTab: string;
@@ -82,8 +83,8 @@ export function TabsNavigation({ currentTab, onTabChange }: TabsNavigationProps)
                         ))}
                     </nav>
 
-                    {/* 구독 필드 (데스크탑 우측) */}
-                    <div className="hidden md:flex items-center">
+                    {/* 구독 필드 + 로그인 (데스크탑 우측) */}
+                    <div className="hidden md:flex items-center gap-3">
                         <div className={`relative h-10 flex items-center transition-all duration-500 ease-in-out ${isExpanding ? 'w-64' : 'w-32'}`}>
                             {/* 기본 버튼 - 서서히 사라짐 */}
                             <button
@@ -127,15 +128,12 @@ export function TabsNavigation({ currentTab, onTabChange }: TabsNavigationProps)
                                 </button>
                             </form>
                         </div>
+                        <UserMenu />
                     </div>
 
-                    {/* 모바일 햄버거 메뉴 (임시) */}
-                    <div className="md:hidden flex items-center">
-                        <button className="text-gray-500 hover:text-gray-900 p-2">
-                            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                            </svg>
-                        </button>
+                    {/* 모바일 우측 */}
+                    <div className="md:hidden flex items-center gap-2">
+                        <UserMenu />
                     </div>
                 </div>
             </div>

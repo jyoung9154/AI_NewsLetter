@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import localFont from 'next/font/local';
 import './globals.css';
 import { GenderThemeProvider } from '@/components/ui/GenderThemeProvider';
+import { AuthProvider } from '@/components/auth/AuthProvider';
 
 const pretendard = localFont({
   src: '../../node_modules/pretendard/dist/web/variable/woff2/PretendardVariable.woff2',
@@ -112,9 +113,11 @@ export default function RootLayout({
             }),
           }}
         />
-        <GenderThemeProvider>
-          {children}
-        </GenderThemeProvider>
+        <AuthProvider>
+          <GenderThemeProvider>
+            {children}
+          </GenderThemeProvider>
+        </AuthProvider>
       </body>
     </html>
   );

@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/Button';
 import { User, Lock, Trash2, Send, MessageSquare, Heart, CornerDownRight } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/Select';
+import { useAuth } from '@/components/auth/AuthProvider';
 
 interface Comment {
     id: number;
@@ -20,6 +21,9 @@ interface CommentSectionProps {
 }
 
 export function CommentSection({ episodeId }: CommentSectionProps) {
+    const { user } = useAuth();
+    const isLoggedIn = !!user;
+    
     const [comments, setComments] = useState<Comment[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [nickname, setNickname] = useState('');
@@ -45,14 +49,25 @@ export function CommentSection({ episodeId }: CommentSectionProps) {
 
     useEffect(() => {
         fetchComments();
-        // 로컬 저장 닉네임 복원
-        const saved = localStorage.getItem('comment_nickname');
-        if (saved) { setNickname(saved); setReplyNickname(saved); }
-        const savedPw = localStorage.getItem('comment_password');
-        if (savedPw) { setPassword(savedPw); setReplyPassword(savedPw); }
-        const savedGender = localStorage.getItem('comment_gender') as any;
-        if (savedGender) { setGender(savedGender); setReplyGender(savedGender); }
-    }, [episodeId]);
+        
+        // 로그인 상태면 유저 정보로 자동 채움
+        if (isLoggedIn && user) {
+            const displayName = user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split('@')[0] || '사용자';
+            const autoPassword = `oauth_${user.id.substring(0, 8)}`;
+            setNickname(displayName);
+            setPassword(autoPassword);
+            setReplyNickname(displayName);
+            setReplyPassword(autoPassword);
+        } else {
+            // 비로그인 시 로컬 저장 닉네임 복원
+            const saved = localStorage.getItem('comment_nickname');
+            if (saved) { setNickname(saved); setReplyNickname(saved); }
+            const savedPw = localStorage.getItem('comment_password');
+            if (savedPw) { setPassword(savedPw); setReplyPassword(savedPw); }
+            const savedGender = localStorage.getItem('comment_gender') as any;
+            if (savedGender) { setGender(savedGender); setReplyGender(savedGender); }
+        }
+    }, [episodeId, isLoggedIn]);
 
     const fetchComments = async () => {
         setIsLoading(true);
