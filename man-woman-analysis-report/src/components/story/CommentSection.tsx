@@ -256,41 +256,59 @@ export function CommentSection({ episodeId }: CommentSectionProps) {
 
             {/* 댓글 작성 폼 */}
             <form onSubmit={handleSubmit} className="bg-gray-50/50 border border-gray-100 rounded-3xl p-6 md:p-8 mb-10 shadow-sm">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
-                    <div className="relative">
-                        <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                        <input
-                            type="text"
-                            placeholder="닉네임 (최대 10자)"
-                            maxLength={10}
-                            value={nickname}
-                            onChange={(e) => setNickname(e.target.value)}
-                            className="w-full pl-12 pr-4 py-3 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent outline-none transition-all text-sm"
-                        />
+                {isLoggedIn && user ? (
+                    /* 로그인 상태: 프로필 표시 */
+                    <div className="flex items-center gap-3 mb-4 px-1">
+                        {user.user_metadata?.avatar_url ? (
+                            <img src={user.user_metadata.avatar_url} alt="" className="w-10 h-10 rounded-full border-2 border-white shadow-sm object-cover" referrerPolicy="no-referrer" />
+                        ) : (
+                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-pink-400 to-purple-500 flex items-center justify-center text-white font-bold shadow-sm">
+                                {nickname.charAt(0).toUpperCase()}
+                            </div>
+                        )}
+                        <div>
+                            <span className="text-sm font-bold text-gray-900">{nickname}</span>
+                            <span className="text-xs text-gray-400 ml-2">({user.app_metadata?.provider === 'google' ? '🔷 Google' : '💛 Kakao'})</span>
+                        </div>
                     </div>
-                    <div className="relative">
-                        <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                        <input
-                            type="password"
-                            placeholder="비밀번호 (삭제시 필요)"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            className="w-full pl-12 pr-4 py-3 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent outline-none transition-all text-sm"
-                        />
+                ) : (
+                    /* 비로그인 상태: 닉네임/비밀번호/성별 입력 */
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3">
+                        <div className="relative">
+                            <User className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                            <input
+                                type="text"
+                                placeholder="닉네임 (최대 10자)"
+                                maxLength={10}
+                                value={nickname}
+                                onChange={(e) => setNickname(e.target.value)}
+                                className="w-full pl-12 pr-4 py-3 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent outline-none transition-all text-sm"
+                            />
+                        </div>
+                        <div className="relative">
+                            <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                            <input
+                                type="password"
+                                placeholder="비밀번호 (삭제시 필요)"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                className="w-full pl-12 pr-4 py-3 bg-white border border-gray-200 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent outline-none transition-all text-sm"
+                            />
+                        </div>
+                        <div>
+                            <Select value={gender} onValueChange={(v: any) => setGender(v)}>
+                                <SelectTrigger className="w-full h-full min-h-[46px] bg-white border-gray-200 rounded-xl focus:ring-pink-500">
+                                    <SelectValue placeholder="성별 선택 (선택)" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="unknown">공개안함 👻</SelectItem>
+                                    <SelectItem value="female">여성 👩</SelectItem>
+                                    <SelectItem value="male">남성 👨</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
                     </div>
-                    <div>
-                        <Select value={gender} onValueChange={(v: any) => setGender(v)}>
-                            <SelectTrigger className="w-full h-full min-h-[46px] bg-white border-gray-200 rounded-xl focus:ring-pink-500">
-                                <SelectValue placeholder="성별 선택 (선택)" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="unknown">공개안함 👻</SelectItem>
-                                <SelectItem value="female">여성 👩</SelectItem>
-                                <SelectItem value="male">남성 👨</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
-                </div>
+                )}
                 <div className="relative">
                     <textarea
                         placeholder="이 에피소드에 대해 어떻게 생각하시나요? 자유롭게 의견을 남겨주세요."
@@ -340,33 +358,35 @@ export function CommentSection({ episodeId }: CommentSectionProps) {
                                         <CornerDownRight className="w-4 h-4" />
                                         <span>{comment.nickname}님에게 답글</span>
                                     </div>
-                                    <div className="grid grid-cols-3 gap-2 mb-2">
-                                        <input
-                                            type="text"
-                                            placeholder="닉네임"
-                                            maxLength={10}
-                                            value={replyNickname}
-                                            onChange={(e) => setReplyNickname(e.target.value)}
-                                            className="px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-blue-300"
-                                        />
-                                        <input
-                                            type="password"
-                                            placeholder="비밀번호"
-                                            value={replyPassword}
-                                            onChange={(e) => setReplyPassword(e.target.value)}
-                                            className="px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-blue-300"
-                                        />
-                                        <Select value={replyGender} onValueChange={(v: any) => setReplyGender(v)}>
-                                            <SelectTrigger className="bg-white border-gray-200 rounded-lg h-full text-sm">
-                                                <SelectValue />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="unknown">👻</SelectItem>
-                                                <SelectItem value="female">👩</SelectItem>
-                                                <SelectItem value="male">👨</SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
+                                    {!isLoggedIn && (
+                                        <div className="grid grid-cols-3 gap-2 mb-2">
+                                            <input
+                                                type="text"
+                                                placeholder="닉네임"
+                                                maxLength={10}
+                                                value={replyNickname}
+                                                onChange={(e) => setReplyNickname(e.target.value)}
+                                                className="px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-blue-300"
+                                            />
+                                            <input
+                                                type="password"
+                                                placeholder="비밀번호"
+                                                value={replyPassword}
+                                                onChange={(e) => setReplyPassword(e.target.value)}
+                                                className="px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-blue-300"
+                                            />
+                                            <Select value={replyGender} onValueChange={(v: any) => setReplyGender(v)}>
+                                                <SelectTrigger className="bg-white border-gray-200 rounded-lg h-full text-sm">
+                                                    <SelectValue />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="unknown">👻</SelectItem>
+                                                    <SelectItem value="female">👩</SelectItem>
+                                                    <SelectItem value="male">👨</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                    )}
                                     <div className="flex gap-2">
                                         <input
                                             type="text"

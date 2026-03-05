@@ -68,7 +68,7 @@ export function UserMenu() {
           <div className="absolute right-0 top-full mt-2 w-56 bg-white rounded-2xl shadow-lg border border-gray-100 py-2 z-50">
             <div className="px-4 py-3 border-b border-gray-100">
               <p className="text-sm font-bold text-gray-900 truncate">{displayName}</p>
-              <p className="text-xs text-gray-500 truncate mt-0.5">{user.email}</p>
+              {user.email && <p className="text-xs text-gray-500 truncate mt-0.5">{user.email}</p>}
               {provider && (
                 <span className="inline-block mt-1.5 px-2 py-0.5 bg-gray-100 rounded-full text-[10px] font-medium text-gray-500 capitalize">
                   {provider === 'google' ? '🔷 Google' : provider === 'kakao' ? '💛 Kakao' : provider}
