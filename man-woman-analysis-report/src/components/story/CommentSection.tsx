@@ -236,8 +236,8 @@ export function CommentSection({ episodeId }: CommentSectionProps) {
                     <button
                         onClick={() => handleLike(comment.id)}
                         className={`flex items-center gap-1 text-xs font-medium transition-colors ${likedIds.has(comment.id)
-                                ? 'text-pink-500'
-                                : 'text-gray-400 hover:text-pink-500'
+                            ? 'text-pink-500'
+                            : 'text-gray-400 hover:text-pink-500'
                             }`}
                     >
                         <Heart className={`w-3.5 h-3.5 ${likedIds.has(comment.id) ? 'fill-pink-500' : ''}`} />
@@ -325,19 +325,21 @@ export function CommentSection({ episodeId }: CommentSectionProps) {
                         </div>
                     </div>
                 )}
-                <div className="relative">
+                <div className="flex flex-col gap-3">
                     <textarea
                         placeholder="이 에피소드에 대해 어떻게 생각하시나요? 자유롭게 의견을 남겨주세요."
                         value={content}
                         onChange={(e) => setContent(e.target.value)}
-                        className="w-full p-5 min-h-[100px] bg-white border border-gray-200 rounded-2xl focus:ring-2 focus:ring-pink-500 focus:border-transparent outline-none transition-all resize-y text-base"
+                        className="w-full p-4 md:p-5 min-h-[120px] bg-white border border-gray-200 rounded-2xl focus:ring-2 focus:ring-pink-500 focus:border-transparent outline-none transition-all resize-y text-base"
                     />
-                    <div className="absolute bottom-4 right-4 flex items-center gap-4">
-                        {errorMsg && <span className="text-red-500 text-xs font-bold">{errorMsg}</span>}
+                    <div className="flex items-center justify-between px-1">
+                        <div className="flex-grow">
+                            {errorMsg && <span className="text-red-500 text-xs font-bold">{errorMsg}</span>}
+                        </div>
                         <Button
                             type="submit"
                             disabled={isSubmitting}
-                            className="bg-gray-900 hover:bg-gray-800 text-white rounded-xl px-6 py-2 h-auto text-sm font-bold shadow-sm transition-all flex items-center gap-2"
+                            className="bg-gray-900 hover:bg-gray-800 text-white rounded-xl px-6 py-2.5 h-auto text-sm font-bold shadow-sm transition-all flex items-center gap-2 shrink-0"
                         >
                             {isSubmitting ? '등록 중...' : <><Send className="w-4 h-4" /> 등록</>}
                         </Button>
@@ -403,13 +405,13 @@ export function CommentSection({ episodeId }: CommentSectionProps) {
                                             </Select>
                                         </div>
                                     )}
-                                    <div className="flex gap-2">
+                                    <div className="relative">
                                         <input
                                             type="text"
                                             placeholder="답글을 입력하세요..."
                                             value={replyContent}
                                             onChange={(e) => setReplyContent(e.target.value)}
-                                            className="flex-1 px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-blue-300"
+                                            className="w-full pl-4 pr-14 py-3 bg-white border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                                             onKeyDown={(e) => {
                                                 if (e.key === 'Enter' && !e.shiftKey) {
                                                     e.preventDefault();
@@ -417,14 +419,14 @@ export function CommentSection({ episodeId }: CommentSectionProps) {
                                                 }
                                             }}
                                         />
-                                        <Button
+                                        <button
                                             type="button"
                                             onClick={() => handleReplySubmit(comment.id)}
                                             disabled={isReplySubmitting || !replyNickname || !replyPassword || !replyContent}
-                                            className="bg-blue-500 hover:bg-blue-600 text-white rounded-xl px-4 h-auto text-sm font-bold"
+                                            className="absolute right-1.5 top-1/2 -translate-y-1/2 w-10 h-10 flex items-center justify-center bg-blue-500 hover:bg-blue-600 disabled:bg-gray-200 text-white rounded-lg transition-all"
                                         >
                                             <Send className="w-4 h-4" />
-                                        </Button>
+                                        </button>
                                     </div>
                                 </div>
                             )}
