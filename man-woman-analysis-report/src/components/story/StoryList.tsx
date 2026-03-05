@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { Badge } from '@/components/ui/Badge';
 import { formatTitle } from '@/lib/utils';
 import { MessageSquare, Eye, Share2, Clock, ChevronRight, Search, X, Heart } from 'lucide-react';
+import Image from 'next/image';
 
 interface StoryListProps {
     episodes: DbEpisode[];
@@ -178,10 +179,12 @@ export function StoryList({ episodes }: StoryListProps) {
                                 <div className={`w-full aspect-[16/10] bg-gray-50 rounded-2xl overflow-hidden mb-6 border border-gray-100 relative ${!episode.image_url || brokenImages[episode.id] ? 'hidden sm:flex' : 'flex'}`}>
                                     {episode.image_url && !brokenImages[episode.id] ? (
                                         <>
-                                            <img
+                                            <Image
                                                 src={episode.image_url}
                                                 alt={episode.title}
-                                                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                                                fill
+                                                sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                                                className="object-cover group-hover:scale-110 transition-transform duration-700"
                                                 onError={() => handleImageError(episode.id)}
                                             />
                                             <div className="absolute inset-0 bg-black/5 group-hover:bg-black/0 transition-colors"></div>

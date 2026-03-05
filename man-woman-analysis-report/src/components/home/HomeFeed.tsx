@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/Badge";
 import { formatTitle } from "@/lib/utils";
 import { SubscriptionPopup } from '@/components/subscription/SubscriptionPopup';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useAuth } from '@/components/auth/AuthProvider';
 
 interface HomeFeedProps {
@@ -101,10 +102,12 @@ export function HomeFeed({ episodes }: HomeFeedProps) {
                     {/* 임시 커버 이미지 처리 */}
                     <div className="absolute inset-0 bg-gray-100 flex items-center justify-center overflow-hidden">
                         {latestEpisode.image_url && !brokenImages[`hero-${latestEpisode.id}`] ? (
-                            <img
+                            <Image
                                 src={latestEpisode.image_url}
                                 alt={latestEpisode.title}
-                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                fill
+                                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                                className="object-cover group-hover:scale-105 transition-transform duration-500"
                                 onError={() => handleImageError(`hero-${latestEpisode.id}`)}
                             />
                         ) : (
@@ -255,12 +258,16 @@ export function HomeFeed({ episodes }: HomeFeedProps) {
                                 {(episode.image_url || true) && (
                                     <div className={`w-full sm:w-48 aspect-[4/3] bg-gray-100 rounded-xl overflow-hidden flex-shrink-0 border border-gray-200 ${!episode.image_url || brokenImages[episode.id] ? 'hidden sm:flex' : 'flex'}`}>
                                         {episode.image_url && !brokenImages[episode.id] ? (
-                                            <img
-                                                src={episode.image_url}
-                                                alt={episode.title}
-                                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                                                onError={() => handleImageError(episode.id)}
-                                            />
+                                            <div className="relative w-full h-full">
+                                                <Image
+                                                    src={episode.image_url}
+                                                    alt={episode.title}
+                                                    fill
+                                                    sizes="(max-width: 640px) 100vw, 192px"
+                                                    className="object-cover group-hover:scale-105 transition-transform duration-500"
+                                                    onError={() => handleImageError(episode.id)}
+                                                />
+                                            </div>
                                         ) : (
                                             <div className="w-full h-full bg-gradient-to-br from-pink-50 to-white flex items-center justify-center text-gray-300 text-hero md:text-[3rem]">
                                                 📖
