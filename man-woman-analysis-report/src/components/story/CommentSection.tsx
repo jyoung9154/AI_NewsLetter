@@ -14,6 +14,7 @@ interface Comment {
     likes: number;
     created_at: string;
     replies?: Comment[];
+    user_id?: string;
 }
 
 interface CommentSectionProps {
@@ -182,11 +183,22 @@ export function CommentSection({ episodeId }: CommentSectionProps) {
         }
     };
 
-    const handleDelete = async () => {
-        if (!deleteModalCommentId || !deletePassword) return;
+    const handleDelete = async (commentId?: number, skipPassword = false) => {
+        const idToDelete = commentId || deleteModalCommentId;
+        if (!idToDelete) return;
+        if (!skipPassword && !deletePassword) return;
+
+        if (skipPassword) {
+            if (!confirm('정말 이 댓글을 삭제하시겠습니까?')) return;
+        }
+
         setIsDeleting(true);
         try {
-            const res = await fetch(`/api/comments?id=${deleteModalCommentId}&password=${encodeURIComponent(deletePassword)}`, {
+            const url = skipPassword
+                ? `/api/comments?id=${idToDelete}`
+                : `/api/comments?id=${idToDelete}&password=${encodeURIComponent(deletePassword)}`;
+
+            const res = await fetch(url, {
                 method: 'DELETE',
             });
             if (res.ok) {
@@ -195,7 +207,7 @@ export function CommentSection({ episodeId }: CommentSectionProps) {
                 fetchComments();
             } else {
                 const data = await res.json();
-                alert(data.error || '비밀번호가 일치하지 않습니다.');
+                alert(data.error || '삭제 권한이 없거나 비밀번호가 틀립니다.');
             }
         } catch (error) {
             alert('삭제 중 오류가 발생했습니다.');
@@ -222,7 +234,14 @@ export function CommentSection({ episodeId }: CommentSectionProps) {
                         </span>
                     </div>
                     <button
-                        onClick={() => setDeleteModalCommentId(comment.id)}
+                        onClick={() => {
+                            const isOwner = user && comment.user_id === user.id;
+                            if (isOwner) {
+                                handleDelete(comment.id, true);
+                            } else {
+                                setDeleteModalCommentId(comment.id);
+                            }
+                        }}
                         className="text-gray-200 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity p-1"
                         aria-label="댓글 삭제"
                     >
@@ -462,7 +481,7 @@ export function CommentSection({ episodeId }: CommentSectionProps) {
                             <Button
                                 className="flex-1 rounded-xl py-6 bg-red-500 hover:bg-red-600 font-bold"
                                 disabled={isDeleting || !deletePassword}
-                                onClick={handleDelete}
+                                onClick={() => handleDelete()}
                             >
                                 {isDeleting ? '삭제 중...' : '삭제하기'}
                             </Button>

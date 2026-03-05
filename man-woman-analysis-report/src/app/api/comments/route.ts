@@ -1,5 +1,8 @@
 import { NextResponse } from 'next/server';
 import { getSupabaseService } from '@/lib/supabase';
+import { createServerClient } from '@supabase/ssr';
+import { cookies } from 'next/headers';
+import { CookieOptions } from '@supabase/ssr';
 
 // GET: 에피소드의 댓글 목록 불러오기 (대댓글 트리 구조)
 export async function GET(request: Request) {
@@ -12,7 +15,7 @@ export async function GET(request: Request) {
 
     try {
         const supabase = getSupabaseService();
-        
+
         // 최상위 댓글 (parent_id가 null인 것)
         const { data: topLevel, error: topError } = await supabase
             .from('comments')
@@ -55,6 +58,26 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: 'Episode ID and content are required' }, { status: 400 });
         }
 
+        const cookieStore = await cookies();
+        const supabaseAuth = createServerClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+            {
+                cookies: {
+                    getAll() { return cookieStore.getAll() },
+                    setAll(cookiesToSet) {
+                        try {
+                            cookiesToSet.forEach(({ name, value, options }) =>
+                                cookieStore.set(name, value, options)
+                            )
+                        } catch { }
+                    },
+                },
+            }
+        );
+
+        const { data: { user } } = await supabaseAuth.auth.getUser();
+
         const supabase = getSupabaseService();
         const insertData: any = {
             episode_id: episodeId,
@@ -62,6 +85,7 @@ export async function POST(request: Request) {
             password: password || 'SOCIAL_AUTH', // 소셜 로그인 등으로 비밀번호가 없는 경우를 위한 더미 값
             content,
             gender: gender || 'unknown',
+            user_id: user?.id || null, // 로그인한 유저면 ID 저장
         };
 
         // 대댓글인 경우 parent_id 추가
@@ -82,23 +106,42 @@ export async function POST(request: Request) {
     }
 }
 
-// DELETE: 댓글 삭제 (비밀번호 확인)
+// DELETE: 댓글 삭제 (비밀번호 또는 소유권 확인)
 export async function DELETE(request: Request) {
     try {
         const { searchParams } = new URL(request.url);
         const commentId = searchParams.get('id');
         const password = searchParams.get('password');
 
-        if (!commentId || !password) {
-            return NextResponse.json({ error: 'Comment ID and password are required' }, { status: 400 });
+        if (!commentId) {
+            return NextResponse.json({ error: 'Comment ID is required' }, { status: 400 });
         }
 
+        const cookieStore = await cookies();
+        const supabaseAuth = createServerClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+            {
+                cookies: {
+                    getAll() { return cookieStore.getAll() },
+                    setAll(cookiesToSet) {
+                        try {
+                            cookiesToSet.forEach(({ name, value, options }) =>
+                                cookieStore.set(name, value, options)
+                            )
+                        } catch { }
+                    },
+                },
+            }
+        );
+
+        const { data: { user } } = await supabaseAuth.auth.getUser();
         const supabase = getSupabaseService();
 
-        // 1. 기존 댓글 비밀번호 확인
+        // 1. 기존 댓글 정보 확인 (비밀번호 및 작성자 ID)
         const { data: existingComment, error: fetchError } = await supabase
             .from('comments')
-            .select('password')
+            .select('password, user_id')
             .eq('id', commentId)
             .single();
 
@@ -106,11 +149,15 @@ export async function DELETE(request: Request) {
             return NextResponse.json({ error: 'Comment not found' }, { status: 404 });
         }
 
-        if (existingComment.password !== password) {
-            return NextResponse.json({ error: 'Incorrect password' }, { status: 403 });
+        // 2. 권한 확인: 본인이거나 비밀번호가 일치해야 함
+        const isOwner = user && existingComment.user_id === user.id;
+        const isPasswordCorrect = password && existingComment.password === password;
+
+        if (!isOwner && !isPasswordCorrect) {
+            return NextResponse.json({ error: 'Unauthorized: Incorrect password or not the owner' }, { status: 403 });
         }
 
-        // 2. 일치하면 삭제
+        // 3. 삭제 수행
         const { error: deleteError } = await supabase
             .from('comments')
             .delete()
