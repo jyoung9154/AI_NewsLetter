@@ -51,12 +51,7 @@ export function HomeFeed({ episodes }: HomeFeedProps) {
                 console.log('[HomeFeed] Subscription successful. Opening popup.');
                 setSubscribedEmail(subEmail);
                 setEmail('');
-                if (user?.email) {
-                    setSubscribeMessage('구독이 완료되었습니다! 🎉');
-                    setTimeout(() => setSubscribeMessage(''), 5000);
-                } else {
-                    setShowPopup(true);
-                }
+                setShowPopup(true);
             } else {
                 console.error('[HomeFeed] Subscription failed:', data.error);
                 setSubscribeMessage(data.error || '구독에 실패했습니다.');
@@ -73,7 +68,7 @@ export function HomeFeed({ episodes }: HomeFeedProps) {
 
     const handlePopupClose = () => {
         setShowPopup(false);
-        setSubscribeMessage('구독이 완료되었습니다! 🎉');
+        setSubscribeMessage('구독 되었습니다! 🎉');
         setTimeout(() => setSubscribeMessage(''), 5000);
     };
 
@@ -223,7 +218,7 @@ export function HomeFeed({ episodes }: HomeFeedProps) {
                                     disabled={isSubscribing}
                                     className="w-full bg-gradient-to-r from-pink-600 to-pink-500 hover:from-pink-500 hover:to-pink-400 disabled:from-gray-700 disabled:to-gray-700 text-white font-bold py-4 rounded-xl transition-all shadow-lg active:scale-[0.98]"
                                 >
-                                    {isSubscribing ? '처리 중...' : (user?.email ? '원클릭 무료 구독' : '뉴스레터 무료 구독')}
+                                    {isSubscribing ? '처리 중...' : '뉴스레터 무료 구독'}
                                 </button>
                             </form>
 

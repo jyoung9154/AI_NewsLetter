@@ -47,12 +47,7 @@ export function TabsNavigation({ currentTab, onTabChange }: TabsNavigationProps)
                 setSubscribedEmail(subEmail);
                 setEmail('');
                 setIsExpanding(false);
-                if (user?.email) {
-                    setIsSubscribedSuccess(true);
-                    setTimeout(() => setIsSubscribedSuccess(false), 3000);
-                } else {
-                    setShowPopup(true);
-                }
+                setShowPopup(true);
             } else {
                 const data = await res.json();
                 alert(data.error || '구독에 실패했습니다.');
