@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getSupabaseService } from '@/lib/supabase';
 
-// GET: 에피소드의 댓글 목록 불러오기
+// GET: 에피소드의 댓글 목록 불러오기 (대댓글 트리 구조)
 export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const episodeId = searchParams.get('episodeId');
@@ -12,40 +12,65 @@ export async function GET(request: Request) {
 
     try {
         const supabase = getSupabaseService();
-        const { data, error } = await supabase
+        
+        // 최상위 댓글 (parent_id가 null인 것)
+        const { data: topLevel, error: topError } = await supabase
             .from('comments')
             .select('*')
             .eq('episode_id', episodeId)
+            .is('parent_id', null)
             .order('created_at', { ascending: true });
 
-        if (error) throw error;
-        return NextResponse.json(data);
+        if (topError) throw topError;
+
+        // 대댓글 (parent_id가 있는 것)
+        const { data: replies, error: replyError } = await supabase
+            .from('comments')
+            .select('*')
+            .eq('episode_id', episodeId)
+            .not('parent_id', 'is', null)
+            .order('created_at', { ascending: true });
+
+        if (replyError) throw replyError;
+
+        // 트리 구조로 매핑
+        const commentsWithReplies = (topLevel || []).map(comment => ({
+            ...comment,
+            replies: (replies || []).filter(r => r.parent_id === comment.id),
+        }));
+
+        return NextResponse.json(commentsWithReplies);
     } catch (error: any) {
         return NextResponse.json({ error: error.message }, { status: 500 });
     }
 }
 
-// POST: 새 댓글 작성
+// POST: 새 댓글 작성 (대댓글 지원)
 export async function POST(request: Request) {
     try {
-        const { episodeId, nickname, password, content, gender } = await request.json();
+        const { episodeId, nickname, password, content, gender, parentId } = await request.json();
 
         if (!episodeId || !nickname || !password || !content) {
             return NextResponse.json({ error: 'All fields are required' }, { status: 400 });
         }
 
         const supabase = getSupabaseService();
+        const insertData: any = {
+            episode_id: episodeId,
+            nickname,
+            password,
+            content,
+            gender: gender || 'unknown',
+        };
+
+        // 대댓글인 경우 parent_id 추가
+        if (parentId) {
+            insertData.parent_id = parentId;
+        }
+
         const { data, error } = await supabase
             .from('comments')
-            .insert([
-                {
-                    episode_id: episodeId,
-                    nickname,
-                    password, // 실제 프로덕션에서는 해싱 권장 (bcrypt 등)
-                    content,
-                    gender: gender || 'unknown'
-                }
-            ])
+            .insert([insertData])
             .select()
             .single();
 
@@ -93,6 +118,43 @@ export async function DELETE(request: Request) {
         if (deleteError) throw deleteError;
 
         return NextResponse.json({ success: true });
+    } catch (error: any) {
+        return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+}
+
+// PATCH: 댓글 좋아요 +1
+export async function PATCH(request: Request) {
+    try {
+        const { commentId } = await request.json();
+
+        if (!commentId) {
+            return NextResponse.json({ error: 'Comment ID is required' }, { status: 400 });
+        }
+
+        const supabase = getSupabaseService();
+
+        // 현재 좋아요 수 조회
+        const { data: comment, error: fetchError } = await supabase
+            .from('comments')
+            .select('likes')
+            .eq('id', commentId)
+            .single();
+
+        if (fetchError || !comment) {
+            return NextResponse.json({ error: 'Comment not found' }, { status: 404 });
+        }
+
+        // +1 업데이트
+        const { data, error } = await supabase
+            .from('comments')
+            .update({ likes: (comment.likes || 0) + 1 })
+            .eq('id', commentId)
+            .select('id, likes')
+            .single();
+
+        if (error) throw error;
+        return NextResponse.json(data);
     } catch (error: any) {
         return NextResponse.json({ error: error.message }, { status: 500 });
     }
