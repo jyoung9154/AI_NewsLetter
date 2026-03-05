@@ -9,12 +9,14 @@ import { Badge } from "@/components/ui/Badge";
 import { formatTitle } from "@/lib/utils";
 import { SubscriptionPopup } from '@/components/subscription/SubscriptionPopup';
 import Link from 'next/link';
+import { useAuth } from '@/components/auth/AuthProvider';
 
 interface HomeFeedProps {
     episodes: DbEpisode[];
 }
 
 export function HomeFeed({ episodes }: HomeFeedProps) {
+    const { user } = useAuth();
     const [email, setEmail] = useState('');
     const [isSubscribing, setIsSubscribing] = useState(false);
     const [subscribeMessage, setSubscribeMessage] = useState('');
@@ -24,8 +26,11 @@ export function HomeFeed({ episodes }: HomeFeedProps) {
     const [subscribedEmail, setSubscribedEmail] = useState('');
 
     const handleSubscribe = async () => {
-        console.log('[HomeFeed] handleSubscribe called with e-mail:', email);
-        if (!email) {
+        let subEmail = email;
+        if (user?.email) subEmail = user.email;
+
+        console.log('[HomeFeed] handleSubscribe called with e-mail:', subEmail);
+        if (!subEmail) {
             console.log('[HomeFeed] no email provided, returning.');
             setSubscribeMessage('이메일을 입력해주세요.');
             return;
@@ -37,16 +42,21 @@ export function HomeFeed({ episodes }: HomeFeedProps) {
             const res = await fetch('/api/subscribe', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, interested_gender: 'both' }) // 간편 구독은 기본값
+                body: JSON.stringify({ email: subEmail, interested_gender: 'both' }) // 간편 구독은 기본값
             });
             const data = await res.json();
             console.log('[HomeFeed] API response status:', res.status, 'data:', data);
 
             if (res.ok) {
                 console.log('[HomeFeed] Subscription successful. Opening popup.');
-                setSubscribedEmail(email);
+                setSubscribedEmail(subEmail);
                 setEmail('');
-                setShowPopup(true);
+                if (user?.email) {
+                    setSubscribeMessage('구독이 완료되었습니다! 🎉');
+                    setTimeout(() => setSubscribeMessage(''), 5000);
+                } else {
+                    setShowPopup(true);
+                }
             } else {
                 console.error('[HomeFeed] Subscription failed:', data.error);
                 setSubscribeMessage(data.error || '구독에 실패했습니다.');
@@ -196,22 +206,24 @@ export function HomeFeed({ episodes }: HomeFeedProps) {
                                 className="space-y-3"
                             >
                                 <div className="relative group">
-                                    <input
-                                        type="email"
-                                        name="email"
-                                        value={email}
-                                        onChange={(e) => setEmail(e.target.value)}
-                                        placeholder="이메일 주소를 입력해주세요"
-                                        required
-                                        className="w-full px-5 py-4 rounded-xl text-white bg-gray-800 border border-white/10 focus:ring-2 focus:ring-pink-500 focus:border-transparent outline-none transition-all placeholder:text-gray-500"
-                                    />
+                                    {!user?.email && (
+                                        <input
+                                            type="email"
+                                            name="email"
+                                            value={email}
+                                            onChange={(e) => setEmail(e.target.value)}
+                                            placeholder="이메일 주소를 입력해주세요"
+                                            required
+                                            className="w-full px-5 py-4 rounded-xl text-white bg-gray-800 border border-white/10 focus:ring-2 focus:ring-pink-500 focus:border-transparent outline-none transition-all placeholder:text-gray-500"
+                                        />
+                                    )}
                                 </div>
                                 <button
                                     type="submit"
                                     disabled={isSubscribing}
                                     className="w-full bg-gradient-to-r from-pink-600 to-pink-500 hover:from-pink-500 hover:to-pink-400 disabled:from-gray-700 disabled:to-gray-700 text-white font-bold py-4 rounded-xl transition-all shadow-lg active:scale-[0.98]"
                                 >
-                                    {isSubscribing ? '처리 중...' : '뉴스레터 무료 구독'}
+                                    {isSubscribing ? '처리 중...' : (user?.email ? '원클릭 무료 구독' : '뉴스레터 무료 구독')}
                                 </button>
                             </form>
 

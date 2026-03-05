@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { SubscriptionPopup } from '@/components/subscription/SubscriptionPopup';
+import { useAuth } from '@/components/auth/AuthProvider';
 import { UserMenu } from '@/components/auth/UserMenu';
 
 interface TabsNavigationProps {
@@ -11,6 +12,7 @@ interface TabsNavigationProps {
 }
 
 export function TabsNavigation({ currentTab, onTabChange }: TabsNavigationProps) {
+    const { user } = useAuth();
     const tabs = [
         { id: 'home', label: '홈' },
         { id: 'story', label: '스토리' },
@@ -23,24 +25,34 @@ export function TabsNavigation({ currentTab, onTabChange }: TabsNavigationProps)
     const [isSubscribing, setIsSubscribing] = useState(false);
     const [showPopup, setShowPopup] = useState(false);
     const [subscribedEmail, setSubscribedEmail] = useState('');
+    const [isSubscribedSuccess, setIsSubscribedSuccess] = useState(false);
 
-    const handleSubscribe = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!email) return;
+    const handleSubscribe = async (e?: React.FormEvent) => {
+        if (e) e.preventDefault();
+
+        let subEmail = email;
+        if (user?.email) subEmail = user.email;
+
+        if (!subEmail) return;
 
         setIsSubscribing(true);
         try {
             const res = await fetch('/api/subscribe', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, interested_gender: 'both' })
+                body: JSON.stringify({ email: subEmail, interested_gender: 'both' })
             });
 
             if (res.ok) {
-                setSubscribedEmail(email);
+                setSubscribedEmail(subEmail);
                 setEmail('');
                 setIsExpanding(false);
-                setShowPopup(true);
+                if (user?.email) {
+                    setIsSubscribedSuccess(true);
+                    setTimeout(() => setIsSubscribedSuccess(false), 3000);
+                } else {
+                    setShowPopup(true);
+                }
             } else {
                 const data = await res.json();
                 alert(data.error || '구독에 실패했습니다.');
@@ -88,10 +100,17 @@ export function TabsNavigation({ currentTab, onTabChange }: TabsNavigationProps)
                         <div className={`relative h-10 flex items-center transition-all duration-500 ease-in-out ${isExpanding ? 'w-64' : 'w-32'}`}>
                             {/* 기본 버튼 - 서서히 사라짐 */}
                             <button
-                                onClick={() => setIsExpanding(true)}
-                                className={`absolute inset-0 bg-gray-900 hover:bg-gray-800 text-white text-body-sm font-semibold px-5 py-2 rounded-full transition-all duration-500 shadow-sm whitespace-nowrap flex items-center justify-center ${isExpanding ? 'opacity-0 scale-95 pointer-events-none' : 'opacity-100 scale-100'}`}
+                                onClick={() => {
+                                    if (user?.email) {
+                                        handleSubscribe();
+                                    } else {
+                                        setIsExpanding(true);
+                                    }
+                                }}
+                                disabled={isSubscribedSuccess}
+                                className={`absolute inset-0 text-white text-body-sm font-semibold px-5 py-2 rounded-full transition-all duration-500 shadow-sm whitespace-nowrap flex items-center justify-center ${isExpanding ? 'opacity-0 scale-95 pointer-events-none' : 'opacity-100 scale-100'} ${isSubscribedSuccess ? 'bg-green-500 hover:bg-green-600' : 'bg-gray-900 hover:bg-gray-800'}`}
                             >
-                                구독하기
+                                {isSubscribedSuccess ? '구독 완료! ✅' : (isSubscribing && user?.email ? '처리 중...' : '구독하기')}
                             </button>
 
                             {/* 입력 폼 - 서서히 나타나며 확장 */}

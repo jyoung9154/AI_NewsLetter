@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useGenderTheme } from '@/components/ui/GenderThemeProvider';
 import { Button } from '@/components/ui/Button';
+import { useAuth } from '@/components/auth/AuthProvider';
 import { Input } from '@/components/ui/Input';
 import { Label } from '@/components/ui/Label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/Select';
@@ -14,7 +15,14 @@ interface NewsletterSubscribeProps {
 
 export function NewsletterSubscribe({ gender }: NewsletterSubscribeProps) {
   const { theme, isMale, isFemale } = useGenderTheme();
+  const { user } = useAuth();
   const [email, setEmail] = useState('');
+
+  useEffect(() => {
+    if (user?.email && !email) {
+      setEmail(user.email);
+    }
+  }, [user]);
   const [selectedMyGender, setSelectedMyGender] = useState<string>('');
   const [selectedMbti, setSelectedMbti] = useState<string>('');
   const [selectedInterestedMbti, setSelectedInterestedMbti] = useState<string>('');
@@ -27,12 +35,13 @@ export function NewsletterSubscribe({ gender }: NewsletterSubscribeProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('[NewsletterSubscribe] handleSubmit called with email:', email);
+    const submitEmail = user?.email || email;
+    console.log('[NewsletterSubscribe] handleSubmit called with email:', submitEmail);
     setIsSubscribing(true);
     setError('');
 
     // 이메일 유효성 검사
-    if (!email || !isValidEmail(email)) {
+    if (!submitEmail || !isValidEmail(submitEmail)) {
       setError('유효한 이메일 주소를 입력해주세요.');
       setIsSubscribing(false);
       return;
@@ -42,7 +51,7 @@ export function NewsletterSubscribe({ gender }: NewsletterSubscribeProps) {
       console.log('[NewsletterSubscribe] Calling /api/subscribe API...');
       // 1. /api/subscribe API 연동
       const payload: any = {
-        email,
+        email: submitEmail,
         my_gender: selectedMyGender || undefined,
         mbti: selectedMbti || undefined,
         interested_mbti: selectedInterestedMbti || undefined,
@@ -154,21 +163,23 @@ export function NewsletterSubscribe({ gender }: NewsletterSubscribeProps) {
                   </div>
                 ) : (
                   <form onSubmit={handleSubmit} className="space-y-6">
-                    <div>
-                      <Label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                        이메일 주소
-                      </Label>
-                      <Input
-                        id="email"
-                        type="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        placeholder="your@email.com"
-                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent"
-                        required
-                      />
-                      {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
-                    </div>
+                    {!user?.email && (
+                      <div>
+                        <Label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                          이메일 주소
+                        </Label>
+                        <Input
+                          id="email"
+                          type="email"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          placeholder="your@email.com"
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+                          required
+                        />
+                        {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
+                      </div>
+                    )}
 
                     <div className="grid grid-cols-2 gap-4">
                       {/* 본인 성별 */}

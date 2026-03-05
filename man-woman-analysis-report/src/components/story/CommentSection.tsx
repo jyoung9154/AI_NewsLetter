@@ -79,8 +79,8 @@ export function CommentSection({ episodeId }: CommentSectionProps) {
         }
     }, [isLoggedIn, user]);
 
-    const fetchComments = async () => {
-        setIsLoading(true);
+    const fetchComments = async (showLoading = true) => {
+        if (showLoading) setIsLoading(true);
         try {
             const res = await fetch(`/api/comments?episodeId=${episodeId}`);
             if (res.ok) {
@@ -90,7 +90,7 @@ export function CommentSection({ episodeId }: CommentSectionProps) {
         } catch (error) {
             console.error('댓글을 불러오지 못했습니다.', error);
         } finally {
-            setIsLoading(false);
+            if (showLoading) setIsLoading(false);
         }
     };
 
@@ -122,7 +122,7 @@ export function CommentSection({ episodeId }: CommentSectionProps) {
             const data = await res.json();
             if (res.ok) {
                 setContent('');
-                fetchComments();
+                fetchComments(false);
             } else {
                 setErrorMsg(data.error || '댓글 작성 실패');
             }
@@ -157,7 +157,7 @@ export function CommentSection({ episodeId }: CommentSectionProps) {
             if (res.ok) {
                 setReplyToId(null);
                 setReplyContent('');
-                fetchComments();
+                fetchComments(false);
             }
         } catch (error) {
             alert('답글 작성에 실패했습니다.');
@@ -176,7 +176,7 @@ export function CommentSection({ episodeId }: CommentSectionProps) {
             });
             if (res.ok) {
                 setLikedIds(prev => new Set(prev).add(commentId));
-                fetchComments();
+                fetchComments(false);
             }
         } catch (error) {
             console.error('좋아요 실패:', error);
@@ -204,7 +204,7 @@ export function CommentSection({ episodeId }: CommentSectionProps) {
             if (res.ok) {
                 setDeleteModalCommentId(null);
                 setDeletePassword('');
-                fetchComments();
+                fetchComments(false);
             } else {
                 const data = await res.json();
                 alert(data.error || '삭제 권한이 없거나 비밀번호가 틀립니다.');
