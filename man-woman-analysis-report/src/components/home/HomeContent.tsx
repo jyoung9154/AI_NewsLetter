@@ -7,6 +7,8 @@ import { HomeFeed } from '@/components/home/HomeFeed';
 import { StoryList } from '@/components/story/StoryList';
 import { TopBannerAd } from '@/components/ads/Ads';
 import { MBTIAnalyzer } from '@/components/analysis/MBTIAnalyzer';
+import { TestHub } from '@/components/tests/TestHub';
+import { TarotCardPicker } from '@/components/tests/TarotCardPicker';
 import { DbEpisode } from '@/types';
 
 interface HomeContentProps {
@@ -23,12 +25,14 @@ function HomeContentInner({ episodes }: HomeContentProps) {
         }
         return 'home';
     });
+    const [selectedTest, setSelectedTest] = useState<string | null>(null);
 
     return (
         <div className="min-h-screen bg-white text-gray-900 font-sans selection:bg-pink-100 selection:text-pink-900">
             {/* 1. GNB 탭 네비게이션 (Sticky) */}
             <TabsNavigation currentTab={activeTab} onTabChange={(tab) => {
                 setActiveTab(tab);
+                setSelectedTest(null); // 탭 이동 시 선택된 테스트 초기화
                 window.scrollTo({ top: 0, behavior: 'auto' });
             }} />
 
@@ -49,6 +53,42 @@ function HomeContentInner({ episodes }: HomeContentProps) {
                 {/* 심리 분석 탭 (MBTI 궁합 분석기) */}
                 {activeTab === 'analysis' && (
                     <MBTIAnalyzer />
+                )}
+
+                {/* 심리테스트 탭 (타로, MBTI 테스트 등) */}
+                {activeTab === 'tests' && (
+                    <>
+                        {!selectedTest ? (
+                            <TestHub onSelectTest={(id) => {
+                                if (id === 'compatibility') {
+                                    setActiveTab('analysis');
+                                } else {
+                                    setSelectedTest(id);
+                                }
+                            }} />
+                        ) : (
+                            <div className="max-w-5xl mx-auto py-12 px-4 sm:px-6">
+                                <button
+                                    onClick={() => setSelectedTest(null)}
+                                    className="mb-8 text-pink-600 font-bold flex items-center hover:underline"
+                                >
+                                    ← 전체 테스트 목록으로
+                                </button>
+
+                                {selectedTest === 'tarot' ? (
+                                    <TarotCardPicker />
+                                ) : (
+                                    <div className="flex flex-col items-center justify-center py-20 text-center bg-gray-50 rounded-3xl border border-dashed border-gray-200">
+                                        <div className="text-6xl mb-6">🛠️</div>
+                                        <h2 className="text-2xl font-bold text-gray-900 mb-2">테스트 준비 중</h2>
+                                        <p className="text-gray-500 max-w-md">
+                                            이 테스트는 현재 개발 중입니다. 곧 만나보실 수 있습니다!
+                                        </p>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+                    </>
                 )}
 
                 {/* 준비 중인 탭들 (추천템 등) */}

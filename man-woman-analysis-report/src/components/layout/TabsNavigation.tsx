@@ -17,6 +17,7 @@ export function TabsNavigation({ currentTab, onTabChange }: TabsNavigationProps)
         { id: 'home', label: '홈' },
         { id: 'story', label: '스토리' },
         { id: 'analysis', label: '심리 분석' },
+        { id: 'tests', label: '심리테스트' },
         { id: 'picks', label: '추천템' }
     ];
 
