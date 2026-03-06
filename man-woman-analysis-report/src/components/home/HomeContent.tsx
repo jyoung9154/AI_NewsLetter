@@ -9,6 +9,7 @@ import { TopBannerAd } from '@/components/ads/Ads';
 import { MBTIAnalyzer } from '@/components/analysis/MBTIAnalyzer';
 import { TestHub } from '@/components/tests/TestHub';
 import { TarotCardPicker } from '@/components/tests/TarotCardPicker';
+import { LoveMBTI } from '@/components/tests/LoveMBTI';
 import { DbEpisode } from '@/types';
 
 interface HomeContentProps {
@@ -78,6 +79,8 @@ function HomeContentInner({ episodes }: HomeContentProps) {
 
                                 {selectedTest === 'tarot' ? (
                                     <TarotCardPicker />
+                                ) : selectedTest === 'mbti-love' ? (
+                                    <LoveMBTI />
                                 ) : (
                                     <div className="flex flex-col items-center justify-center py-20 text-center bg-gray-50 rounded-3xl border border-dashed border-gray-200">
                                         <div className="text-6xl mb-6">🛠️</div>

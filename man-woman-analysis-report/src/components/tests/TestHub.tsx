@@ -30,10 +30,10 @@ const tests: TestItem[] = [
     {
         id: 'mbti-love',
         title: '연애로 보는 내 MBTI',
-        description: '연애할 때 나의 진짜 모습은? 상황별 질문으로 알아보는 MBTI.',
+        description: '연애할 때 나의 진짜 모습은? "기존 MBTI와 다를 수 있습니다."',
         icon: <Heart className="w-6 h-6" />,
         tag: 'New',
-        status: 'preparing',
+        status: 'active',
         color: 'bg-pink-50 text-pink-600 border-pink-100',
     },
     {
