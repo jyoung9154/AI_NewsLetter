@@ -289,8 +289,7 @@ export function TarotCardPicker() {
                     <div className="flex flex-col sm:flex-row gap-4">
                         <Button
                             onClick={reset}
-                            variant="outline"
-                            className="border-white/20 text-white hover:bg-white/10 rounded-full px-8"
+                            className="bg-transparent border border-white/30 text-white hover:bg-white/10 rounded-full px-8"
                         >
                             다시 확인하기
                         </Button>
