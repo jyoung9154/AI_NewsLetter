@@ -3,8 +3,9 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/Button';
 import { Card, CardContent } from '@/components/ui/Card';
-import { Sparkles, RefreshCw, Share2, Heart, Coffee, Info } from 'lucide-react';
+import { Sparkles, RefreshCw, Share2, Heart, Coffee, Info, Download, MessageCircle } from 'lucide-react';
 import { createSupabaseBrowser } from '@/lib/supabase-browser';
+import html2canvas from 'html2canvas';
 
 interface TarotCard {
     id: string;
@@ -23,6 +24,7 @@ export function TarotCardPicker() {
     const [allCards, setAllCards] = useState<number[]>(Array.from({ length: 22 }, (_, i) => i));
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const reportRef = React.useRef<HTMLDivElement>(null);
     const supabase = createSupabaseBrowser();
 
     // 초기 로드 시 오늘 뽑은 결과가 있는지 확인
@@ -137,6 +139,66 @@ export function TarotCardPicker() {
         setError(null);
     };
 
+    const handleSaveImage = async () => {
+        if (!reportRef.current) return;
+
+        try {
+            const canvas = await html2canvas(reportRef.current, {
+                backgroundColor: '#0f172a', // gray-900 matching the background
+                scale: 2, // higher quality
+                useCORS: true,
+                logging: false,
+                ignoreElements: (element) => {
+                    return element.classList.contains('no-capture');
+                }
+            });
+
+            const link = document.createElement('a');
+            link.download = `tarot-report-${new Date().getTime()}.png`;
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        } catch (err) {
+            console.error('이미지 저장 실패:', err);
+            alert('이미지 저장 중 오류가 발생했습니다.');
+        }
+    };
+
+    const handleKakaoShare = () => {
+        if (typeof window !== 'undefined' && (window as any).Kakao) {
+            const Kakao = (window as any).Kakao;
+            if (!Kakao.isInitialized()) {
+                Kakao.init(process.env.NEXT_PUBLIC_KAKAO_JAVASCRIPT_KEY);
+            }
+
+            const url = window.location.origin + '/?tab=tests';
+            const cardNames = selectedCards.map(c => c.name_ko).join(', ');
+
+            Kakao.Share.sendDefault({
+                objectType: 'feed',
+                content: {
+                    title: '오늘의 연애 타로 리포트 🔮',
+                    description: `나의 인연은 ${selectedCards[0]?.name_ko}에서 시작되어 ${selectedCards[1]?.name_ko}을 지나 ${selectedCards[2]?.name_ko}로 향하고 있습니다.`,
+                    imageUrl: 'https://man-woman-analysis-report.vercel.app/og-tarot.png', // 타로 전용 OG 이미지 필요 (없으면 기본 OG)
+                    link: {
+                        mobileWebUrl: url,
+                        webUrl: url,
+                    },
+                },
+                buttons: [
+                    {
+                        title: '나도 운세 확인하기',
+                        link: {
+                            mobileWebUrl: url,
+                            webUrl: url,
+                        },
+                    },
+                ],
+            });
+        } else {
+            alert('카카오톡 공유를 사용할 수 없습니다.');
+        }
+    };
+
     if (step === 'loading') {
         return (
             <div className="flex flex-col items-center justify-center py-20">
@@ -220,7 +282,7 @@ export function TarotCardPicker() {
     }
 
     return (
-        <div className="py-6 max-w-4xl mx-auto px-4">
+        <div className="py-6 max-w-4xl mx-auto px-4" ref={reportRef}>
             <div className="text-center mb-10">
                 <h3 className="text-3xl font-bold text-gray-900 font-serif mb-2">당신의 연애 타로 리포트</h3>
                 <p className="text-gray-500">세 장의 카드가 보여주는 당신의 연애 흐름입니다.</p>
@@ -282,11 +344,19 @@ export function TarotCardPicker() {
                             중요한 선택의 순간에 이 메시지를 다시 한번 떠올려보세요.
                         </p>
                     </div>
-                    <div className="flex flex-col sm:flex-row gap-4">
+                    <div className="flex flex-col sm:flex-row gap-4 no-capture">
                         <Button
-                            className="bg-pink-600 hover:bg-pink-500 text-white rounded-full px-12 py-6 flex-1 flex items-center justify-center gap-2 shadow-lg text-lg font-bold transition-all hover:scale-[1.02]"
+                            onClick={handleSaveImage}
+                            variant="secondary"
+                            className="bg-white/10 hover:bg-white/20 text-white border-white/10 rounded-full px-8 flex items-center justify-center gap-2"
                         >
-                            <Share2 className="w-5 h-5" /> 결과 공유하고 운세 저장하기
+                            <Download className="w-4 h-4" /> 이미지로 저장
+                        </Button>
+                        <Button
+                            onClick={handleKakaoShare}
+                            className="bg-[#FEE500] hover:bg-[#F4DC00] text-[#3c1e1e] rounded-full px-10 flex-1 flex items-center justify-center gap-2 shadow-lg font-bold"
+                        >
+                            <MessageCircle className="w-5 h-5 fill-current" /> 카카오톡으로 결과 공유하기
                         </Button>
                     </div>
                 </div>
