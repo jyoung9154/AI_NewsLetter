@@ -2,10 +2,10 @@
 CREATE TABLE IF NOT EXISTS public.tarot_history (
   id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
   user_id uuid REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
-  card1_id uuid REFERENCES public.tarot_cards(id) NOT NULL,
-  card2_id uuid REFERENCES public.tarot_cards(id) NOT NULL,
-  card3_id uuid REFERENCES public.tarot_cards(id) NOT NULL,
-  message_id uuid REFERENCES public.tarot_general_messages(id) NOT NULL,
+  card1_id uuid REFERENCES public.tarot_cards(id) ON DELETE CASCADE NOT NULL,
+  card2_id uuid REFERENCES public.tarot_cards(id) ON DELETE CASCADE NOT NULL,
+  card3_id uuid REFERENCES public.tarot_cards(id) ON DELETE CASCADE NOT NULL,
+  message_id uuid REFERENCES public.tarot_general_messages(id) ON DELETE CASCADE NOT NULL,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
