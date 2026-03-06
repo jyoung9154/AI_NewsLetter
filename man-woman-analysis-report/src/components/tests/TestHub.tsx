@@ -1,12 +1,11 @@
-'use client';
-
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
-import { Sparkles, Heart, Zap, Coffee, Share2, Lock, ArrowRight } from 'lucide-react';
+import { Sparkles, Heart, Zap, Coffee, Share2, Lock, ArrowRight, MessageCircle } from 'lucide-react';
 import { createSupabaseBrowser } from '@/lib/supabase-browser';
 import { User } from '@supabase/supabase-js';
+import { useAuth } from '@/components/auth/AuthProvider';
 
 interface TestItem {
     id: string;
@@ -62,17 +61,16 @@ interface TestHubProps {
 }
 
 export function TestHub({ onSelectTest }: TestHubProps) {
-    const [user, setUser] = React.useState<User | null>(null);
-    const [showLoginModal, setShowLoginModal] = React.useState(false);
+    const { user } = useAuth();
+    const [showLoginModal, setShowLoginModal] = useState(false);
     const supabase = createSupabaseBrowser();
 
-    React.useEffect(() => {
-        const checkUser = async () => {
-            const { data: { session } } = await supabase.auth.getSession();
-            setUser(session?.user ?? null);
-        };
-        checkUser();
-    }, []);
+    useEffect(() => {
+        // user 상태가 변경될 때 모달 닫기 (소셜 로그인 후 복귀 시)
+        if (user) {
+            setShowLoginModal(false);
+        }
+    }, [user]);
 
     const handleTestClick = (id: string) => {
         if (!user) {
@@ -80,6 +78,21 @@ export function TestHub({ onSelectTest }: TestHubProps) {
             return;
         }
         onSelectTest(id);
+    };
+
+    const handleSocialLogin = async (provider: 'kakao' | 'google') => {
+        const redirectTo = `${window.location.origin}/?tab=tests`;
+        if (provider === 'kakao') {
+            await supabase.auth.signInWithOAuth({
+                provider: 'kakao',
+                options: { redirectTo }
+            });
+        } else {
+            await supabase.auth.signInWithOAuth({
+                provider: 'google',
+                options: { redirectTo }
+            });
+        }
     };
     return (
         <div className="max-w-5xl mx-auto py-12 px-4 sm:px-6">
@@ -158,19 +171,26 @@ export function TestHub({ onSelectTest }: TestHubProps) {
                             </div>
                             <h3 className="text-2xl font-bold text-gray-900 mb-4 font-serif">로그인이 필요합니다</h3>
                             <p className="text-gray-500 mb-10 leading-relaxed">
-                                심리테스트 결과 저장과 1일 1회 운세 확인을 위해 로그인이 필요합니다.<br />
+                                운세 확인을 위해 로그인이 필요합니다.<br />
                                 <strong>지금 바로 시작하고 당신의 운명을 기록해보세요!</strong>
                             </p>
                             <div className="flex flex-col gap-4">
                                 <Button
-                                    className="bg-pink-600 hover:bg-pink-700 text-white rounded-full py-7 text-lg font-bold shadow-lg"
-                                    onClick={() => window.location.href = '/mypage'}
+                                    className="bg-[#FEE500] hover:bg-[#FEE500]/90 text-black rounded-full py-7 text-lg font-bold shadow-lg flex items-center justify-center gap-3 border-none"
+                                    onClick={() => handleSocialLogin('kakao')}
                                 >
-                                    로그인 / 회원가입 하러가기
+                                    <MessageCircle className="w-6 h-6 fill-black" /> 카카오로 1초 로그인하기
+                                </Button>
+                                <Button
+                                    variant="outline"
+                                    className="bg-white hover:bg-gray-50 text-gray-700 rounded-full py-7 text-lg font-bold shadow-md flex items-center justify-center gap-3 border-gray-200"
+                                    onClick={() => handleSocialLogin('google')}
+                                >
+                                    <img src="https://www.google.com/favicon.ico" className="w-5 h-5" alt="" /> 구글로 시작하기
                                 </Button>
                                 <Button
                                     variant="ghost"
-                                    className="text-gray-400 hover:text-gray-600"
+                                    className="text-gray-400 hover:text-gray-600 mt-2"
                                     onClick={() => setShowLoginModal(false)}
                                 >
                                     다음에 할게요
