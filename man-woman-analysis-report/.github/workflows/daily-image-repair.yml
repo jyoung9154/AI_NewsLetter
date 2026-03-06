@@ -1,0 +1,29 @@
+name: Daily Missing Images Repair
+
+on:
+  schedule:
+    - cron: '0 0 * * *' # 매일 자정 (UTC 시간 기준, 한국 시간 오전 9시)
+  workflow_dispatch: # 수동 실행 가능
+
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Repair Missing Images
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          LEONARDO_API_KEY: ${{ secrets.LEONARDO_API_KEY }}
+        run: node scripts/repair-missing-images.mjs
