@@ -19,6 +19,7 @@ interface TarotCard {
 export function TarotCardPicker() {
     const [step, setStep] = useState<'intro' | 'picking' | 'result'>('intro');
     const [selectedCards, setSelectedCards] = useState<TarotCard[]>([]);
+    const [generalMessage, setGeneralMessage] = useState<string>('');
     const [allCards, setAllCards] = useState<number[]>(Array.from({ length: 22 }, (_, i) => i));
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -48,6 +49,19 @@ export function TarotCardPicker() {
             setSelectedCards(newSelected);
 
             if (newSelected.length === 3) {
+                // 종합 운명 메시지 가져오기
+                const { data: msgData, error: msgError } = await supabase
+                    .from('tarot_general_messages')
+                    .select('content');
+
+                if (msgError) {
+                    console.error('Error fetching general message:', msgError);
+                    // Optionally set an error state for the message or use a fallback
+                } else if (msgData && msgData.length > 0) {
+                    const randomMsg = msgData[Math.floor(Math.random() * msgData.length)].content;
+                    setGeneralMessage(randomMsg);
+                }
+
                 setTimeout(() => setStep('result'), 600);
             }
         } catch (err: any) {
@@ -61,6 +75,7 @@ export function TarotCardPicker() {
     const reset = () => {
         setStep('intro');
         setSelectedCards([]);
+        setGeneralMessage('');
         setError(null);
     };
 
@@ -176,9 +191,7 @@ export function TarotCardPicker() {
                         <h4 className="font-bold text-xl">종합적인 운명의 메시지</h4>
                     </div>
                     <p className="text-gray-200 leading-relaxed text-lg mb-8 font-light italic">
-                        "당신의 인연은 과거의 <span className="text-white font-bold underline decoration-purple-500 underline-offset-4">{selectedCards[0]?.name_ko}</span> 에너지로부터 시작되어,
-                        현재 <span className="text-white font-bold underline decoration-blue-500 underline-offset-4">{selectedCards[1]?.name_ko}</span>의 중대한 전환점을 지나고 있습니다.
-                        머지않아 다가올 미래에는 <span className="text-white font-bold underline decoration-pink-500 underline-offset-4">{selectedCards[2]?.name_ko}</span>의 기운이 강력하게 작용하며 당신의 연애사에 결정적인 마침표를 찍게 될 것입니다."
+                        {generalMessage || `당신의 인연은 과거의 ${selectedCards[0]?.name_ko} 에너지로부터 시작되어, 현재 ${selectedCards[1]?.name_ko}의 중대한 전환점을 지나고 있습니다. 미래에는 ${selectedCards[2]?.name_ko}의 기운이 당신의 연애사에 결정적인 역할을 할 것입니다.`}
                     </p>
                     <div className="p-6 bg-white/5 rounded-2xl border border-white/10 mb-8">
                         <p className="text-sm text-gray-400 leading-relaxed">
