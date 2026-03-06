@@ -4,7 +4,9 @@ import React from 'react';
 import { Card, CardContent } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
-import { Sparkles, Heart, Zap, Coffee, Share2 } from 'lucide-react';
+import { Sparkles, Heart, Zap, Coffee, Share2, Lock, ArrowRight } from 'lucide-react';
+import { createSupabaseBrowser } from '@/lib/supabase-browser';
+import { User } from '@supabase/supabase-js';
 
 interface TestItem {
     id: string;
@@ -60,6 +62,25 @@ interface TestHubProps {
 }
 
 export function TestHub({ onSelectTest }: TestHubProps) {
+    const [user, setUser] = React.useState<User | null>(null);
+    const [showLoginModal, setShowLoginModal] = React.useState(false);
+    const supabase = createSupabaseBrowser();
+
+    React.useEffect(() => {
+        const checkUser = async () => {
+            const { data: { session } } = await supabase.auth.getSession();
+            setUser(session?.user ?? null);
+        };
+        checkUser();
+    }, []);
+
+    const handleTestClick = (id: string) => {
+        if (!user) {
+            setShowLoginModal(true);
+            return;
+        }
+        onSelectTest(id);
+    };
     return (
         <div className="max-w-5xl mx-auto py-12 px-4 sm:px-6">
             <div className="mb-12">
@@ -74,14 +95,19 @@ export function TestHub({ onSelectTest }: TestHubProps) {
                     <div
                         key={test.id}
                         className={`group relative bg-white rounded-3xl p-8 border-2 transition-all duration-300 ${test.status === 'active'
-                                ? 'border-transparent shadow-sm hover:shadow-xl hover:-translate-y-1 cursor-pointer'
-                                : 'border-gray-50 opacity-80'
+                            ? 'border-transparent shadow-sm hover:shadow-xl hover:-translate-y-1 cursor-pointer'
+                            : 'border-gray-50 opacity-80'
                             }`}
-                        onClick={() => test.status === 'active' && onSelectTest(test.id)}
+                        onClick={() => test.status === 'active' && handleTestClick(test.id)}
                     >
                         <div className="flex justify-between items-start mb-6">
-                            <div className={`p-4 rounded-2xl ${test.color} border shadow-inner`}>
+                            <div className={`p-4 rounded-2xl ${test.color} border shadow-inner relative`}>
                                 {test.icon}
+                                {test.id === 'tarot' && (
+                                    <div className="absolute -top-2 -right-2 px-2 py-0.5 bg-red-500 text-white text-[9px] font-black rounded-full shadow-lg animate-bounce uppercase">
+                                        1/day
+                                    </div>
+                                )}
                             </div>
                             <Badge variant="secondary" className={`${test.color} border px-3 py-1 text-[10px] font-bold uppercase tracking-wider`}>
                                 {test.tag}
@@ -98,10 +124,14 @@ export function TestHub({ onSelectTest }: TestHubProps) {
                         <div className="flex items-center justify-between">
                             {test.status === 'active' ? (
                                 <span className="text-pink-600 font-bold text-sm flex items-center">
-                                    시작하기 <span className="ml-2 group-hover:translate-x-1 transition-transform">→</span>
+                                    {user ? '시작하기' : '로그인 후 시작'} <span className="ml-2 group-hover:translate-x-1 transition-transform">→</span>
                                 </span>
                             ) : (
                                 <span className="text-gray-400 font-medium text-sm italic">준비 중입니다...</span>
+                            )}
+
+                            {!user && test.status === 'active' && (
+                                <Lock className="w-4 h-4 text-gray-300" />
                             )}
 
                             <div className="flex gap-2">
@@ -118,10 +148,38 @@ export function TestHub({ onSelectTest }: TestHubProps) {
             </div>
 
             {/* 안내 문구 */}
-            <div className="mt-16 p-8 rounded-3xl bg-pink-50 border border-pink-100 text-center">
-                <h4 className="text-pink-900 font-bold mb-2">남녀 언어 영역 모의고사, 연애 운세 등 추가 오픈 예정!</h4>
-                <p className="text-pink-700 text-sm opacity-80">원하시는 테스트가 있다면 고객 의견함에 남겨주세요.</p>
-            </div>
+            {/* 로그인 유도 모달 */}
+            {showLoginModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
+                    <Card className="max-w-md w-full border-2 border-pink-100 shadow-2xl overflow-hidden rounded-[40px]">
+                        <div className="p-10 text-center">
+                            <div className="w-20 h-20 bg-pink-100 rounded-3xl flex items-center justify-center mx-auto mb-8 text-4xl shadow-inner">
+                                🔒
+                            </div>
+                            <h3 className="text-2xl font-bold text-gray-900 mb-4 font-serif">로그인이 필요합니다</h3>
+                            <p className="text-gray-500 mb-10 leading-relaxed">
+                                심리테스트 결과 저장과 1일 1회 운세 확인을 위해 로그인이 필요합니다.<br />
+                                <strong>지금 바로 시작하고 당신의 운명을 기록해보세요!</strong>
+                            </p>
+                            <div className="flex flex-col gap-4">
+                                <Button
+                                    className="bg-pink-600 hover:bg-pink-700 text-white rounded-full py-7 text-lg font-bold shadow-lg"
+                                    onClick={() => window.location.href = '/mypage'}
+                                >
+                                    로그인 / 회원가입 하러가기
+                                </Button>
+                                <Button
+                                    variant="ghost"
+                                    className="text-gray-400 hover:text-gray-600"
+                                    onClick={() => setShowLoginModal(false)}
+                                >
+                                    다음에 할게요
+                                </Button>
+                            </div>
+                        </div>
+                    </Card>
+                </div>
+            )}
         </div>
     );
 }

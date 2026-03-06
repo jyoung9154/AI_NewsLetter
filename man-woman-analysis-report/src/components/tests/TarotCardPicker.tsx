@@ -17,12 +17,65 @@ interface TarotCard {
 }
 
 export function TarotCardPicker() {
-    const [step, setStep] = useState<'intro' | 'picking' | 'result'>('intro');
+    const [step, setStep] = useState<'intro' | 'picking' | 'result' | 'loading'>('loading');
     const [selectedCards, setSelectedCards] = useState<TarotCard[]>([]);
     const [generalMessage, setGeneralMessage] = useState<string>('');
     const [allCards, setAllCards] = useState<number[]>(Array.from({ length: 22 }, (_, i) => i));
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const supabase = createSupabaseBrowser();
+
+    // 초기 로드 시 오늘 뽑은 결과가 있는지 확인
+    useEffect(() => {
+        const checkTodayResult = async () => {
+            try {
+                const { data: { session } } = await supabase.auth.getSession();
+                if (!session?.user) {
+                    setStep('intro');
+                    return;
+                }
+
+                // 오늘 날짜의 시작과 끝 계산 (KST 기준 처리가 필요할 수 있으나 단순하게 UTC 오늘로 처리)
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+
+                const { data, error: fetchError } = await supabase
+                    .from('tarot_history')
+                    .select(`
+                        *,
+                        card1:tarot_cards!card1_id(*),
+                        card2:tarot_cards!card2_id(*),
+                        card3:tarot_cards!card3_id(*),
+                        msg:tarot_general_messages!message_id(*)
+                    `)
+                    .eq('user_id', session.user.id)
+                    .gte('created_at', today.toISOString())
+                    .order('created_at', { ascending: false })
+                    .limit(1)
+                    .single();
+
+                if (data) {
+                    setSelectedCards([data.card1, data.card2, data.card3]);
+
+                    let finalMsg = data.msg.content;
+                    finalMsg = finalMsg
+                        .replace(/\{0\}/g, data.card1.name_ko)
+                        .replace(/\{1\}/g, data.card2.name_ko)
+                        .replace(/\{2\}/g, data.card3.name_ko);
+
+                    setGeneralMessage(finalMsg);
+                    setStep('result');
+                } else {
+                    setStep('intro');
+                }
+            } catch (err) {
+                console.error('Error checking today result:', err);
+                setStep('intro');
+            }
+        };
+
+        checkTodayResult();
+    }, []);
 
     // 카드 셔플 (순서 뒤섞기)
     useEffect(() => {
@@ -52,12 +105,14 @@ export function TarotCardPicker() {
                 // 종합 운명 메시지 가져오기
                 const { data: msgData, error: msgError } = await supabase
                     .from('tarot_general_messages')
-                    .select('content');
+                    .select('id, content');
 
                 if (msgError) {
                     console.error('Error fetching general message:', msgError);
                 } else if (msgData && msgData.length > 0) {
-                    let randomMsg = msgData[Math.floor(Math.random() * msgData.length)].content;
+                    const randomIdx = Math.floor(Math.random() * msgData.length);
+                    const selectedMsgObj = msgData[randomIdx];
+                    let randomMsg = selectedMsgObj.content;
 
                     // 플레이스홀더 치환 로직: {0}=과거, {1}=현재, {2}=미래
                     if (newSelected.length === 3) {
@@ -68,6 +123,18 @@ export function TarotCardPicker() {
                     }
 
                     setGeneralMessage(randomMsg);
+
+                    // DB에 결과 저장
+                    const { data: { session } } = await supabase.auth.getSession();
+                    if (session?.user) {
+                        await supabase.from('tarot_history').insert({
+                            user_id: session.user.id,
+                            card1_id: newSelected[0].id,
+                            card2_id: newSelected[1].id,
+                            card3_id: newSelected[2].id,
+                            message_id: selectedMsgObj.id
+                        });
+                    }
                 }
 
                 setTimeout(() => setStep('result'), 600);
@@ -87,6 +154,15 @@ export function TarotCardPicker() {
         setError(null);
     };
 
+    if (step === 'loading') {
+        return (
+            <div className="flex flex-col items-center justify-center py-20">
+                <RefreshCw className="w-10 h-10 text-purple-600 animate-spin mb-4" />
+                <p className="text-gray-500 animate-pulse">오늘의 운세를 불러오는 중...</p>
+            </div>
+        );
+    }
+
     if (step === 'intro') {
         return (
             <div className="text-center py-10">
@@ -94,7 +170,10 @@ export function TarotCardPicker() {
                     🔮
                 </div>
                 <h3 className="text-2xl font-bold text-gray-900 mb-4">오늘의 연애 타로 (3장 뽑기)</h3>
-                <p className="text-gray-500 mb-10 max-w-sm mx-auto leading-relaxed">
+                <div className="inline-block px-3 py-1 bg-red-50 text-red-600 text-[10px] font-bold rounded-full border border-red-100 mb-4 uppercase tracking-tighter">
+                    Limited: 1 per day
+                </div>
+                <p className="text-gray-500 mb-10 max-w-sm mx-auto leading-relaxed text-sm">
                     마음을 가다듬고 당신의 연애 흐름을 확인해보세요.<br />
                     <strong>과거, 현재, 미래</strong>를 상징하는 3장의 카드가 당신의 운명을 들려줍니다.
                 </p>
