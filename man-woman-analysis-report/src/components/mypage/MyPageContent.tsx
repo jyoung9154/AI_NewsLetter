@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/components/auth/AuthProvider';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Bookmark, Heart, MessageSquare, AlertCircle, Eye, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 
@@ -145,10 +146,12 @@ export function MyPageContent() {
                                         <div className="bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-md hover:border-pink-200 transition-all group flex flex-col h-full cursor-pointer">
                                             {ep.image_url ? (
                                                 <div className="h-48 overflow-hidden relative">
-                                                    <img
+                                                    <Image
                                                         src={ep.image_url}
                                                         alt={ep.title}
-                                                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                                        fill
+                                                        sizes="(max-width: 768px) 100vw, 50vw"
+                                                        className="object-cover group-hover:scale-105 transition-transform duration-500"
                                                     />
                                                 </div>
                                             ) : (
@@ -204,10 +207,12 @@ export function MyPageContent() {
                                     <div className="bg-white rounded-xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-md transition-all group h-full flex flex-col cursor-pointer">
                                         {ep.image_url ? (
                                             <div className="h-32 overflow-hidden relative">
-                                                <img
+                                                <Image
                                                     src={ep.image_url}
                                                     alt={ep.title}
-                                                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                                    fill
+                                                    sizes="(max-width: 768px) 50vw, 25vw"
+                                                    className="object-cover group-hover:scale-105 transition-transform duration-500"
                                                 />
                                             </div>
                                         ) : (

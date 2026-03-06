@@ -1,0 +1,22 @@
+{
+    "name": "남녀분석보고서 - 당신을 위한 연애 인사이트",
+    "short_name": "남녀분석보고서",
+    "description": "상황별 남녀 심리 및 MBTI 기반 맞춤 연애 큐레이션 서비스",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#ffffff",
+    "theme_color": "#db2777",
+    "icons": [
+        {
+            "src": "/favicon.ico",
+            "sizes": "64x64 32x32 24x24 16x16",
+            "type": "image/x-icon"
+        },
+        {
+            "src": "/icon.svg",
+            "type": "image/svg+xml",
+            "sizes": "any",
+            "purpose": "any maskable"
+        }
+    ]
+}
