@@ -22,27 +22,42 @@ export async function generateMetadata({ params }: { params: { slug: string } })
     const title = `Episode ${episode.episode_number}. ${episode.title}`;
     const description = episode.hook || episode.situation?.substring(0, 150) || '남녀의 다양한 심리 분석 스토리';
 
+    // Base URL for absolute paths
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://man-woman-analysis-report.vercel.app';
+
+    // Construct dynamic OG Image URL
+    const ogUrl = new URL(`${baseUrl}/api/og`);
+    ogUrl.searchParams.set('title', episode.title);
+    if (description) ogUrl.searchParams.set('desc', description);
+    if (episode.episode_number) ogUrl.searchParams.set('ep', episode.episode_number.toString());
+    if (episode.image_url) ogUrl.searchParams.set('image', episode.image_url);
+
     return {
         title,
         description,
         alternates: {
-            canonical: `https://man-woman-analysis-report.vercel.app/episodes/${episode.slug}`,
+            canonical: `${baseUrl}/episodes/${episode.slug}`,
         },
         openGraph: {
             title,
             description,
             type: 'article',
-            url: `https://man-woman-analysis-report.vercel.app/episodes/${episode.slug}`,
-            images: episode.image_url
-                ? [{ url: episode.image_url }]
-                : [{ url: '/og-image.png', width: 1200, height: 630 }],
+            url: `${baseUrl}/episodes/${episode.slug}`,
+            images: [
+                {
+                    url: ogUrl.toString(),
+                    width: 1200,
+                    height: 630,
+                    alt: title,
+                }
+            ],
             siteName: '남녀분석보고서',
         },
         twitter: {
             card: 'summary_large_image',
             title,
             description,
-            images: episode.image_url ? [episode.image_url] : ['/og-image.png'],
+            images: [ogUrl.toString()],
         },
     };
 }

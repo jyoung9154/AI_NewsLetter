@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/Button';
 import { User, Lock, Trash2, Send, MessageSquare, Heart, CornerDownRight } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/Select';
 import { useAuth } from '@/components/auth/AuthProvider';
+import { supabase } from '@/lib/supabase';
 
 interface Comment {
     id: number;
@@ -50,6 +51,23 @@ export function CommentSection({ episodeId }: CommentSectionProps) {
 
     useEffect(() => {
         fetchComments();
+
+        // Supabase Realtime Subscription
+        const channel = supabase
+            .channel(`comments_episode_${episodeId}`)
+            .on(
+                'postgres_changes',
+                { event: '*', schema: 'public', table: 'comments', filter: `episode_id=eq.${episodeId}` },
+                (payload) => {
+                    // Refetch comments silently to keep the reply hierarchy easily intact
+                    fetchComments(false);
+                }
+            )
+            .subscribe();
+
+        return () => {
+            supabase.removeChannel(channel);
+        };
     }, [episodeId]);
 
     useEffect(() => {

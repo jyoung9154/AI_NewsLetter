@@ -1,10 +1,15 @@
 import { createClient } from '@supabase/supabase-js';
+import dotenv from 'dotenv';
 import OpenAI from 'openai';
+
+// Load env
+dotenv.config({ path: '.env.local' });
 
 // Env variables are provided by GitHub Actions Secrets
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const geminiApiKey = process.env.GEMINI_API_KEY;
+const leonardoApiKey = process.env.LEONARDO_API_KEY;
 const zhipuApiKey = process.env.ZAI_API_KEY || process.env.ZHIPU_API_KEY;
 const hfApiToken = process.env.HF_API_TOKEN;
 const coupangAffiliateId = process.env.NEXT_PUBLIC_COUPANG_AFFILIATE_ID || '';
@@ -120,9 +125,9 @@ ${topicText}${duplicateConstraint}
   "resolution": "결론 + 뼈 때리면서도 위트 있는 한 줄 요약",
   "advice": "남자 팁: (내일 당장 써먹을 수 있는 현실적 멘트나 행동) / 여자 팁: (현실적 마인드셋이나 행동)",
   "coupang_keyword": "이 갈등을 무마할 연인 패션잡화(예: 커플 반지, 지갑 등) 쿠팡 검색 단일 키워드 (예: '20대 커플 목걸이')",
-  "image_prompt": "A simple flat vector illustration of the specific situation described above, minimal style, solid colors, clean design. (IMPORTANT: Write this prompt in English)",
+  "image_prompt": "A simple flat vector illustration describing the situation above, minimalist style, solid color background, clean design. (CRITICAL: Write this prompt in English only)",
   "tags": ["이 에피소드의 핵심 태그 3~5개. 반드시 첫 번째 태그로 스토리가 여자 중심이면 '여자의 시점', 남자 중심이면 '남자의 시점', 양쪽 모두면 둘 다 포함. 이후 연애, 갈등, 심리 등 주제 태그 추가"]
-}`
+} `
     };
 }
 
@@ -243,73 +248,106 @@ async function generateNewsletter() {
             episodeData.coupang_product_url = buildCoupangUrl(episodeData.coupang_keyword);
         }
 
-        if (episodeData.image_prompt && hfApiToken) {
-            console.log('[GENERATE BOT] Generating image via Hugging Face Inference API...');
-            const hfApiUrl = "https://api-inference.huggingface.co/models/stabilityai/stable-diffusion-xl-base-1.0";
-            const enhancedPrompt = `${episodeData.image_prompt}, realistic photography, cinematic lighting, highly detailed, 8k resolution, photorealistic`;
+        let imageBuffer = null;
 
-            let imageBuffer = null;
-            let retries = 3;
-            let waitTime = 20000; // 20초
+        // Leonardo.ai 이미지 생성 및 Supabase Storage 업로드 연동
+        // Leonardo.ai 이미지 생성 및 Supabase Storage 업로드 연동
+        if (episodeData.image_prompt && leonardoApiKey) {
+            console.log(`[GENERATE BOT] Generating image via Leonardo.ai using prompt: ${episodeData.image_prompt}`);
 
-            for (let i = 0; i < retries; i++) {
-                try {
-                    const response = await fetch(hfApiUrl, {
-                        method: 'POST',
-                        headers: {
-                            "Authorization": `Bearer ${hfApiToken}`,
-                            "Content-Type": "application/json"
-                        },
-                        body: JSON.stringify({ inputs: enhancedPrompt })
-                    });
+            try {
+                // 1. Start generation
+                const genResponse = await fetch("https://cloud.leonardo.ai/api/rest/v1/generations", {
+                    method: 'POST',
+                    headers: {
+                        "accept": "application/json",
+                        "content-type": "application/json",
+                        "authorization": `Bearer ${leonardoApiKey}`
+                    },
+                    body: JSON.stringify({
+                        prompt: episodeData.image_prompt,
+                        modelId: "291be633-cb24-434f-898f-e662799936ad", // Leonardo Signature
+                        width: 512,
+                        height: 512,
+                        num_images: 1,
+                        promptMagic: true
+                    })
+                });
 
-                    if (response.ok) {
-                        const arrayBuffer = await response.arrayBuffer();
-                        imageBuffer = Buffer.from(arrayBuffer);
-                        console.log('[GENERATE BOT] Hugging Face image generated successfully.');
-                        break;
-                    } else if (response.status === 503) {
-                        const errorData = await response.json();
-                        const estimatedTime = (errorData.estimated_time || 20) * 1000;
-                        console.log(`[GENERATE BOT] Model is loading (503). Retrying in ${estimatedTime / 1000} seconds...`);
-                        await new Promise(resolve => setTimeout(resolve, estimatedTime));
-                    } else {
-                        const errorText = await response.text();
-                        console.warn(`[GENERATE BOT] Hugging Face API Error (${response.status}):`, errorText);
-                        break; // Stop retrying on non-503 errors
+                if (genResponse.ok) {
+                    const genData = await genResponse.json();
+                    const generationId = genData.sdGenerationJob?.generationId;
+
+                    if (generationId) {
+                        console.log(`[GENERATE BOT] Leonardo Job ID: ${generationId}. Polling for result...`);
+
+                        let imageUrl = null;
+                        for (let i = 0; i < 15; i++) { // Max 30 seconds
+                            await new Promise(resolve => setTimeout(resolve, 2000));
+                            const pollResponse = await fetch(`https://cloud.leonardo.ai/api/rest/v1/generations/${generationId}`, {
+                                headers: {
+                                    "accept": "application/json",
+                                    "authorization": `Bearer ${leonardoApiKey}`
+                                }
+                            });
+
+                            if (pollResponse.ok) {
+                                const pollData = await pollResponse.json();
+                                const images = pollData.generations_by_pk?.generated_images;
+                                if (images && images.length > 0) {
+                                    imageUrl = images[0].url;
+                                    break;
+                                }
+                                console.log(`[GENERATE BOT] Polling Leonardo ${i + 1}... (Status: ${pollData.generations_by_pk?.status})`);
+                            }
+                        }
+
+                        if (imageUrl) {
+                            console.log(`[GENERATE BOT] Leonardo Image URL: ${imageUrl}. Downloading...`);
+                            const imgResponse = await fetch(imageUrl);
+                            if (imgResponse.ok) {
+                                const arrayBuffer = await imgResponse.arrayBuffer();
+                                imageBuffer = Buffer.from(arrayBuffer);
+                                console.log('[GENERATE BOT] Leonardo image downloaded successfully.');
+                            }
+                        } else {
+                            console.warn('[GENERATE BOT] Leonardo generation timed out or failed.');
+                        }
                     }
-                } catch (hfError) {
-                    console.error('[GENERATE BOT] Fetch error during HF call:', hfError);
-                    break;
-                }
-            }
-
-            if (imageBuffer) {
-                const fileName = `episode_${episodeData.episode_number}_${Date.now()}.jpg`;
-                console.log(`[GENERATE BOT] Uploading image to Supabase Storage: episode_images/${fileName}...`);
-
-                const { data: uploadData, error: uploadError } = await supabase.storage
-                    .from('episode_images')
-                    .upload(fileName, imageBuffer, {
-                        contentType: 'image/jpeg',
-                        upsert: false
-                    });
-
-                if (uploadError) {
-                    console.error('[GENERATE BOT] Supabase Storage Upload failed:', uploadError);
                 } else {
-                    const { data: publicUrlData } = supabase.storage
-                        .from('episode_images')
-                        .getPublicUrl(uploadData.path);
-
-                    episodeData.image_url = publicUrlData.publicUrl;
-                    console.log('[GENERATE BOT] Image URL attached:', episodeData.image_url);
+                    const errorText = await genResponse.text();
+                    console.warn(`[GENERATE BOT] Leonardo API Error (${genResponse.status}):`, errorText);
                 }
-            } else {
-                console.warn('[GENERATE BOT] Failed to generate image after retries. Proceeding without image.');
+            } catch (leoError) {
+                console.error('[GENERATE BOT] Error during Leonardo call:', leoError);
             }
-        } else if (episodeData.image_prompt && !hfApiToken) {
-            console.warn('[GENERATE BOT] Warning: HF_API_TOKEN is missing. Skipping image generation.');
+        } else if (episodeData.image_prompt && !leonardoApiKey) {
+            console.warn('[GENERATE BOT] Warning: LEONARDO_API_KEY is missing. Skipping image generation.');
+        }
+
+        if (imageBuffer) {
+            const fileName = `episode_${episodeData.episode_number}_${Date.now()}.jpg`;
+            console.log(`[GENERATE BOT] Uploading image to Supabase Storage: episode_images/${fileName}...`);
+
+            const { data: uploadData, error: uploadError } = await supabase.storage
+                .from('episode_images')
+                .upload(fileName, imageBuffer, {
+                    contentType: 'image/jpeg',
+                    upsert: false
+                });
+
+            if (uploadError) {
+                console.error('[GENERATE BOT] Supabase Storage Upload failed:', uploadError);
+            } else {
+                const { data: publicUrlData } = supabase.storage
+                    .from('episode_images')
+                    .getPublicUrl(uploadData.path);
+
+                episodeData.image_url = publicUrlData.publicUrl;
+                console.log('[GENERATE BOT] Image URL attached:', episodeData.image_url);
+            }
+        } else if (episodeData.image_prompt) {
+            console.warn('[GENERATE BOT] Failed to generate image. Proceeding without image.');
         }
 
         episodeData.status = 'published';

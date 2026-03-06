@@ -54,6 +54,17 @@ export function MBTIAnalyzer() {
             if (res.ok) {
                 const data = await res.json();
                 setResult(data);
+
+                // Save user's MBTI preference to local storage for customized curation
+                try {
+                    localStorage.setItem('mbti_preference', JSON.stringify({
+                        mbti: myMbti,
+                        gender: myGender,
+                        timestamp: new Date().toISOString()
+                    }));
+                } catch (e) {
+                    console.error('Failed to save MBTI preference to localStorage:', e);
+                }
             } else {
                 const error = await res.json();
                 alert(error.error || '분석에 실패했습니다. 잠시 후 다시 시도해주세요.');

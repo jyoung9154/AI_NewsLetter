@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Eye, Share2, EyeOff, MessageSquare, TrendingUp, Brain, AlertOctagon, Heart, Send, ChevronDown, ChevronUp } from 'lucide-react';
+import { Eye, Share2, EyeOff, MessageSquare, TrendingUp, Brain, AlertOctagon, Heart, Send, ChevronDown, ChevronUp, Bookmark } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { DbEpisode } from '@/types';
 import { formatTitle } from '@/lib/utils';
 import { CommentSection } from './CommentSection';
+import { useAuth } from '@/components/auth/AuthProvider';
 
 interface StoryLogProps {
   episode: DbEpisode;
@@ -59,6 +60,42 @@ export function StoryLog({ episode }: StoryLogProps) {
   const [viewCount, setViewCount] = useState(episode.view_count || 0);
   const [shareCount, setShareCount] = useState(episode.share_count || 0);
   const [expandedBlocks, setExpandedBlocks] = useState<Record<number, boolean>>({});
+
+  const { user } = useAuth();
+  const [isBookmarked, setIsBookmarked] = useState(false);
+  const [isBookmarkLoading, setIsBookmarkLoading] = useState(false);
+
+  useEffect(() => {
+    if (user && episode.id) {
+      fetch(`/api/bookmarks?episodeId=${episode.id}`)
+        .then(res => res.json())
+        .then(data => setIsBookmarked(data.isBookmarked))
+        .catch(console.error);
+    }
+  }, [user, episode.id]);
+
+  const handleBookmark = async () => {
+    if (!user) {
+      alert('이 에피소드를 저장하려면 먼저 로그인해주세요!');
+      return;
+    }
+    setIsBookmarkLoading(true);
+    try {
+      const res = await fetch('/api/bookmarks', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ episodeId: episode.id })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setIsBookmarked(data.isBookmarked);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsBookmarkLoading(false);
+    }
+  };
 
   const toggleBlock = (blockType: number) => {
     setExpandedBlocks(prev => ({ ...prev, [blockType]: !prev[blockType] }));
@@ -460,6 +497,17 @@ export function StoryLog({ episode }: StoryLogProps) {
         <div className="flex items-center gap-4 mb-4 sm:mb-0">
           <span className="text-gray-500 text-body-sm bg-gray-50 px-3 py-1 rounded-full">조회 {viewCount}</span>
           <span className="text-gray-500 text-body-sm bg-gray-50 px-3 py-1 rounded-full">공유 {shareCount}</span>
+          <button
+            onClick={handleBookmark}
+            disabled={isBookmarkLoading}
+            className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-body-sm font-bold transition-all border ${isBookmarked
+                ? 'bg-pink-50 text-pink-600 border-pink-200 shadow-sm'
+                : 'bg-white text-gray-500 border-gray-200 hover:text-gray-900 hover:bg-gray-50'
+              }`}
+          >
+            <Bookmark className={`w-4 h-4 ${isBookmarked ? 'fill-current' : ''}`} />
+            {isBookmarked ? '저장됨' : '저장하기'}
+          </button>
         </div>
         <div className="flex flex-wrap gap-2 justify-center">
           <button onClick={() => handleShare('kakao')} className="px-4 py-2 bg-[#FEE500] text-[#000000] rounded-xl text-body-sm font-bold hover:bg-[#F4DC00] transition-colors shadow-sm">
