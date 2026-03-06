@@ -56,9 +56,17 @@ export function TarotCardPicker() {
 
                 if (msgError) {
                     console.error('Error fetching general message:', msgError);
-                    // Optionally set an error state for the message or use a fallback
                 } else if (msgData && msgData.length > 0) {
-                    const randomMsg = msgData[Math.floor(Math.random() * msgData.length)].content;
+                    let randomMsg = msgData[Math.floor(Math.random() * msgData.length)].content;
+
+                    // 플레이스홀더 치환 로직: {0}=과거, {1}=현재, {2}=미래
+                    if (newSelected.length === 3) {
+                        randomMsg = randomMsg
+                            .replace(/\{0\}/g, newSelected[0].name_ko)
+                            .replace(/\{1\}/g, newSelected[1].name_ko)
+                            .replace(/\{2\}/g, newSelected[2].name_ko);
+                    }
+
                     setGeneralMessage(randomMsg);
                 }
 
