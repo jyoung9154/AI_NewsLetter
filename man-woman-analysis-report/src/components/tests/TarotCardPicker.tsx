@@ -56,14 +56,7 @@ export function TarotCardPicker() {
 
                 if (data) {
                     setSelectedCards([data.card1, data.card2, data.card3]);
-
-                    let finalMsg = data.msg.content;
-                    finalMsg = finalMsg
-                        .replace(/\{0\}/g, data.card1.name_ko)
-                        .replace(/\{1\}/g, data.card2.name_ko)
-                        .replace(/\{2\}/g, data.card3.name_ko);
-
-                    setGeneralMessage(finalMsg);
+                    setGeneralMessage(data.msg.content);
                     setStep('result');
                 } else {
                     setStep('intro');
@@ -112,17 +105,7 @@ export function TarotCardPicker() {
                 } else if (msgData && msgData.length > 0) {
                     const randomIdx = Math.floor(Math.random() * msgData.length);
                     const selectedMsgObj = msgData[randomIdx];
-                    let randomMsg = selectedMsgObj.content;
-
-                    // 플레이스홀더 치환 로직: {0}=과거, {1}=현재, {2}=미래
-                    if (newSelected.length === 3) {
-                        randomMsg = randomMsg
-                            .replace(/\{0\}/g, newSelected[0].name_ko)
-                            .replace(/\{1\}/g, newSelected[1].name_ko)
-                            .replace(/\{2\}/g, newSelected[2].name_ko);
-                    }
-
-                    setGeneralMessage(randomMsg);
+                    setGeneralMessage(selectedMsgObj.content);
 
                     // DB에 결과 저장
                     const { data: { session } } = await supabase.auth.getSession();
@@ -278,7 +261,20 @@ export function TarotCardPicker() {
                         <h4 className="font-bold text-xl">종합적인 운명의 메시지</h4>
                     </div>
                     <p className="text-gray-200 leading-relaxed text-lg mb-8 font-light italic">
-                        {generalMessage || `당신의 인연은 과거의 ${selectedCards[0]?.name_ko} 에너지로부터 시작되어, 현재 ${selectedCards[1]?.name_ko}의 중대한 전환점을 지나고 있습니다. 미래에는 ${selectedCards[2]?.name_ko}의 기운이 당신의 연애사에 결정적인 역할을 할 것입니다.`}
+                        {generalMessage ? (
+                            generalMessage.split(/(\{0\}|\{1\}|\{2\})/).map((part, i) => {
+                                if (part === '{0}') return <strong key={i} className="text-purple-400 font-bold not-italic underline underline-offset-4 decoration-purple-400/30">{selectedCards[0]?.name_ko}</strong>;
+                                if (part === '{1}') return <strong key={i} className="text-purple-400 font-bold not-italic underline underline-offset-4 decoration-purple-400/30">{selectedCards[1]?.name_ko}</strong>;
+                                if (part === '{2}') return <strong key={i} className="text-purple-400 font-bold not-italic underline underline-offset-4 decoration-purple-400/30">{selectedCards[2]?.name_ko}</strong>;
+                                return part;
+                            })
+                        ) : (
+                            <>
+                                당신의 인연은 과거의 <strong className="text-purple-400 font-bold not-italic">{selectedCards[0]?.name_ko}</strong> 에너지로부터 시작되어,
+                                현재 <strong className="text-purple-400 font-bold not-italic">{selectedCards[1]?.name_ko}</strong>의 중대한 전환점을 지나고 있습니다.
+                                미래에는 <strong className="text-purple-400 font-bold not-italic">{selectedCards[2]?.name_ko}</strong>의 기운이 당신의 연애사에 결정적인 역할을 할 것입니다.
+                            </>
+                        )}
                     </p>
                     <div className="p-6 bg-white/5 rounded-2xl border border-white/10 mb-8">
                         <p className="text-sm text-gray-400 leading-relaxed">
@@ -288,15 +284,9 @@ export function TarotCardPicker() {
                     </div>
                     <div className="flex flex-col sm:flex-row gap-4">
                         <Button
-                            onClick={reset}
-                            className="bg-transparent border border-white/30 text-white hover:bg-white/10 rounded-full px-8"
+                            className="bg-pink-600 hover:bg-pink-500 text-white rounded-full px-12 py-6 flex-1 flex items-center justify-center gap-2 shadow-lg text-lg font-bold transition-all hover:scale-[1.02]"
                         >
-                            다시 확인하기
-                        </Button>
-                        <Button
-                            className="bg-pink-600 hover:bg-pink-500 text-white rounded-full px-10 flex-1 flex items-center justify-center gap-2 shadow-lg"
-                        >
-                            <Share2 className="w-4 h-4" /> 결과 공유하고 운세 저장하기
+                            <Share2 className="w-5 h-5" /> 결과 공유하고 운세 저장하기
                         </Button>
                     </div>
                 </div>
