@@ -21,6 +21,7 @@ function HomeContentInner({ episodes }: HomeContentProps) {
         // 초기 탭 결정: URL 파라미터 기반
         if (typeof window !== 'undefined') {
             const params = new URLSearchParams(window.location.search);
+            if (params.get('tab')) return params.get('tab') as string;
             if (params.get('result')) return 'analysis';
         }
         return 'home';

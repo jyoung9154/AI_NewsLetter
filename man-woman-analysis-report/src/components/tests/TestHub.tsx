@@ -81,7 +81,7 @@ export function TestHub({ onSelectTest }: TestHubProps) {
     };
 
     const handleSocialLogin = async (provider: 'kakao' | 'google') => {
-        const redirectTo = `${window.location.origin}/?tab=tests`;
+        const redirectTo = `${window.location.origin}/auth/callback?next=${encodeURIComponent('/?tab=tests')}`;
         if (provider === 'kakao') {
             await supabase.auth.signInWithOAuth({
                 provider: 'kakao',
@@ -117,8 +117,8 @@ export function TestHub({ onSelectTest }: TestHubProps) {
                             <div className={`p-4 rounded-2xl ${test.color} border shadow-inner relative`}>
                                 {test.icon}
                                 {test.id === 'tarot' && (
-                                    <div className="absolute -top-2 -right-2 px-2 py-0.5 bg-red-500 text-white text-[9px] font-black rounded-full shadow-lg animate-bounce uppercase">
-                                        1/day
+                                    <div className="absolute -top-2 -right-2 px-2 py-1 bg-gradient-to-r from-pink-500 to-rose-500 text-white text-[9px] font-black rounded-full shadow-lg animate-bounce uppercase tracking-tighter border border-white/20">
+                                        1일 1회
                                     </div>
                                 )}
                             </div>

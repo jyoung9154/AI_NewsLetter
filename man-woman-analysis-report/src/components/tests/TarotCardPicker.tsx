@@ -170,8 +170,8 @@ export function TarotCardPicker() {
                     🔮
                 </div>
                 <h3 className="text-2xl font-bold text-gray-900 mb-4">오늘의 연애 타로 (3장 뽑기)</h3>
-                <div className="inline-block px-3 py-1 bg-red-50 text-red-600 text-[10px] font-bold rounded-full border border-red-100 mb-4 uppercase tracking-tighter">
-                    Limited: 1 per day
+                <div className="inline-block px-4 py-1.5 bg-gradient-to-r from-pink-50 to-rose-50 text-rose-600 text-xs font-bold rounded-full border border-rose-100 mb-6 shadow-sm">
+                    ✨ 하루에 한 번만 확인 가능한 소중한 운세
                 </div>
                 <p className="text-gray-500 mb-10 max-w-sm mx-auto leading-relaxed text-sm">
                     마음을 가다듬고 당신의 연애 흐름을 확인해보세요.<br />

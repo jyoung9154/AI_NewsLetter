@@ -35,10 +35,17 @@ export async function GET(request: Request) {
         },
       }
     );
-    
+
     await supabase.auth.exchangeCodeForSession(code);
   }
 
-  // 로그인 후 메인 페이지로 리디렉트
+  // 로그인 후 지정된 페이지 또는 메인 페이지로 리디렉트
+  const next = requestUrl.searchParams.get('next') ?? '/';
+
+  // 상대 경로인 경우 보안을 위해 origin을 붙여서 절대 경로로 만듭니다.
+  if (next.startsWith('/')) {
+    return NextResponse.redirect(`${origin}${next}`);
+  }
+
   return NextResponse.redirect(origin);
 }
