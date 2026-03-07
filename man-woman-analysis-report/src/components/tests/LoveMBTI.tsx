@@ -412,12 +412,12 @@ export function LoveMBTI() {
                     <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
 
                     {/* MBTI 캐릭터/상징 이미지 섹션 */}
-                    <div className="relative z-10 mx-auto w-48 h-48 mb-8 rounded-[40px] overflow-hidden border-4 border-white/20 shadow-2xl bg-white/10 backdrop-blur-sm flex items-center justify-center group">
+                    <div className="relative z-10 mx-auto w-48 h-48 mb-8 rounded-[40px] overflow-hidden border-4 border-white/20 shadow-2xl bg-white flex items-center justify-center p-4 group">
                         {resultData.image_url ? (
                             <img
                                 src={resultData.image_url}
                                 alt={finalMBTI}
-                                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                                className="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105"
                             />
                         ) : (
                             <div className="text-7xl animate-bounce-slow">✨</div>

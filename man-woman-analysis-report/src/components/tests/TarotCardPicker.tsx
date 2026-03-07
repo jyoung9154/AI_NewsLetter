@@ -303,11 +303,13 @@ export function TarotCardPicker() {
                             <div className="p-6 text-center border-b border-gray-50 bg-gray-50/30">
                                 <div className="w-40 h-64 bg-white rounded-xl mx-auto mb-6 border-2 border-purple-100 shadow-xl flex items-center justify-center overflow-hidden relative group">
                                     {card.image_url ? (
-                                        <img
-                                            src={card.image_url}
-                                            alt={card.name_ko}
-                                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                                        />
+                                        <div className="w-full h-full bg-slate-50 flex items-center justify-center p-1">
+                                            <img
+                                                src={card.image_url}
+                                                alt={card.name_ko}
+                                                className="max-w-full max-h-full object-contain transition-transform duration-500 group-hover:scale-105 shadow-sm"
+                                            />
+                                        </div>
                                     ) : (
                                         <div className="w-full h-full bg-gradient-to-br from-purple-100 to-indigo-100 flex items-center justify-center">
                                             <span className="text-5xl opacity-50">🔮</span>
