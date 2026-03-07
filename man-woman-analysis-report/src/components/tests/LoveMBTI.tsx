@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Button } from '@/components/ui/Button';
 import { Card, CardContent } from '@/components/ui/Card';
 import { Sparkles, Heart, Share2, Download, MessageCircle, RefreshCw, ChevronRight, Zap, Target, Shield, Flame, Anchor } from 'lucide-react';
@@ -240,18 +240,8 @@ export function LoveMBTI() {
     const reportRef = useRef<HTMLDivElement>(null);
 
     const handleStart = () => {
-        const eiPool = questions.filter(q => q.options.some(o => ['E', 'I'].includes(o.type)));
-        const snPool = questions.filter(q => q.options.some(o => ['S', 'N'].includes(o.type)));
-        const tfPool = questions.filter(q => q.options.some(o => ['T', 'F'].includes(o.type)));
-        const jpPool = questions.filter(q => q.options.some(o => ['J', 'P'].includes(o.type)));
-
-        const selectedEI = shuffleArray(eiPool).slice(0, 10);
-        const selectedSN = shuffleArray(snPool).slice(0, 10);
-        const selectedTF = shuffleArray(tfPool).slice(0, 10);
-        const selectedJP = shuffleArray(jpPool).slice(0, 10);
-
-        const finalPool = shuffleArray([...selectedEI, ...selectedSN, ...selectedTF, ...selectedJP]);
-        setQuizQuestions(finalPool);
+        // 전체 문항 중 랜덤하게 섞어서 공급 (동적 필터링을 위해 전체 풀 사용)
+        setQuizQuestions(shuffleArray([...questions]));
         setStep('question');
     };
 
@@ -260,16 +250,36 @@ export function LoveMBTI() {
             ...prev,
             [type]: prev[type] + weight
         }));
-
-        if (currentIndex < quizQuestions.length - 1) {
-            setCurrentIndex(currentIndex + 1);
-        }
     };
 
+    // 현재 답변 상태를 기반으로 필터링된 옵션들
+    const filteredOptions = useMemo(() => {
+        if (!quizQuestions[currentIndex]) return [];
+        const currentOptions = quizQuestions[currentIndex].options;
+
+        return currentOptions.filter(option => {
+            const opposite = {
+                'E': 'I', 'I': 'E', 'S': 'N', 'N': 'S',
+                'T': 'F', 'F': 'T', 'J': 'P', 'P': 'J'
+            }[option.type];
+
+            if (!opposite) return true;
+
+            const totalForDimension = answers[option.type] + answers[opposite];
+            // 해당 차원이 10점 미만일 때만 옵션 노출
+            return totalForDimension < 10;
+        });
+    }, [quizQuestions, currentIndex, answers]);
+
     useEffect(() => {
-        const totalCount = Object.values(answers).reduce((a, b) => a + b, 0);
-        // 예상 총점: 40문항 x 평균 가중치 1.5 = 약 60점 (하지만 문항당 가중치의 합으로 계산)
-        if (quizQuestions.length > 0 && currentIndex === quizQuestions.length - 1 && totalCount >= quizQuestions.length) {
+        const totalPoints = Object.values(answers).reduce((a, b) => a + b, 0);
+
+        // 종료 조건: 모든 차원(4종)의 점수 합이 40점 이상일 때
+        const isDimensionComplete = (type1: string, type2: string) => (answers[type1] + answers[type2]) >= 10;
+        const allCompleted = isDimensionComplete('E', 'I') && isDimensionComplete('S', 'N') &&
+            isDimensionComplete('T', 'F') && isDimensionComplete('J', 'P');
+
+        if (allCompleted) {
             const calculatePercent = (val1: number, val2: number) => {
                 const total = val1 + val2;
                 return total === 0 ? 50 : Math.round((val1 / total) * 100);
@@ -295,8 +305,14 @@ export function LoveMBTI() {
             setFinalMBTI(mbti);
             setStep('result');
             window.scrollTo({ top: 0, behavior: 'smooth' });
+            return;
         }
-    }, [answers, currentIndex, quizQuestions]);
+
+        // 현재 문항의 모든 옵션이 이미 완료된 차원이라서 필터링되었다면 다음 문항으로 자동 스킵
+        if (step === 'question' && filteredOptions.length === 0 && currentIndex < quizQuestions.length - 1) {
+            setCurrentIndex(currentIndex + 1);
+        }
+    }, [answers, currentIndex, quizQuestions, step, filteredOptions]);
 
     const handleSaveImage = async () => {
         if (!reportRef.current) return;
@@ -397,22 +413,27 @@ export function LoveMBTI() {
                 </h3>
 
                 <div className="grid grid-cols-1 gap-4">
-                    {currentQuestion.options.map((option, idx) => (
+                    {shuffleArray<{ text: string; type: string; weight: number }>(filteredOptions).map((option, idx) => (
                         <button
                             key={idx}
-                            onClick={() => handleAnswer(option.type, option.weight)}
-                            className={`w-full p-5 text-left bg-white border-2 border-gray-100 rounded-3xl hover:border-pink-300 hover:bg-pink-50 transition-all duration-200 group relative overflow-hidden ${option.weight === 2 ? 'border-pink-50 shadow-sm' : ''}`}
+                            onClick={() => {
+                                handleAnswer(option.type, option.weight);
+                                if (currentIndex < quizQuestions.length - 1) {
+                                    setCurrentIndex(currentIndex + 1);
+                                }
+                            }}
+                            className={`w-full p-5 text-left bg-white border-2 border-gray-100 rounded-3xl hover:border-pink-300 hover:bg-pink-50 transition-all duration-200 group relative overflow-hidden`}
                         >
                             <div className="flex items-center gap-4 relative z-10">
-                                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${option.weight === 2 ? 'bg-pink-100 text-pink-600' : 'bg-gray-100 text-gray-500'}`}>
+                                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold bg-pink-100 text-pink-600`}>
                                     {idx + 1}
                                 </div>
-                                <span className={`flex-1 text-gray-700 font-medium group-hover:text-pink-700 transition-colors ${option.weight === 2 ? 'text-lg font-bold' : ''}`}>
+                                <span className={`flex-1 text-gray-700 font-medium group-hover:text-pink-700 transition-colors`}>
                                     {option.text}
                                 </span>
                             </div>
                             <div className="absolute top-0 right-0 p-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <Heart className={`w-5 h-5 text-pink-300 ${option.weight === 2 ? 'fill-pink-500 text-pink-500' : 'fill-pink-300'}`} />
+                                <Heart className={`w-5 h-5 text-pink-300 fill-pink-300`} />
                             </div>
                         </button>
                     ))}
