@@ -112,27 +112,23 @@ async function main() {
             // Continue anyway, maybe it exists but listing failed
         }
     }
-    // 2. Generate Tarot
+    // 2. Generate Tarot (Improved Prompt to fix cropping)
     for (const card of TAROT_CARDS) {
-        const prompt = `Modern luxury tarot card illustration of ${card.name}, minimalist flat vector art, gold foil accents, dreamlike pastel color palette, symbols of ${card.name}, premium clean design, high detail, 8k resolution`;
+        const prompt = `Modern luxury tarot card illustration of ${card.name}, centered composition with ample headroom, ensuring the entire head and subject are fully visible within the frame, minimalist flat vector art, gold foil accents, dreamlike pastel color palette, symbols of ${card.name}, premium clean design, high detail, 8k resolution`;
         const url = await generateAndUpload(prompt, `tarot_${card.num}.jpg`);
         if (url) {
             await supabase.from('tarot_cards').update({ image_url: url }).eq('card_number', card.num);
-            console.log(`✅ Tarot ${card.num} updated: ${url}`);
+            console.log(`✅ Tarot ${card.num} updated (New Prompt): ${url}`);
         }
     }
 
-    // 3. Generate MBTI
-    // For MBTI, we'll store mapping in a JSON for LoveMBTI.tsx
+    /* MBTI Generation Skip - Already Completed */
+    /*
     const mbtiMap = {};
     for (const type of MBTI_TYPES) {
-        const prompt = `Stylish 3D isometric laboratory/office setting with a cute character representing ${type} personality, vibrant colors, glassmorphism UI elements, soft professional lighting, premium aesthetic, 4k render, white background`;
-        const url = await generateAndUpload(prompt, `mbti_${type}.jpg`);
-        if (url) {
-            mbtiMap[type] = url;
-            console.log(`✅ MBTI ${type} generated: ${url}`);
-        }
+        ...
     }
+    */
 
     console.log("\n📦 Copy this MBTI Map to LoveMBTI.tsx results (or I will read it from the file):");
     const output = JSON.stringify(mbtiMap, null, 2);

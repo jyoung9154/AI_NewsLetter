@@ -389,14 +389,17 @@ export function LoveMBTI() {
     }
 
     if (step === 'question') {
-        const progress = ((currentIndex + 1) / quizQuestions.length) * 100;
+        const totalPoints = Object.values(answers).reduce((a, b) => a + b, 0);
+        const progress = Math.min((totalPoints / 40) * 100, 100);
+        const currentProgressCount = Math.min(totalPoints + 1, 40);
+
         const currentQuestion = quizQuestions[currentIndex];
 
         return (
             <div className="max-w-2xl mx-auto py-10 px-4">
                 <div className="mb-8">
                     <div className="flex justify-between items-end mb-2">
-                        <span className="text-pink-600 font-black text-2xl">{currentIndex + 1} <span className="text-gray-300 text-lg font-normal">/ {quizQuestions.length}</span></span>
+                        <span className="text-pink-600 font-black text-2xl">{currentProgressCount} <span className="text-gray-300 text-lg font-normal">/ 40</span></span>
                         <span className="text-gray-400 text-sm font-medium">{Math.round(progress)}% 완료</span>
                     </div>
                     {/* Custom Progress Bar */}
@@ -409,7 +412,7 @@ export function LoveMBTI() {
                 </div>
 
                 <h3 className="text-2xl font-bold text-gray-900 mb-10 text-center leading-tight min-h-[4rem] flex items-center justify-center px-4">
-                    {currentQuestion.text}
+                    {currentQuestion?.text}
                 </h3>
 
                 <div className="grid grid-cols-1 gap-4">
