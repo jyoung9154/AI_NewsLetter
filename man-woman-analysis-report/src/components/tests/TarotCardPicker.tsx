@@ -15,6 +15,7 @@ interface TarotCard {
     meaning_past: string;
     meaning_present: string;
     meaning_future: string;
+    image_url?: string;
 }
 
 export function TarotCardPicker() {
@@ -300,11 +301,22 @@ export function TarotCardPicker() {
                                 {titles[idx]}
                             </div>
                             <div className="p-6 text-center border-b border-gray-50 bg-gray-50/30">
-                                <div className="w-24 h-40 bg-white rounded-lg mx-auto mb-4 border-2 border-gray-100 shadow-inner flex items-center justify-center overflow-hidden">
-                                    <span className="text-4xl">🃏</span>
+                                <div className="w-40 h-64 bg-white rounded-xl mx-auto mb-6 border-2 border-purple-100 shadow-xl flex items-center justify-center overflow-hidden relative group">
+                                    {card.image_url ? (
+                                        <img
+                                            src={card.image_url}
+                                            alt={card.name_ko}
+                                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                                        />
+                                    ) : (
+                                        <div className="w-full h-full bg-gradient-to-br from-purple-100 to-indigo-100 flex items-center justify-center">
+                                            <span className="text-5xl opacity-50">🔮</span>
+                                        </div>
+                                    )}
+                                    <div className="absolute inset-0 ring-1 ring-inset ring-black/5 rounded-xl"></div>
                                 </div>
-                                <h4 className="text-lg font-bold text-gray-900">{card.name_ko}</h4>
-                                <p className="text-xs text-gray-400 font-medium uppercase tracking-tighter">{card.name_en}</p>
+                                <h4 className="text-xl font-bold text-gray-900 mb-1">{card.name_ko}</h4>
+                                <p className="text-xs text-purple-600 font-bold uppercase tracking-widest">{card.name_en}</p>
                             </div>
                             <CardContent className="p-6">
                                 <p className="text-gray-700 text-sm leading-relaxed text-center">
