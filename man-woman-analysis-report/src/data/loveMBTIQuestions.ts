@@ -355,8 +355,8 @@ export const questions: Question[] = [
         id: 32,
         text: "연인이 나에게 바라는 점 중 더 많은 것은?",
         options: [
-            { text: "\"가끔은 좀 진지하게 가만히 있어 봐!\"", type: "E" },
-            { text: "\"무슨 생각 하는지 말 좀 해줘!\"", type: "I" }
+            { text: "\"가끔은 좀 진지하게 가만히 있어 봐!\"", type: "E" , weight: 1 },
+            { text: "\"무슨 생각 하는지 말 좀 해줘!\"", type: "I" , weight: 1 }
         ]
     },
     {
@@ -533,8 +533,8 @@ export const questions: Question[] = [
         id: 50,
         text: "연인에게 듣고 싶은 칭찬은?",
         options: [
-            { text: "\"너랑 있으면 정말 즐겁고 에너지가 생겨!\"", type: "E" },
-            { text: "\"너랑 있으면 마음이 정말 편안하고 깊이가 느껴져!\"", type: "I" }
+            { text: "\"너랑 있으면 정말 즐겁고 에너지가 생겨!\"", type: "E" , weight: 1 },
+            { text: "\"너랑 있으면 마음이 정말 편안하고 깊이가 느껴져!\"", type: "I" , weight: 1 }
         ]
     },
     // SN - 50 Questions (Information)
@@ -572,8 +572,8 @@ export const questions: Question[] = [
         id: 59,
         text: "연인이 나에게 하는 칭찬 중 더 기분 좋은 것은?",
         options: [
-            { text: "\"오늘 옷 스타일 정말 잘 어울린다! 센스 대박이야\"", type: "S" },
-            { text: "\"너랑 대화하면 영감이 생겨. 넌 정말 깊이 있는 사람이야\"", type: "N" }
+            { text: "\"오늘 옷 스타일 정말 잘 어울린다! 센스 대박이야\"", type: "S" , weight: 1 },
+            { text: "\"너랑 대화하면 영감이 생겨. 넌 정말 깊이 있는 사람이야\"", type: "N" , weight: 1 }
         ]
     },
     {
@@ -1151,8 +1151,8 @@ export const questions: Question[] = [
         id: 122,
         text: "연인이 나에게 바라는 칭찬의 종류는?",
         options: [
-            { text: "\"너 정말 똑똑하다! 일 처리 확실해!\"", type: "T" },
-            { text: "\"너는 정말 따뜻한 사람이야. 너랑 있으면 힐링 돼!\"", type: "F" }
+            { text: "\"너 정말 똑똑하다! 일 처리 확실해!\"", type: "T" , weight: 1 },
+            { text: "\"너는 정말 따뜻한 사람이야. 너랑 있으면 힐링 돼!\"", type: "F" , weight: 1 }
         ]
     },
     {
