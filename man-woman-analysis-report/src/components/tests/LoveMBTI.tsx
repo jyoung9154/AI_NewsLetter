@@ -235,11 +235,11 @@ export function LoveMBTI() {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [quizQuestions, setQuizQuestions] = useState<Question[]>([]);
     const [answers, setAnswers] = useState<Record<string, number>>({ 'E': 0, 'I': 0, 'S': 0, 'N': 0, 'T': 0, 'F': 0, 'J': 0, 'P': 0 });
+    const [percentages, setPercentages] = useState<Record<string, number>>({});
     const [finalMBTI, setFinalMBTI] = useState<string>('');
     const reportRef = useRef<HTMLDivElement>(null);
 
     const handleStart = () => {
-        // 200문항 데이터셋에서 각 차원별로 10개씩 랜덤하게 추출
         const eiPool = questions.filter(q => q.options.some(o => ['E', 'I'].includes(o.type)));
         const snPool = questions.filter(q => q.options.some(o => ['S', 'N'].includes(o.type)));
         const tfPool = questions.filter(q => q.options.some(o => ['T', 'F'].includes(o.type)));
@@ -250,16 +250,15 @@ export function LoveMBTI() {
         const selectedTF = shuffleArray(tfPool).slice(0, 10);
         const selectedJP = shuffleArray(jpPool).slice(0, 10);
 
-        // 추출된 40문항을 다시 섞어서 퀴즈 구성
         const finalPool = shuffleArray([...selectedEI, ...selectedSN, ...selectedTF, ...selectedJP]);
         setQuizQuestions(finalPool);
         setStep('question');
     };
 
-    const handleAnswer = (type: string) => {
+    const handleAnswer = (type: string, weight: number) => {
         setAnswers(prev => ({
             ...prev,
-            [type]: prev[type] + 1
+            [type]: prev[type] + weight
         }));
 
         if (currentIndex < quizQuestions.length - 1) {
@@ -268,7 +267,26 @@ export function LoveMBTI() {
     };
 
     useEffect(() => {
-        if (quizQuestions.length > 0 && currentIndex === quizQuestions.length - 1 && Object.values(answers).reduce((a, b) => a + b, 0) === quizQuestions.length) {
+        const totalCount = Object.values(answers).reduce((a, b) => a + b, 0);
+        // 예상 총점: 40문항 x 평균 가중치 1.5 = 약 60점 (하지만 문항당 가중치의 합으로 계산)
+        if (quizQuestions.length > 0 && currentIndex === quizQuestions.length - 1 && totalCount >= quizQuestions.length) {
+            const calculatePercent = (val1: number, val2: number) => {
+                const total = val1 + val2;
+                return total === 0 ? 50 : Math.round((val1 / total) * 100);
+            };
+
+            const ePerc = calculatePercent(answers['E'], answers['I']);
+            const sPerc = calculatePercent(answers['S'], answers['N']);
+            const tPerc = calculatePercent(answers['T'], answers['F']);
+            const jPerc = calculatePercent(answers['J'], answers['P']);
+
+            setPercentages({
+                'E': ePerc, 'I': 100 - ePerc,
+                'S': sPerc, 'N': 100 - sPerc,
+                'T': tPerc, 'F': 100 - tPerc,
+                'J': jPerc, 'P': 100 - jPerc
+            });
+
             const mbti =
                 (answers['E'] >= answers['I'] ? 'E' : 'I') +
                 (answers['S'] >= answers['N'] ? 'S' : 'N') +
@@ -378,18 +396,23 @@ export function LoveMBTI() {
                     {currentQuestion.text}
                 </h3>
 
-                <div className="space-y-4">
-                    {shuffleArray(currentQuestion.options).map((option, idx) => (
+                <div className="grid grid-cols-1 gap-4">
+                    {currentQuestion.options.map((option, idx) => (
                         <button
                             key={idx}
-                            onClick={() => handleAnswer(option.type)}
-                            className="w-full p-6 text-left bg-white border-2 border-gray-100 rounded-3xl hover:border-pink-300 hover:bg-pink-50 transition-all duration-200 group relative overflow-hidden"
+                            onClick={() => handleAnswer(option.type, option.weight)}
+                            className={`w-full p-5 text-left bg-white border-2 border-gray-100 rounded-3xl hover:border-pink-300 hover:bg-pink-50 transition-all duration-200 group relative overflow-hidden ${option.weight === 2 ? 'border-pink-50 shadow-sm' : ''}`}
                         >
-                            <span className="relative z-10 text-gray-700 font-medium group-hover:text-pink-700 transition-colors">
-                                {option.text}
-                            </span>
+                            <div className="flex items-center gap-4 relative z-10">
+                                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${option.weight === 2 ? 'bg-pink-100 text-pink-600' : 'bg-gray-100 text-gray-500'}`}>
+                                    {idx + 1}
+                                </div>
+                                <span className={`flex-1 text-gray-700 font-medium group-hover:text-pink-700 transition-colors ${option.weight === 2 ? 'text-lg font-bold' : ''}`}>
+                                    {option.text}
+                                </span>
+                            </div>
                             <div className="absolute top-0 right-0 p-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <Heart className="w-5 h-5 text-pink-300 fill-pink-300" />
+                                <Heart className={`w-5 h-5 text-pink-300 ${option.weight === 2 ? 'fill-pink-500 text-pink-500' : 'fill-pink-300'}`} />
                             </div>
                         </button>
                     ))}
@@ -434,9 +457,36 @@ export function LoveMBTI() {
 
                 <CardContent className="p-8 sm:p-12">
                     <div className="mb-10 text-center">
-                        <p className="text-gray-600 leading-relaxed text-lg italic">
+                        <p className="text-gray-600 leading-relaxed text-lg italic mb-10">
                             {resultData.description}
                         </p>
+
+                        <div className="bg-white/50 backdrop-blur-sm rounded-[40px] p-8 border border-pink-100 shadow-inner mb-12">
+                            <h4 className="font-bold text-gray-900 mb-8 flex items-center justify-center gap-2 text-xl">
+                                <Zap className="w-6 h-6 text-yellow-500 fill-yellow-500" /> 나의 연애 성향 상세수치
+                            </h4>
+                            <div className="space-y-8 max-w-md mx-auto">
+                                {[
+                                    { left: '외향(E)', right: '내향(I)', lVal: percentages['E'], rVal: percentages['I'], color: 'from-orange-400 to-orange-500' },
+                                    { left: '감각(S)', right: '직관(N)', lVal: percentages['S'], rVal: percentages['N'], color: 'from-blue-400 to-blue-500' },
+                                    { left: '사고(T)', right: '감정(F)', lVal: percentages['T'], rVal: percentages['F'], color: 'from-purple-400 to-purple-500' },
+                                    { left: '판단(J)', right: '인식(P)', lVal: percentages['J'], rVal: percentages['P'], color: 'from-pink-400 to-pink-500' }
+                                ].map((row, i) => (
+                                    <div key={i} className="relative">
+                                        <div className="flex justify-between text-sm font-bold mb-2">
+                                            <span className={row.lVal >= 50 ? 'text-gray-900' : 'text-gray-400'}>{row.left} {row.lVal}%</span>
+                                            <span className={row.rVal >= 50 ? 'text-gray-900' : 'text-gray-400'}>{row.right} {row.rVal}%</span>
+                                        </div>
+                                        <div className="w-full h-3 bg-gray-100 rounded-full overflow-hidden flex shadow-inner">
+                                            <div
+                                                className={`h-full bg-gradient-to-r ${row.color} transition-all duration-1000 ease-out shadow-lg`}
+                                                style={{ width: `${row.lVal}%` }}
+                                            />
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
                     </div>
 
                     <div className="mb-12">
