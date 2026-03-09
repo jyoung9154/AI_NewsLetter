@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 import dotenv from 'dotenv';
 import Buffer from 'buffer';
+import OpenAI from 'openai';
 
 // Import repair logic
 import { repairImages } from './repair-missing-images.mjs';

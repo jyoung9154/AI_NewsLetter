@@ -11,9 +11,9 @@ const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const leonardoApiKey = process.env.LEONARDO_API_KEY;
 const geminiApiKey = process.env.GEMINI_API_KEY;
 
-if (!supabaseUrl || !supabaseKey || !leonardoApiKey || !geminiApiKey) {
-    console.error('❌ Missing environment variables (SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, LEONARDO_API_KEY, GEMINI_API_KEY)');
-    process.exit(1);
+if (!supabaseUrl || !supabaseKey) {
+    console.error('❌ Missing essential Supabase environment variables');
+    // Don't exit(1) if imported, just log error
 }
 
 const openai = new OpenAI({
@@ -196,4 +196,5 @@ export async function repairImages() {
     }
 }
 
-repairImages();
+// Only run if called directly
+// repairImages(); 
