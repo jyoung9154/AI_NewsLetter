@@ -76,8 +76,8 @@ async function repairImages() {
             });
 
             if (genResponse.ok) {
-                const genData = await genResponse.json();
-                const generationId = genData.sdGenerationJob?.generationId;
+                const genData = await genResponse.ok ? await genResponse.json() : null;
+                const generationId = genData?.sdGenerationJob?.generationId;
 
                 if (generationId) {
                     console.log(`[REPAIR] Leonardo Job ID: ${generationId}. Polling for result...`);
@@ -118,6 +118,39 @@ async function repairImages() {
             } else {
                 const errorText = await genResponse.text();
                 console.warn(`[REPAIR] Leonardo API Error (${genResponse.status}):`, errorText);
+            }
+
+            // --- FALLBACK: Hugging Face Inference API ---
+            const hfApiToken = process.env.HF_API_TOKEN;
+            if (!imageBuffer && hfApiToken) {
+                console.log(`[REPAIR] Attempting Fallback: Generating image via Hugging Face...`);
+                try {
+                    const hfResponse = await fetch(
+                        "https://api-inference.huggingface.co/models/runwayml/stable-diffusion-v1-5",
+                        {
+                            headers: {
+                                "Authorization": `Bearer ${hfApiToken}`,
+                                "Content-Type": "application/json",
+                            },
+                            method: "POST",
+                            body: JSON.stringify({
+                                inputs: prompt,
+                                options: { wait_for_model: true }
+                            }),
+                        }
+                    );
+
+                    if (hfResponse.ok) {
+                        const arrayBuffer = await hfResponse.arrayBuffer();
+                        imageBuffer = Buffer.Buffer.from(arrayBuffer);
+                        console.log('[REPAIR] Hugging Face image generated successfully.');
+                    } else {
+                        const hfErrorText = await hfResponse.text();
+                        console.warn(`[REPAIR] Hugging Face API Error (${hfResponse.status}):`, hfErrorText);
+                    }
+                } catch (hfError) {
+                    console.error('[REPAIR] Error during Hugging Face call:', hfError);
+                }
             }
 
             if (!imageBuffer) continue;

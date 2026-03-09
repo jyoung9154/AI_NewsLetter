@@ -278,8 +278,37 @@ export async function POST(request: Request) {
             } catch (leoError) {
                 console.error('[GENERATE API] Error during Leonardo call:', leoError);
             }
-        } else if (episodeData.image_prompt && !leonardoApiKey) {
-            console.warn('[GENERATE API] Warning: LEONARDO_API_KEY is missing. Skipping image generation.');
+        }
+
+        // --- FALLBACK: Hugging Face Inference API ---
+        if (!imageBuffer && episodeData.image_prompt && hfApiToken) {
+            console.log(`[GENERATE API] Attempting Fallback: Generating image via Hugging Face...`);
+            try {
+                const hfResponse = await fetch(
+                    "https://api-inference.huggingface.co/models/runwayml/stable-diffusion-v1-5",
+                    {
+                        headers: {
+                            "Authorization": `Bearer ${hfApiToken}`,
+                            "Content-Type": "application/json",
+                        },
+                        method: "POST",
+                        body: JSON.stringify({
+                            inputs: episodeData.image_prompt,
+                            options: { wait_for_model: true }
+                        }),
+                    }
+                );
+
+                if (hfResponse.ok) {
+                    imageBuffer = await hfResponse.arrayBuffer();
+                    console.log('[GENERATE API] Hugging Face image generated successfully.');
+                } else {
+                    const hfErrorText = await hfResponse.text();
+                    console.warn(`[GENERATE API] Hugging Face API Error (${hfResponse.status}):`, hfErrorText);
+                }
+            } catch (hfError) {
+                console.error('[GENERATE API] Error during Hugging Face call:', hfError);
+            }
         }
 
         if (imageBuffer) {

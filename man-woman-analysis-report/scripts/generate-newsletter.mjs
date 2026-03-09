@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 import dotenv from 'dotenv';
 import OpenAI from 'openai';
+import Buffer from 'buffer';
 
 // Load env
 dotenv.config({ path: '.env.local' });
@@ -159,13 +160,14 @@ async function generateNewsletter() {
         console.log('[GENERATE BOT] Next episode number resolved to:', nextNumber);
 
         if (nextNumber > 100) {
-            // After 100 episodes, limit generation
+            // After 100 episodes, only generate if it's 9:00 AM (00 UTC), 6:00 AM (21 UTC) or 6:00 PM (09 UTC)
             const currentHourUTC = new Date().getUTCHours();
-            const isMorningRun = currentHourUTC === 21;
-            const isEveningRun = currentHourUTC === 9;
+            const isTargetRun = currentHourUTC === 0; // 9 AM KST
+            const isMorningRun = currentHourUTC === 21; // 6 AM KST
+            const isEveningRun = currentHourUTC === 9; // 18 PM KST
 
-            if (!isMorningRun && !isEveningRun) {
-                console.log(`[GENERATE BOT] 100 episodes reached and Current hour (${currentHourUTC} UTC) is not 21 or 09. Skipping.`);
+            if (!isTargetRun && !isMorningRun && !isEveningRun) {
+                console.log(`[GENERATE BOT] 100 episodes reached and Current hour (${currentHourUTC} UTC) is not 0, 21 or 09. Skipping.`);
                 process.exit(0);
             }
         }
@@ -321,8 +323,39 @@ async function generateNewsletter() {
             } catch (leoError) {
                 console.error('[GENERATE BOT] Error during Leonardo call:', leoError);
             }
-        } else if (episodeData.image_prompt && !leonardoApiKey) {
-            console.warn('[GENERATE BOT] Warning: LEONARDO_API_KEY is missing. Skipping image generation.');
+        }
+
+        // --- FALLBACK: Hugging Face Inference API ---
+        const hfApiToken = process.env.HF_API_TOKEN;
+        if (!imageBuffer && episodeData.image_prompt && hfApiToken) {
+            console.log(`[GENERATE BOT] Attempting Fallback: Generating image via Hugging Face...`);
+            try {
+                const hfResponse = await fetch(
+                    "https://api-inference.huggingface.co/models/runwayml/stable-diffusion-v1-5",
+                    {
+                        headers: {
+                            "Authorization": `Bearer ${hfApiToken}`,
+                            "Content-Type": "application/json",
+                        },
+                        method: "POST",
+                        body: JSON.stringify({
+                            inputs: episodeData.image_prompt,
+                            options: { wait_for_model: true }
+                        }),
+                    }
+                );
+
+                if (hfResponse.ok) {
+                    const arrayBuffer = await hfResponse.arrayBuffer();
+                    imageBuffer = Buffer.from(arrayBuffer);
+                    console.log('[GENERATE BOT] Hugging Face image generated successfully.');
+                } else {
+                    const hfErrorText = await hfResponse.text();
+                    console.warn(`[GENERATE BOT] Hugging Face API Error (${hfResponse.status}):`, hfErrorText);
+                }
+            } catch (hfError) {
+                console.error('[GENERATE BOT] Error during Hugging Face call:', hfError);
+            }
         }
 
         if (imageBuffer) {
