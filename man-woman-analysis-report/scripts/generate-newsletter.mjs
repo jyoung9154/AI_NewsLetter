@@ -1,7 +1,9 @@
 import { createClient } from '@supabase/supabase-js';
 import dotenv from 'dotenv';
-import OpenAI from 'openai';
 import Buffer from 'buffer';
+
+// Import repair logic
+import { repairImages } from './repair-missing-images.mjs';
 
 // Load env
 dotenv.config({ path: '.env.local' });
@@ -140,6 +142,10 @@ function buildCoupangUrl(keyword) {
 async function generateNewsletter() {
     console.log('[GENERATE BOT] Start processing request...');
     try {
+        // 0. Repair missing images first (Workaround for restricted workflow push)
+        console.log('[GENERATE BOT] Step 0: Checking for missing images to repair...');
+        await repairImages();
+
         let topic = ''; // Can be provided via process.env.TOPIC if needed later
 
         // 1. Get next episode number

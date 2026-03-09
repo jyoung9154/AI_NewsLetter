@@ -23,7 +23,7 @@ const openai = new OpenAI({
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-async function repairImages() {
+export async function repairImages() {
     console.log('🔍 Searching for episodes missing images...');
 
     const { data: episodes, error } = await supabase
