@@ -18,8 +18,8 @@ export const metadata: Metadata = {
     default: '남녀분석보고서 - 공감과 해답을 주는 연애 뉴스레터',
     template: '%s | 남녀분석보고서',
   },
-  description: '서로 다른 행성에서 온 커플들을 위한 번역기. 남녀의 관계, 심리, 대화법을 깊이 있게 분석하는 스토리텔링형 뉴스레터',
-  keywords: ['남녀관계', '심리분석', '연애상담', '뉴스레터', '연애조언', '데이트코스', '화해하는법', '커뮤니케이션'],
+  description: '서로 다른 행성에서 온 커플들을 위한 번역기. 남녀분석보고서는 남녀의 관계, 심리, 대화법을 깊이 있게 분석하는 스토리텔링형 뉴스레터 서비스입니다.',
+  keywords: ['남녀분석보고서', '남녀관계', '심리분석', '연애상담', '뉴스레터', '연애조언', '데이트코스', '화해하는법', '커뮤니케이션'],
   authors: [{ name: '남녀분석보고서 팀' }],
   creator: '남녀분석보고서',
   publisher: '남녀분석보고서',
@@ -37,8 +37,8 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'ko_KR',
     url: process.env.NEXT_PUBLIC_BASE_URL || 'https://man-woman-analysis-report.vercel.app',
-    title: '남녀분석보고서 | 관계의 모든 것',
-    description: '남녀의 관계, 심리, 라이프스타일을 깊이 있게 분석하는 스토리텔링형 뉴스레터',
+    title: '남녀분석보고서 - 공감과 해답을 주는 연애뉴스레터',
+    description: '남녀의 관계, 심리, 라이프스타일을 깊이 있게 분석하는 스토리텔링형 뉴스레터, 남녀분석보고서입니다.',
     siteName: '남녀분석보고서',
     images: [
       {

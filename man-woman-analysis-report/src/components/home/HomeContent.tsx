@@ -31,6 +31,22 @@ function HomeContentInner({ episodes }: HomeContentProps) {
 
     return (
         <div className="min-h-screen bg-white text-gray-900 font-sans selection:bg-pink-100 selection:text-pink-900">
+            {/* SEO Semantic Content (Invisible to users, visible to bots) */}
+            <section className="sr-only">
+                <h1>남녀분석보고서 - 공감과 해답을 주는 연애 뉴스레터</h1>
+                <p>
+                    서로 다른 행성에서 온 커플들을 위한 번역기, 남녀분석보고서입니다. 
+                    연애 심리 테스트, MBTI 궁합 분석, 타로 카드 등을 통해 남녀의 관계와 심리를 깊이 있게 분석하고 
+                    현명한 대화법과 연애 조언을 제공하는 스토리텔링형 뉴스레터 서비스입니다.
+                </p>
+                <ul>
+                    <li>남녀관계 분석 보고서</li>
+                    <li>연애 MBTI 테스트</li>
+                    <li>MBTI 궁합 분석기</li>
+                    <li>연애 심리 상담 및 뉴스레터</li>
+                </ul>
+            </section>
+
             {/* 1. GNB 탭 네비게이션 (Sticky) */}
             <TabsNavigation currentTab={activeTab} onTabChange={(tab) => {
                 setActiveTab(tab);
