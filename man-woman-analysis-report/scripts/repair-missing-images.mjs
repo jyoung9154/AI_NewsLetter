@@ -108,7 +108,7 @@ export async function repairImages() {
                         const imgResponse = await fetch(imageUrl);
                         if (imgResponse.ok) {
                             const arrayBuffer = await imgResponse.arrayBuffer();
-                            imageBuffer = Buffer.Buffer.from(arrayBuffer);
+                            imageBuffer = Buffer.from(arrayBuffer);
                             console.log('[REPAIR] Leonardo image downloaded successfully.');
                         }
                     } else {
@@ -142,7 +142,7 @@ export async function repairImages() {
 
                     if (hfResponse.ok) {
                         const arrayBuffer = await hfResponse.arrayBuffer();
-                        imageBuffer = Buffer.Buffer.from(arrayBuffer);
+                        imageBuffer = Buffer.from(arrayBuffer);
                         console.log('[REPAIR] Hugging Face image generated successfully.');
                     } else {
                         const hfErrorText = await hfResponse.text();
