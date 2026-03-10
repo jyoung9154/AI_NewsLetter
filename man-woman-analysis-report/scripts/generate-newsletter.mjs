@@ -1,6 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import dotenv from 'dotenv';
-import Buffer from 'buffer';
+import { Buffer } from 'buffer';
 import OpenAI from 'openai';
 
 // Import repair logic

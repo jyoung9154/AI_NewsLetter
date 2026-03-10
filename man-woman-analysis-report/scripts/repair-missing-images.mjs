@@ -1,7 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 import dotenv from 'dotenv';
 import OpenAI from 'openai';
-import Buffer from 'buffer';
+import { Buffer } from 'buffer';
 
 // Load env
 dotenv.config({ path: '.env.local' });
