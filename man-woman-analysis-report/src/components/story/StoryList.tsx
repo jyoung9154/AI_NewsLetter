@@ -215,7 +215,7 @@ export function StoryList({ episodes }: StoryListProps) {
                                             </div>
                                         </div>
                                         <div className="flex flex-wrap items-center gap-4 ml-auto no-capture">
-                                            <div className="flex items-center gap-2.5 text-gray-400">
+                                            {/* <div className="flex items-center gap-2.5 text-gray-400">
                                                 <div className="flex items-center gap-1">
                                                     <Eye className="w-3.5 h-3.5" />
                                                     <span className="text-[11px] font-medium">{(episode.view_count || 0).toLocaleString()}</span>
@@ -224,7 +224,7 @@ export function StoryList({ episodes }: StoryListProps) {
                                                     <Share2 className="w-3.5 h-3.5" />
                                                     <span className="text-[11px] font-medium">{(episode.share_count || 0).toLocaleString()}</span>
                                                 </div>
-                                            </div>
+                                            </div> */}
                                             <div className="flex items-center gap-2 border-l border-gray-200 pl-4 h-4">
                                                 <button
                                                     onClick={(e) => {
