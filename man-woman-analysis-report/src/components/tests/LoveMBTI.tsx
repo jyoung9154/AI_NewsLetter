@@ -266,16 +266,16 @@ export function LoveMBTI() {
             if (!opposite) return true;
 
             const totalForDimension = answers[option.type] + answers[opposite];
-            // 해당 차원이 10점 미만일 때만 옵션 노출
-            return totalForDimension < 10;
+            // 해당 차원이 5점 미만일 때만 옵션 노출
+            return totalForDimension < 5;
         });
     }, [quizQuestions, currentIndex, answers]);
 
     useEffect(() => {
         const totalPoints = Object.values(answers).reduce((a, b) => a + b, 0);
 
-        // 종료 조건: 모든 차원(4종)의 점수 합이 40점 이상일 때
-        const isDimensionComplete = (type1: string, type2: string) => (answers[type1] + answers[type2]) >= 10;
+        // 종료 조건: 모든 차원(4종)의 점수 합이 20점 이상일 때
+        const isDimensionComplete = (type1: string, type2: string) => (answers[type1] + answers[type2]) >= 5;
         const allCompleted = isDimensionComplete('E', 'I') && isDimensionComplete('S', 'N') &&
             isDimensionComplete('T', 'F') && isDimensionComplete('J', 'P');
 
@@ -370,7 +370,7 @@ export function LoveMBTI() {
                                 <Zap className="w-4 h-4 text-orange-400" /> 테스트 가이드
                             </h4>
                             <ul className="text-sm text-gray-600 space-y-2">
-                                <li>• 총 40개의 문항으로 당신의 연애 성향을 섬세하게 분석합니다.</li>
+                                <li>• 총 20개의 문항으로 당신의 연애 성향을 섬세하게 분석합니다.</li>
                                 <li>• 솔직하고 즉흥적인 답변이 더 정확한 결과를 만듭니다.</li>
                                 <li>• 매번 새로운 순서로 문항이 나타나 더욱 신선한 테스트가 가능합니다.</li>
                             </ul>
@@ -390,8 +390,8 @@ export function LoveMBTI() {
 
     if (step === 'question') {
         const totalPoints = Object.values(answers).reduce((a, b) => a + b, 0);
-        const progress = Math.min((totalPoints / 40) * 100, 100);
-        const currentProgressCount = Math.min(totalPoints + 1, 40);
+        const progress = Math.min((totalPoints / 20) * 100, 100);
+        const currentProgressCount = Math.min(totalPoints + 1, 20);
 
         const currentQuestion = quizQuestions[currentIndex];
 
@@ -399,7 +399,7 @@ export function LoveMBTI() {
             <div className="max-w-2xl mx-auto py-10 px-4">
                 <div className="mb-8">
                     <div className="flex justify-between items-end mb-2">
-                        <span className="text-pink-600 font-black text-2xl">{currentProgressCount} <span className="text-gray-300 text-lg font-normal">/ 40</span></span>
+                        <span className="text-pink-600 font-black text-2xl">{currentProgressCount} <span className="text-gray-300 text-lg font-normal">/ 20</span></span>
                         <span className="text-gray-400 text-sm font-medium">{Math.round(progress)}% 완료</span>
                     </div>
                     {/* Custom Progress Bar */}

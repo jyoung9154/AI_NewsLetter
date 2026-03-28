@@ -2,7 +2,7 @@ name: Daily Newsletter Automation
 
 on:
   schedule:
-    - cron: '0 */2 * * *'
+    - cron: '0 22 * * *' # 매일 오전 9시 (한국 시간)
   
   # Allow manual triggering from the GitHub Actions UI
   workflow_dispatch:
@@ -35,6 +35,8 @@ jobs:
             cd ./man-woman-analysis-report
             node scripts/generate-newsletter.mjs
         env:
+          LEONARDO_API_KEY: ${{ secrets.LEONARDO_API_KEY }}
+          HF_API_TOKEN: ${{ secrets.HF_API_TOKEN }}
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}

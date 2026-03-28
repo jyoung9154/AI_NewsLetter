@@ -19,15 +19,16 @@ ${existingTitles.map(t => `- ${t}`).join('\n')}
 
     return {
         systemPrompt: `당신은 2030 남녀의 심리를 예리하게 파헤치는 '남녀분석보고서'의 수석 에디터이자 연애 심리 전문가입니다.
-당신의 글은 딱딱하지 않고, 마치 친한 친구가 술자리에서 썰을 푸는 것처럼 매우 자연스럽고, 위트 있으며, 때로는 뼈 때리는 통찰(팩트폭행)을 담고 있어야 합니다.
-특히 '남자어'와 '여자어'의 차이를 완벽하게 이해하고 번역해주는 것이 당신의 특기입니다.
+당신의 글은 딱딱한 보고서가 아니라, '에브리타임', '블라인드', '네이트판' 같은 커뮤니티에서 폭발적인 조회수를 기록하는 인기글처럼 매우 자연스럽고, 날것의 느낌이 나며, 위트 있어야 합니다.
 
 작성 가이드라인:
-1. 번역기 돌린 듯한 어색한 문체(예: "어색한 침묵이 흘렀다", "사랑의 저울이 아니라...")를 절대 사용하지 마세요. 한국의 MZ세대(20~30대)가 인터넷 커뮤니티나 카톡에서 쓰는 트렌디하고 자연스러운 구어체를 사용하세요.
-2. 속마음(thought)은 필터링 없이 솔직하고 찌질한 진짜 본심을 적어주세요.
-3. 실용적인 조언(advice)은 뜬구름 잡는 소리 말고, 당장 내일 데이트에서 써먹을 수 있는 현실적인 액션 아이템이어야 합니다.
+1. 번역기 말투나 AI 티가 나는 구조화된 문장(예: "어색한 침묵이 흘렀다", "사랑의 저울은...", "첫째, 둘째...")을 절대 사용하지 마세요.
+2. 2030 세대가 친구와 카톡할 때나 커뮤니티에 고민글을 올릴 때 쓰는 '구어체', '실제 용어', '적절한 신조어'를 사용하세요. (예: ~함, ~듯, ~함;;, 킹받네, 뚝딱거림 등)
+3. 제목은 반드시 사람들의 호기심을 자극해서 클릭하지 않고는 못 배기게 만드세요.
+4. 속마음(thought)은 필터링 없이 솔직하고 찌질한 진짜 본심을 적어주세요.
+5. 실용적인 조언(advice)은 뜬구름 잡는 소리 말고, 당장 내일 데이트에서 써먹을 수 있는 아주 구체적인 액션 아이템이어야 합니다.
 
-반드시 아래 JSON 형식으로만 응답해. (JSON 빈칸 없이 바로 객체부터 시작할 것)`,
+ 반드시 아래 JSON 형식으로만 응답해. (JSON 빈칸 없이 바로 객체부터 시작할 것)`,
         userPrompt: `Episode ${nextNumber} 작성해줘.
 ${topicText}${duplicateConstraint}
 
@@ -35,19 +36,19 @@ ${topicText}${duplicateConstraint}
 {
   "episode_number": ${nextNumber},
   "slug": "a-short-english-url-friendly-slug-for-seo (e.g. why-do-men-lie-about-small-things)",
-  "title": "제목 — 예: \\"오빠 나 뭐 바뀐 거 없어?\\"라는 질문이 공포인 이유",
-  "hook": "1문장 요약/후킹 멘트 (메일 프리뷰 용도)",
-  "situation": "2~4줄 상황 묘사 (아주 구체적이고 현실적인 상황 설정, 예: 홍대 파스타집에서 계산서를 사이에 둔 3초의 침묵)",
-  "female_text": "여자 시점 2~4문장 (겉으로 하는 말이나 행동 묘사, 자연스러운 구어체)",
-  "female_thought": "여자 속마음 한 줄 (진짜 속내, 팩트)",
-  "male_text": "남자 시점 2~4문장 (겉으로 하는 말이나 뚝딱거리는 행동 묘사, 구어체)",
-  "male_thought": "남자 속마음 한 줄 (진짜 속내, 팩트)",
-  "resolution": "결론 + 뼈 때리면서도 위트 있는 한 줄 요약",
-  "advice": "남자 팁: (내일 당장 써먹을 수 있는 현실적 멘트나 행동) / 여자 팁: (현실적 마인드셋이나 행동)",
-  "coupang_keyword": "이 갈등을 무마할 연인 패션잡화(예: 커플 반지, 지갑 등) 쿠팡 검색 단일 키워드 (예: '20대 커플 목걸이')",
-  "image_prompt": "A simple flat vector illustration describing the situation above, minimalist style, solid color background, clean design. (CRITICAL: Write this prompt in English only)",
+  "title": "제목 — 사람들의 호기심을 자극하는 커뮤니티 실시간 인기글 스타일",
+  "hook": "후킹 멘트 (메일 프리뷰용, 제목보다 더 날것의 호기심 유발 문장)",
+  "situation": "2~4줄 상황 묘사 (아주 구체적이고 디테일한 상황 설정)",
+  "female_text": "여자 시점 (자연스러운 구어체)",
+  "female_thought": "여자 속마음 (진짜 속내, 팩폭)",
+  "male_text": "남자 시점 (자연스러운 구어체)",
+  "male_thought": "남자 속마음 (진짜 속내, 팩폭)",
+  "resolution": "결론 (짧고 강렬한 요약)",
+  "advice": "현실 조언 (이거 진짜 효과 있는 팁만 적어)",
+  "coupang_keyword": "관련 아이템 키워드",
+  "image_prompt": "A simple flat vector illustration describing the situation above, minimalist style, solid color background, clean design. (English only)",
   "tags": ["연애", "갈등", "심리"]
-} `
+} `,
     };
 }
 
@@ -278,8 +279,37 @@ export async function POST(request: Request) {
             } catch (leoError) {
                 console.error('[GENERATE API] Error during Leonardo call:', leoError);
             }
-        } else if (episodeData.image_prompt && !leonardoApiKey) {
-            console.warn('[GENERATE API] Warning: LEONARDO_API_KEY is missing. Skipping image generation.');
+        }
+
+        // --- FALLBACK: Hugging Face Inference API ---
+        if (!imageBuffer && episodeData.image_prompt && hfApiToken) {
+            console.log(`[GENERATE API] Attempting Fallback: Generating image via Hugging Face...`);
+            try {
+                const hfResponse = await fetch(
+                    "https://api-inference.huggingface.co/models/runwayml/stable-diffusion-v1-5",
+                    {
+                        headers: {
+                            "Authorization": `Bearer ${hfApiToken}`,
+                            "Content-Type": "application/json",
+                        },
+                        method: "POST",
+                        body: JSON.stringify({
+                            inputs: episodeData.image_prompt,
+                            options: { wait_for_model: true }
+                        }),
+                    }
+                );
+
+                if (hfResponse.ok) {
+                    imageBuffer = await hfResponse.arrayBuffer();
+                    console.log('[GENERATE API] Hugging Face image generated successfully.');
+                } else {
+                    const hfErrorText = await hfResponse.text();
+                    console.warn(`[GENERATE API] Hugging Face API Error (${hfResponse.status}):`, hfErrorText);
+                }
+            } catch (hfError) {
+                console.error('[GENERATE API] Error during Hugging Face call:', hfError);
+            }
         }
 
         if (imageBuffer) {

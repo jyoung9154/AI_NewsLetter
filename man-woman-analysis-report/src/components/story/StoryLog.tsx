@@ -11,6 +11,7 @@ import { DbEpisode } from '@/types';
 import { formatTitle } from '@/lib/utils';
 import { CommentSection } from './CommentSection';
 import { useAuth } from '@/components/auth/AuthProvider';
+import Image from 'next/image';
 
 interface StoryLogProps {
   episode: DbEpisode;
@@ -250,6 +251,20 @@ export function StoryLog({ episode }: StoryLogProps) {
         <h1 className="text-hero text-gray-900 mb-6 font-serif tracking-tight whitespace-pre-line">
           {formatTitle(cleanTitle)}
         </h1>
+
+        {/* 에피소드 대표 이미지 추가 */}
+        {episode.image_url && (
+          <div className="w-full aspect-[16/10] bg-gray-50 rounded-3xl overflow-hidden mb-8 border border-gray-100 shadow-sm relative">
+            <Image
+              src={episode.image_url}
+              alt={episode.title}
+              fill
+              sizes="(max-width: 1024px) 100vw, 1024px"
+              className="object-cover"
+              priority
+            />
+          </div>
+        )}
 
         {/* Hook 영역 - 부드러운 인용구 스타일 */}
         {episode.hook && (

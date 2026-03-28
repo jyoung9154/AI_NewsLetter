@@ -1,7 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 import dotenv from 'dotenv';
 import OpenAI from 'openai';
-import Buffer from 'buffer';
+import { Buffer } from 'buffer';
 
 // Load env
 dotenv.config({ path: '.env.local' });
@@ -11,9 +11,9 @@ const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const leonardoApiKey = process.env.LEONARDO_API_KEY;
 const geminiApiKey = process.env.GEMINI_API_KEY;
 
-if (!supabaseUrl || !supabaseKey || !leonardoApiKey || !geminiApiKey) {
-    console.error('❌ Missing environment variables (SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, LEONARDO_API_KEY, GEMINI_API_KEY)');
-    process.exit(1);
+if (!supabaseUrl || !supabaseKey) {
+    console.error('❌ Missing essential Supabase environment variables');
+    // Don't exit(1) if imported, just log error
 }
 
 const openai = new OpenAI({
@@ -23,7 +23,7 @@ const openai = new OpenAI({
 
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-async function repairImages() {
+export async function repairImages() {
     console.log('🔍 Searching for episodes missing images...');
 
     const { data: episodes, error } = await supabase
@@ -76,8 +76,8 @@ async function repairImages() {
             });
 
             if (genResponse.ok) {
-                const genData = await genResponse.json();
-                const generationId = genData.sdGenerationJob?.generationId;
+                const genData = await genResponse.ok ? await genResponse.json() : null;
+                const generationId = genData?.sdGenerationJob?.generationId;
 
                 if (generationId) {
                     console.log(`[REPAIR] Leonardo Job ID: ${generationId}. Polling for result...`);
@@ -108,7 +108,7 @@ async function repairImages() {
                         const imgResponse = await fetch(imageUrl);
                         if (imgResponse.ok) {
                             const arrayBuffer = await imgResponse.arrayBuffer();
-                            imageBuffer = Buffer.Buffer.from(arrayBuffer);
+                            imageBuffer = Buffer.from(arrayBuffer);
                             console.log('[REPAIR] Leonardo image downloaded successfully.');
                         }
                     } else {
@@ -118,6 +118,39 @@ async function repairImages() {
             } else {
                 const errorText = await genResponse.text();
                 console.warn(`[REPAIR] Leonardo API Error (${genResponse.status}):`, errorText);
+            }
+
+            // --- FALLBACK: Hugging Face Inference API ---
+            const hfApiToken = process.env.HF_API_TOKEN;
+            if (!imageBuffer && hfApiToken) {
+                console.log(`[REPAIR] Attempting Fallback: Generating image via Hugging Face...`);
+                try {
+                    const hfResponse = await fetch(
+                        "https://api-inference.huggingface.co/models/runwayml/stable-diffusion-v1-5",
+                        {
+                            headers: {
+                                "Authorization": `Bearer ${hfApiToken}`,
+                                "Content-Type": "application/json",
+                            },
+                            method: "POST",
+                            body: JSON.stringify({
+                                inputs: prompt,
+                                options: { wait_for_model: true }
+                            }),
+                        }
+                    );
+
+                    if (hfResponse.ok) {
+                        const arrayBuffer = await hfResponse.arrayBuffer();
+                        imageBuffer = Buffer.from(arrayBuffer);
+                        console.log('[REPAIR] Hugging Face image generated successfully.');
+                    } else {
+                        const hfErrorText = await hfResponse.text();
+                        console.warn(`[REPAIR] Hugging Face API Error (${hfResponse.status}):`, hfErrorText);
+                    }
+                } catch (hfError) {
+                    console.error('[REPAIR] Error during Hugging Face call:', hfError);
+                }
             }
 
             if (!imageBuffer) continue;
@@ -163,4 +196,5 @@ async function repairImages() {
     }
 }
 
-repairImages();
+// Only run if called directly
+// repairImages(); 

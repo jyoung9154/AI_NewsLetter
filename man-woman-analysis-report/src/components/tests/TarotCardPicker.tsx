@@ -301,7 +301,7 @@ export function TarotCardPicker() {
                                 {titles[idx]}
                             </div>
                             <div className="p-6 text-center border-b border-gray-50 bg-gray-50/30">
-                                <div className="w-40 h-64 bg-white rounded-xl mx-auto mb-6 border-2 border-purple-100 shadow-xl flex items-center justify-center overflow-hidden relative group">
+                                <div className="w-[180px] h-[285px] bg-white rounded-xl mx-auto mb-6 border-2 border-purple-100 shadow-xl flex items-center justify-center overflow-hidden relative group">
                                     {card.image_url ? (
                                         <div className="w-full h-full bg-slate-50 flex items-center justify-center p-1">
                                             <img

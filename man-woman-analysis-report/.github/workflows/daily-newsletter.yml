@@ -2,7 +2,7 @@ name: Daily Newsletter Generator
 
 on:
   schedule:
-    - cron: '30 */2 * * *' # 2시간마다 (홀수 시간 30분) 실행
+    - cron: '0 0 * * *' # 매일 오전 9시 (한국 시간)
   workflow_dispatch: # 수동 실행 가능
 
 jobs:
