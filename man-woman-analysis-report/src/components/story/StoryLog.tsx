@@ -242,8 +242,8 @@ export function StoryLog({ episode }: StoryLogProps) {
             {episodeNum ? `Episode.${episodeNum}` : 'Episode'}
           </Badge>
           <div className="text-gray-400 text-body-sm flex items-center gap-1">
-            <span>👁️ {viewCount}</span>
-            <span className="mx-1">·</span>
+            {/* <span>👁️ {viewCount}</span>
+            <span className="mx-1">·</span> */}
             <span>💬 {totalVotes}</span>
           </div>
         </div>
@@ -495,8 +495,8 @@ export function StoryLog({ episode }: StoryLogProps) {
       {/* 공유하기 및 통계 바 */}
       <div className="flex flex-col sm:flex-row items-center justify-between border-t border-gray-100 pt-8 mt-8">
         <div className="flex items-center gap-4 mb-4 sm:mb-0">
-          <span className="text-gray-500 text-body-sm bg-gray-50 px-3 py-1 rounded-full">조회 {viewCount}</span>
-          <span className="text-gray-500 text-body-sm bg-gray-50 px-3 py-1 rounded-full">공유 {shareCount}</span>
+          {/* <span className="text-gray-500 text-body-sm bg-gray-50 px-3 py-1 rounded-full">조회 {viewCount}</span>
+          <span className="text-gray-500 text-body-sm bg-gray-50 px-3 py-1 rounded-full">공유 {shareCount}</span> */}
           <button
             onClick={handleBookmark}
             disabled={isBookmarkLoading}
