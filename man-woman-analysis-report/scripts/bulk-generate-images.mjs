@@ -31,7 +31,7 @@ async function generateAndUpload(prompt, fileName) {
                 prompt: prompt,
                 modelId: "291be633-cb24-434f-898f-e662799936ad", // Leonardo Signature
                 width: 768,
-                height: 768,
+                height: 1152, // Changed to 2:3 ratio (Tarot card standard)
                 num_images: 1,
                 promptMagic: true
             })
@@ -114,7 +114,7 @@ async function main() {
     }
     // 2. Generate Tarot (Improved Prompt to fix cropping)
     for (const card of TAROT_CARDS) {
-        const prompt = `Modern luxury tarot card illustration of ${card.name}, centered composition with ample headroom, ensuring the entire head and subject are fully visible within the frame, minimalist flat vector art, gold foil accents, dreamlike pastel color palette, symbols of ${card.name}, premium clean design, high detail, 8k resolution`;
+        const prompt = `Full body character design entirely within frame, modern luxury tarot card illustration of ${card.name}, showing complete borders, centered composition with ample headroom, minimalist flat vector art, gold foil accents, dreamlike pastel color palette, premium clean design, high detail, 8k resolution`;
         const url = await generateAndUpload(prompt, `tarot_${card.num}.jpg`);
         if (url) {
             await supabase.from('tarot_cards').update({ image_url: url }).eq('card_number', card.num);
