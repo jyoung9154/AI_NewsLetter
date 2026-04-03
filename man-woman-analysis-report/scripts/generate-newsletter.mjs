@@ -41,16 +41,16 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 
 // ── 타이틀 패턴 풀 (15종) ──────────────────────────────────────────
 const TITLE_PATTERNS = [
-    { name: '커뮤니티 썰형', example: '"남친이 여사친이랑 인생네컷 찍었대서 한판 함;;"', guide: '실제 고민 게시판(블라인드, 에브리타임 등)에 올라올 법한 날것의 문체' },
-    { name: '익명 투표/판단형', example: '"소개팅 첫 만남에 국밥집, 이거 내가 예민한 거야?"', guide: '자신의 상황을 공유하며 유저들의 판단이나 투표를 유도하는 제목' },
-    { name: '팩트 폭행/뼈 때리는 한 줄', example: '"안 바쁜 거야. 네가 후순위인 거야."', guide: '냉정한 진실을 짧고 강렬하게 찔러서 클릭을 유도하는 제목' },
-    { name: '현실 고증/비유형', example: '"당신의 연애는 지금 넷플릭스 자동재생 상태입니다"', guide: '현실적인 상황을 재치 있는 비유나 유행어로 묘사하는 제목' },
-    { name: '대화/카톡 재현형', example: '"그가 보낸 ㅋㅋ는 웃은 게 아니다"', guide: '실제 카톡이나 대화를 인용해 호기심을 자극하는 제목' },
-    { name: '직접 겨냥/질문형', example: '"솔직히 너, 연애할 자격 없을 수도 있어"', guide: '"너"를 직접 겨냥해 도발적으로 관심을 끄는 제목' },
-    { name: '반전/의외성 강조형', example: '"매일 사랑해 하는 커플이 더 빨리 깨지는 이유"', guide: '상식을 뒤집거나 예상치 못한 포인트를 짚는 제목' },
-    { name: '심리 폭로형', example: '"남자들이 절대 말 안 하는 진짜 이별 사유"', guide: '이성간의 숨겨진 심리나 비밀을 알려주는 느낌의 제목' },
-    { name: '상황 시뮬레이션형', example: '"고백 후 72시간: 남자의 뇌에서 벌어지는 일"', guide: '특정한 시간이나 상황을 설정해 궁금증을 유발하는 제목' },
-    { name: '공식/법칙형 (위트 버전)', example: '"밀당의 황금비율은 7:3이다 (근거 있음)"', guide: '전문성을 가장한 재치 있는 분석형 제목' },
+    { name: '커뮤니티 썰형', example: '남친이 여사친이랑 인생네컷 찍었대서 한판 함;;', guide: '실제 고민 게시판(블라인드, 에브리타임 등)에 올라올 법한 날것의 문체' },
+    { name: '익명 투표/판단형', example: '소개팅 첫 만남에 국밥집, 이거 내가 예민한 거야?', guide: '자신의 상황을 공유하며 유저들의 판단이나 투표를 유도하는 제목' },
+    { name: '팩트 폭행/뼈 때리는 한 줄', example: '안 바쁜 거야. 네가 후순위인 거야.', guide: '냉정한 진실을 짧고 강렬하게 찔러서 클릭을 유도하는 제목' },
+    { name: '현실 고증/비유형', example: '당신의 연애는 지금 넷플릭스 자동재생 상태입니다', guide: '현실적인 상황을 재치 있는 비유나 유행어로 묘사하는 제목' },
+    { name: '대화/카톡 재현형', example: '그가 보낸 ㅋㅋ는 웃은 게 아니다', guide: '실제 카톡이나 대화를 인용해 호기심을 자극하는 제목' },
+    { name: '직접 겨냥/질문형', example: '솔직히 너, 연애할 자격 없을 수도 있어', guide: '너를 직접 겨냥해 도발적으로 관심을 끄는 제목' },
+    { name: '반전/의외성 강조형', example: '매일 사랑해 하는 커플이 더 빨리 깨지는 이유', guide: '상식을 뒤집거나 예상치 못한 포인트를 짚는 제목' },
+    { name: '심리 폭로형', example: '남자들이 절대 말 안 하는 진짜 이별 사유', guide: '이성간의 숨겨진 심리나 비밀을 알려주는 느낌의 제목' },
+    { name: '상황 시뮬레이션형', example: '고백 후 72시간: 남자의 뇌에서 벌어지는 일', guide: '특정한 시간이나 상황을 설정해 궁금증을 유발하는 제목' },
+    { name: '공식/법칙형 (위트 버전)', example: '밀당의 황금비율은 7:3이다 (근거 있음)', guide: '전문성을 가장한 재치 있는 분석형 제목' },
 ];
 
 function getRandomTitlePattern() {
@@ -114,7 +114,7 @@ ${topicText}${duplicateConstraint}
 {
   "episode_number": ${nextNumber},
   "slug": "a-short-english-url-friendly-slug-for-seo (e.g. boy-best-friend-conflict)",
-  "title": "제목 — 반드시 '${pattern.name}' 패턴으로 작성할 것. 예시: ${pattern.example}. 가이드: ${pattern.guide}",
+  "title": "제목 — 반드시 '${pattern.name}' 패턴으로 작성. 따옴표나 쌍따옴표는 절대 쓰지 마세요. 예시: ${pattern.example}. 가이드: ${pattern.guide}",
   "hook": "후킹 멘트 (메일 프리뷰용, 제목보다 더 날것의 호기심 유발 문장)",
   "situation": "2~4줄 상황 묘사 (아주 구체적이고 디테일한 상황 설정, 예: '다 먹고 영수증 챙긴 남친, 설마 더치페이 계산기 돌리는 건 아니겠지?')",
   "female_text": "여자 시점 (자연스러운 구어체)",
@@ -162,6 +162,8 @@ async function generateNewsletter() {
         }
         console.log('[GENERATE BOT] Next episode number resolved to:', nextNumber);
 
+        // 100개 이상의 에피소드가 생성되어도 정상적으로 발행되도록 제한 로직 제거
+        /*
         if (nextNumber > 100) {
             // After 100 episodes, only generate if it's 9:00 AM (00 UTC), 6:00 AM (21 UTC) or 6:00 PM (09 UTC)
             const currentHourUTC = new Date().getUTCHours();
@@ -174,6 +176,8 @@ async function generateNewsletter() {
                 process.exit(0);
             }
         }
+        */
+
 
         // 1.5 Fetch existing titles
         const { data: existingEpisodes } = await supabase
@@ -247,6 +251,11 @@ async function generateNewsletter() {
         } catch (parseError) {
             console.error('[GENERATE BOT] JSON Parse Error. Raw string was:', jsonStr);
             throw new Error(`Failed to parse AI response as JSON: ${parseError}`);
+        }
+
+        // Remove quotes from title
+        if (episodeData.title) {
+            episodeData.title = episodeData.title.replace(/['"“”‘’]/g, '').trim();
         }
 
         if (episodeData.coupang_keyword) {
